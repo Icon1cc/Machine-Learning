@@ -12,11 +12,9 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
-
 ROOT = Path(__file__).resolve().parents[1]
 LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 EXTERNAL_PREFIXES = ("http://", "https://", "mailto:", "tel:", "#")
-
 
 def iter_markdown_files() -> list[Path]:
     return sorted(
@@ -25,21 +23,17 @@ def iter_markdown_files() -> list[Path]:
         if ".git" not in path.parts and "__pycache__" not in path.parts
     )
 
-
 def strip_anchor(target: str) -> str:
     return target.split("#", 1)[0]
 
-
 def is_external(target: str) -> bool:
     return target.startswith(EXTERNAL_PREFIXES)
-
 
 def normalize_target(raw_target: str) -> str:
     target = raw_target.strip()
     if target.startswith("<") and target.endswith(">"):
         target = target[1:-1]
     return unquote(strip_anchor(target))
-
 
 def main() -> int:
     broken: list[str] = []
@@ -69,7 +63,6 @@ def main() -> int:
 
     print(f"Checked {len(iter_markdown_files())} Markdown files. No broken local links found.")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

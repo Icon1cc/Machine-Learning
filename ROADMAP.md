@@ -360,8 +360,3 @@ flowchart TD
     P4 --> P5[Classical ML] --> P8[Deep Learning] --> P14[LLMs]
     P14 --> P17[RAG] --> P18[Agents] --> P19[Production AI] --> P20[Interviews] --> P21[Capstones]
 ```
-
----
-## Navigation
-
-[⬅ Previous](README.md) | [🏠 Home](README.md) | [➡ Next](STUDY_PLAN.md)

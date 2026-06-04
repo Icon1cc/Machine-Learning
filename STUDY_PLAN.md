@@ -83,8 +83,3 @@ flowchart LR
     Read --> Practice --> Build --> Evaluate --> Explain --> Review
     Review --> Read
 ```
-
----
-## Navigation
-
-[⬅ Previous](ROADMAP.md) | [🏠 Home](README.md) | [➡ Next](INTERVIEW_GUIDE.md)

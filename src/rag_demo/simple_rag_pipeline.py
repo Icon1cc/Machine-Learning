@@ -7,19 +7,16 @@ from dataclasses import dataclass
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-
 @dataclass(frozen=True)
 class Document:
     doc_id: str
     text: str
-
 
 DOCUMENTS = [
     Document("vacation", "Employees receive 20 vacation days each calendar year."),
     Document("expenses", "Expense reports must be submitted within 30 days of purchase."),
     Document("security", "All production systems require multi-factor authentication."),
 ]
-
 
 class SimpleRAG:
     """Retrieve the most relevant local document and synthesize a grounded answer."""
@@ -42,14 +39,12 @@ class SimpleRAG:
             return "I do not have enough local context to answer that question."
         return f"Based on {document.doc_id}: {document.text}"
 
-
 def demo() -> None:
     rag = SimpleRAG(DOCUMENTS)
     question = "How many vacation days do employees get?"
     print("Question:", question)
     print("Retrieved:", rag.retrieve(question))
     print("Answer:", rag.answer(question))
-
 
 if __name__ == "__main__":
     demo()

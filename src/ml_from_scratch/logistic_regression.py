@@ -4,11 +4,9 @@ from __future__ import annotations
 
 import numpy as np
 
-
 def sigmoid(z: np.ndarray) -> np.ndarray:
     z = np.clip(z, -500, 500)
     return 1.0 / (1.0 + np.exp(-z))
-
 
 class LogisticRegressionGD:
     """Fit a binary classifier by minimizing cross-entropy."""
@@ -40,7 +38,6 @@ class LogisticRegressionGD:
     def predict(self, x: np.ndarray, threshold: float = 0.5) -> np.ndarray:
         return (self.predict_proba(x) >= threshold).astype(int)
 
-
 def demo() -> None:
     rng = np.random.default_rng(7)
     x = rng.normal(size=(300, 2))
@@ -50,7 +47,6 @@ def demo() -> None:
     print("weights:", model.weights.round(3))
     print("bias:", round(model.bias, 3))
     print("accuracy:", round(float(accuracy), 3))
-
 
 if __name__ == "__main__":
     demo()

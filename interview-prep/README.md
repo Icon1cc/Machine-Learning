@@ -1,115 +1,52 @@
-# Interview Preparation
+# Interview Prep
 
-## How to Use This File
+## Folder Purpose
 
-Use this page to practice explaining ideas out loud. A good interview answer is structured, concrete,
-and honest about tradeoffs. Do not try to sound encyclopedic. Instead, show that you can define the
-problem, choose a reasonable approach, evaluate it, and operate it safely.
+Role-specific roadmaps, technical question sets, behavioral preparation, and final revision checklists.
 
-## Core Preparation Checklist
+## Who Should Read This Section
 
-- Explain the business goal before the algorithm.
-- State assumptions and ask clarifying questions.
-- Start with a baseline and justify every increase in complexity.
-- Pick metrics that match the failure cost.
-- Discuss data leakage, drift, monitoring, and rollback.
-- Translate model behavior into user impact.
+Read this section if you are studying the related topic, preparing interview answers, building a
+project, or reviewing production tradeoffs connected to this part of the curriculum.
 
-## Interview Question Sections
+## Recommended Reading Order
 
-### Question 1: Interview Preparation Scenario 1
+Read the numbered Markdown files in ascending order. They are arranged from foundation to application.
 
-**Question:** How would you reason through a interview preparation problem when the dataset is messy and the
-business metric is not perfectly aligned with the offline metric?
+## Table of Contents
 
-**What the interviewer is testing:** Whether you can connect fundamentals, tradeoffs, and production
-constraints without hiding behind a single algorithm.
+| Order | File |
+| --- | --- |
+| 1 | [AI Engineer Roadmap](01-ai-engineer-roadmap.md) |
+| 2 | [ML Engineer Roadmap](02-ml-engineer-roadmap.md) |
+| 3 | [LLM Engineer Roadmap](03-llm-engineer-roadmap.md) |
+| 4 | [Data Scientist Roadmap](04-data-scientist-roadmap.md) |
+| 5 | [Common ML Interview Questions](05-common-ml-interview-questions.md) |
+| 6 | [Statistics Interview Questions](06-statistics-interview-questions.md) |
+| 7 | [Classical ML Interview Questions](07-classical-ml-interview-questions.md) |
+| 8 | [Deep Learning Interview Questions](08-deep-learning-interview-questions.md) |
+| 9 | [LLM Interview Questions](09-llm-interview-questions.md) |
+| 10 | [RAG Interview Questions](10-rag-interview-questions.md) |
+| 11 | [Agent Interview Questions](11-agent-interview-questions.md) |
+| 12 | [ML System Design Interview Questions](12-ml-system-design-interview-questions.md) |
+| 13 | [Behavioral AI Interviews](13-behavioral-ai-interviews.md) |
+| 14 | [Resume Project Strategy](14-resume-project-strategy.md) |
+| 15 | [Final Revision Checklist](15-final-revision-checklist.md) |
 
-**Strong answer:** Clarify the user decision, define the label and metric, establish a baseline,
-choose a split that prevents leakage, inspect errors by segment, and explain how the model will be
-monitored after launch.
+## What You Should Know After Finishing
 
-**Weak answer:** Immediately name a fashionable model, report one aggregate metric, and ignore data
-quality, calibration, cost, or rollout risk.
+- The core vocabulary and mental models for this section.
+- The practical workflow and evaluation questions connected to the topic.
+- Common mistakes and tradeoffs that appear in interviews and real projects.
+- How this section connects to the surrounding curriculum.
 
-**Follow-up questions:**
+## Suggested Exercises
 
-- How would your answer change if labels arrive after thirty days?
-- What would you do if precision improves but recall collapses for a critical segment?
-- How would you communicate uncertainty to a non-technical stakeholder?
+- Summarize each file in five bullets.
+- Write one interview question and one strong answer after each lesson.
+- Connect the section to one case study or project.
+- Revisit the related quiz or cheatsheet after a short break.
 
-**Common traps:** Treating train/test splits as a formality, assuming more model complexity fixes bad
-labels, and forgetting that the deployed decision is what creates value.
-
-
-### Question 2: Interview Preparation Scenario 2
-
-**Question:** How would you reason through a interview preparation problem when the dataset is messy and the
-business metric is not perfectly aligned with the offline metric?
-
-**What the interviewer is testing:** Whether you can connect fundamentals, tradeoffs, and production
-constraints without hiding behind a single algorithm.
-
-**Strong answer:** Clarify the user decision, define the label and metric, establish a baseline,
-choose a split that prevents leakage, inspect errors by segment, and explain how the model will be
-monitored after launch.
-
-**Weak answer:** Immediately name a fashionable model, report one aggregate metric, and ignore data
-quality, calibration, cost, or rollout risk.
-
-**Follow-up questions:**
-
-- How would your answer change if labels arrive after thirty days?
-- What would you do if precision improves but recall collapses for a critical segment?
-- How would you communicate uncertainty to a non-technical stakeholder?
-
-**Common traps:** Treating train/test splits as a formality, assuming more model complexity fixes bad
-labels, and forgetting that the deployed decision is what creates value.
-
-
-### Question 3: Interview Preparation Scenario 3
-
-**Question:** How would you reason through a interview preparation problem when the dataset is messy and the
-business metric is not perfectly aligned with the offline metric?
-
-**What the interviewer is testing:** Whether you can connect fundamentals, tradeoffs, and production
-constraints without hiding behind a single algorithm.
-
-**Strong answer:** Clarify the user decision, define the label and metric, establish a baseline,
-choose a split that prevents leakage, inspect errors by segment, and explain how the model will be
-monitored after launch.
-
-**Weak answer:** Immediately name a fashionable model, report one aggregate metric, and ignore data
-quality, calibration, cost, or rollout risk.
-
-**Follow-up questions:**
-
-- How would your answer change if labels arrive after thirty days?
-- What would you do if precision improves but recall collapses for a critical segment?
-- How would you communicate uncertainty to a non-technical stakeholder?
-
-**Common traps:** Treating train/test splits as a formality, assuming more model complexity fixes bad
-labels, and forgetting that the deployed decision is what creates value.
-
-
-## Mini Exercise
-
-Record a five-minute answer for one question above. Listen for vague phrases, missing metrics, and
-unjustified model choices. Rewrite the answer using problem, baseline, metric, risks, and production
-plan.
-
-## Diagram
-
-```mermaid
-flowchart LR
-    A[Clarify problem] --> B[Baseline]
-    B --> C[Model choice]
-    C --> D[Evaluation]
-    D --> E[Production risks]
-    E --> F[Communication]
-```
-
----
 ## Navigation
 
-[⬅ Previous](../case-studies/20-ai-agent-for-workflows.md) | [🏠 Home](../README.md) | [➡ Next](01-ai-engineer-roadmap.md)
+[🏠 Home](../README.md)

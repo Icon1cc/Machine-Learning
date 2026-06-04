@@ -37,8 +37,3 @@ steps, evaluation results, error analysis, and an interview-ready explanation.
 flowchart LR
     Idea --> Dataset --> Baseline --> Model --> Evaluation --> Writeup --> Interview
 ```
-
----
-## Navigation
-
-[⬅ Previous](INTERVIEW_GUIDE.md) | [🏠 Home](README.md) | [➡ Next](GLOSSARY.md)

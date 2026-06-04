@@ -2,93 +2,130 @@
 
 ## Problem Statement
 
-Build a production-minded enterprise knowledge assistant system that solves a measurable business problem instead of only
-demonstrating a model. The goal is to translate raw events, records, or documents into decisions that
-can be evaluated, monitored, and improved.
+Design a production-minded enterprise knowledge assistant system that turns raw data or documents into a useful
+decision, prediction, ranking, answer, or workflow action. The goal is to define a realistic system,
+not only a model experiment.
 
-## Requirements
+## Functional Requirements
 
-- Define a clear user or business action triggered by the model output.
-- Support a simple baseline before moving to complex models.
-- Keep training, validation, and test data separated by time or entity when leakage is possible.
-- Provide interpretable metrics for stakeholders and diagnostic metrics for engineers.
-- Include a plan for monitoring, failure handling, and periodic review.
+- Accept the relevant user, item, event, document, or workflow input.
+- Produce a prediction, ranking, recommendation, answer, alert, or action.
+- Provide a confidence signal, explanation, or evidence when the workflow needs it.
+- Support human review for low-confidence or high-risk outputs.
+- Capture feedback so the system can be evaluated and improved.
 
-## Data
+## Non-Functional Requirements
 
-Start with historical examples containing inputs, timestamps, labels or weak labels, and outcome
-signals. Useful fields often include user or account identifiers, event history, item or document
-features, and the final decision or outcome. Treat missing data and delayed labels as first-class
-design constraints.
+- Meet latency expectations for the product surface.
+- Keep data access, privacy, and retention rules explicit.
+- Provide reproducible training or evaluation runs.
+- Support monitoring, alerting, rollback, and ownership.
+- Degrade gracefully when dependencies or model outputs fail.
 
-## Baseline Approach
+## Assumptions
 
-Create a baseline that a team could understand in one meeting: heuristic rules, majority class,
-keyword matching, logistic regression, nearest neighbors, or a simple retrieval approach depending on
-the task. The baseline gives you a floor for performance and exposes data quality issues early.
-
-## Advanced Approach
-
-Move to a stronger architecture only after the baseline is measured. Options include gradient
-boosting for tabular data, neural networks for unstructured inputs, two-stage retrieval and ranking,
-RAG for grounded language answers, or an agent workflow for multi-step tool use. The advanced design
-should improve a named metric without making operations unmanageable.
+- Historical examples or documents are available for baseline development.
+- Labels, outcomes, or human judgments can be collected for evaluation.
+- The first version should prioritize measurable reliability over model complexity.
+- Deployment traffic may differ from development data.
 
 ## Architecture Diagram
 
 ```mermaid
 flowchart LR
     A[Data sources] --> B[Validation and cleaning]
-    B --> C[Feature or context builder]
-    C --> D[Baseline model]
-    C --> E[Advanced model]
+    B --> C[Feature or context pipeline]
+    C --> D[Baseline]
+    C --> E[Improved model or retrieval system]
     D --> F[Evaluation]
     E --> F
-    F --> G[Serving layer]
+    F --> G[Serving or workflow layer]
     G --> H[Monitoring and feedback]
     H --> B
 ```
 
-## Model Choices
+## Data Model or Data Design
 
-- Baseline: simple rules or linear models to establish a reliable reference.
-- Main model: choose the smallest model family that captures the dominant signal.
-- Calibration or reranking: add when raw scores must become reliable probabilities or ordered lists.
-- Human review: use for high-risk, low-confidence, or policy-sensitive decisions.
+Track raw inputs, normalized features or chunks, labels or judgments, model outputs, confidence
+scores, timestamps, user or entity identifiers, and feedback events. For RAG or search systems,
+store document identifiers, chunk boundaries, embedding versions, metadata filters, and retrieval
+traces.
 
-## Metrics
+## API Design
 
-Track both offline and production metrics. Offline metrics may include precision, recall, F1, ROC
-AUC, PR AUC, RMSE, NDCG, recall at k, latency, or faithfulness. Production metrics should connect to
-the workflow: saved time, reduced loss, higher satisfaction, fewer escalations, or better conversion.
+A minimal production API should expose a request endpoint, a response schema with output and
+confidence, an explanation or evidence field when needed, and an audit identifier for tracing. Batch
+jobs should produce the same logical fields in a versioned artifact.
 
-## Failure Modes
+## Baseline Approach
 
-- Data leakage from future events or duplicated entities.
-- Silent distribution shift after product, policy, or user behavior changes.
-- Over-optimization of one metric while harming user trust or fairness.
-- Poor handling of missing, rare, adversarial, or out-of-domain examples.
-- Lack of rollback, audit trail, or owner when the model fails.
+Start with a simple ruleset, majority-class predictor, lexical search, nearest-neighbor retrieval,
+linear model, or shallow tree model. The baseline should be easy to explain and should reveal data
+quality problems before advanced modeling begins.
 
-## Production Considerations
+## Advanced Approach
 
-Production readiness requires versioned data, reproducible training, clear model ownership, monitored
-serving, alert thresholds, privacy review, and a human escalation path. For language systems, also
-track grounding quality, unsafe outputs, prompt changes, retrieval drift, and cost per successful
-task.
+After measuring the baseline, consider gradient boosting, calibrated classifiers, two-stage ranking,
+deep models for unstructured data, hybrid retrieval with reranking, RAG, or constrained agent
+workflows. Add complexity only when it improves a named metric or reliability requirement.
 
-## Interview Discussion Points
+## Scaling Strategy
 
-- What is the simplest baseline and why?
-- How would you split the data to avoid leakage?
-- Which metric would you optimize and which metric would you only monitor?
-- How would you debug false positives and false negatives?
-- What changes when this becomes a real-time service?
+Separate offline processing from online serving, cache stable computations, precompute embeddings or
+features where possible, and define data freshness requirements. Use batch, streaming, or online
+inference based on latency and consistency needs.
 
-## Mini Exercise
+## Reliability Strategy
 
-Sketch the first version of this system for a company you know. Name the dataset, baseline,
-deployment path, top three metrics, and the first alert you would configure.
+Use validation checks, fallback responses, timeouts, retries with limits, canary releases, rollback
+plans, and human escalation for high-risk cases. Monitor both technical health and output quality.
+
+## Security Considerations
+
+Limit access to sensitive inputs, redact private fields where possible, enforce authorization before
+retrieval or prediction, log only what is necessary, and review prompt or tool injection risks for
+LLM workflows.
+
+## Observability
+
+Capture input distributions, model version, prompt or retrieval version, latency, cost, errors,
+confidence, decision outcomes, and human feedback. Use dashboards and alerts tied to user impact.
+
+## Bottlenecks
+
+Common bottlenecks include slow feature generation, expensive model calls, poor retrieval recall,
+manual labeling throughput, delayed ground truth, and noisy feedback loops.
+
+## Tradeoffs
+
+- Simplicity versus model quality.
+- Latency versus richer context or larger models.
+- Precision versus recall.
+- Automation versus human review.
+- Freshness versus reproducibility.
+
+## Interview Explanation Script
+
+I would start by clarifying the decision this system supports and the cost of mistakes. Then I would
+build a baseline, choose a split that matches deployment, define a primary metric and guardrails, and
+inspect errors by segment. For production, I would add monitoring, fallback behavior, privacy review,
+and a feedback loop before increasing model complexity.
+
+## Follow-Up Questions
+
+- What baseline would you build first?
+- How would you prevent leakage?
+- Which metric matters most and which metrics are guardrails?
+- What happens when confidence is low?
+- How would the design change at ten times the traffic?
+
+## Common Mistakes
+
+- Starting with an advanced model before defining the decision and metric.
+- Ignoring delayed labels, missing data, or leakage.
+- Reporting one aggregate score without segment analysis.
+- Forgetting monitoring, rollback, security, and ownership.
+- Treating offline performance as proof of production reliability.
 
 ---
 ## Navigation

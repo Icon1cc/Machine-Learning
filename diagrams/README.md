@@ -1,22 +1,62 @@
 # Diagrams
 
-This folder contains reusable Mermaid source files for the repository. The learning files also embed
-Mermaid directly so the material remains readable on GitHub without additional tooling.
+## Folder Purpose
 
-## How to Use These Diagrams
+Reusable Mermaid diagram source files for learning paths and architecture sketches.
 
-- Copy a diagram into a lesson when you need to explain a workflow.
-- Keep node names short so diagrams stay readable on GitHub.
-- Prefer flowcharts for pipelines, sequence diagrams for interactions, and state diagrams for agent
-or deployment lifecycles.
+## Who Should Read This Section
 
-## Diagram Inventory
+Read this section if you are studying the related topic, preparing interview answers, building a
+project, or reviewing production tradeoffs connected to this part of the curriculum.
 
-The `.mmd` files cover the main learning path: fundamentals, math, statistics, classical ML, deep
-learning, NLP, computer vision, recommenders, MLOps, GenAI, LLMs, vector search, RAG, agents,
-production AI, interviews, and capstones.
+## Recommended Reading Order
 
----
+Use the files as reference material when they support the current lesson or project.
+
+## Table of Contents
+
+| Order | File |
+| --- | --- |
+| 1 | [01-fundamentals.mmd](01-fundamentals.mmd) |
+| 2 | [02-math.mmd](02-math.mmd) |
+| 3 | [03-statistics.mmd](03-statistics.mmd) |
+| 4 | [04-data-science.mmd](04-data-science.mmd) |
+| 5 | [05-classical-ml.mmd](05-classical-ml.mmd) |
+| 6 | [06-deep-learning.mmd](06-deep-learning.mmd) |
+| 7 | [07-nlp.mmd](07-nlp.mmd) |
+| 8 | [08-computer-vision.mmd](08-computer-vision.mmd) |
+| 9 | [09-recommenders.mmd](09-recommenders.mmd) |
+| 10 | [10-mlops.mmd](10-mlops.mmd) |
+| 11 | [11-generative-ai.mmd](11-generative-ai.mmd) |
+| 12 | [12-llms.mmd](12-llms.mmd) |
+| 13 | [13-vector-databases.mmd](13-vector-databases.mmd) |
+| 14 | [14-rag.mmd](14-rag.mmd) |
+| 15 | [15-agents.mmd](15-agents.mmd) |
+| 16 | [16-production-ai.mmd](16-production-ai.mmd) |
+| 17 | [17-ethics-safety.mmd](17-ethics-safety.mmd) |
+| 18 | [18-interviews.mmd](18-interviews.mmd) |
+| 19 | [19-capstones.mmd](19-capstones.mmd) |
+| 20 | [20-model-evaluation.mmd](20-model-evaluation.mmd) |
+| 21 | [21-feature-engineering.mmd](21-feature-engineering.mmd) |
+| 22 | [22-monitoring.mmd](22-monitoring.mmd) |
+| 23 | [23-retrieval.mmd](23-retrieval.mmd) |
+| 24 | [24-tool-use.mmd](24-tool-use.mmd) |
+| 25 | [25-deployment.mmd](25-deployment.mmd) |
+
+## What You Should Know After Finishing
+
+- The core vocabulary and mental models for this section.
+- The practical workflow and evaluation questions connected to the topic.
+- Common mistakes and tradeoffs that appear in interviews and real projects.
+- How this section connects to the surrounding curriculum.
+
+## Suggested Exercises
+
+- Summarize each file in five bullets.
+- Write one interview question and one strong answer after each lesson.
+- Connect the section to one case study or project.
+- Revisit the related quiz or cheatsheet after a short break.
+
 ## Navigation
 
-[⬅ Previous](../src/README.md) | [🏠 Home](../README.md) | [➡ Next](../README.md)
+[🏠 Home](../README.md)

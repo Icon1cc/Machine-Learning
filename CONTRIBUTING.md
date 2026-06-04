@@ -21,8 +21,3 @@ Prefer practical explanations, runnable examples, and honest tradeoffs over buzz
 - Diagrams render as Mermaid.
 - Code examples run without external services unless clearly documented.
 - New behavior has tests or a manual verification note.
-
----
-## Navigation
-
-[⬅ Previous](FAQ.md) | [🏠 Home](README.md) | [➡ Next](CODE_OF_CONDUCT.md)

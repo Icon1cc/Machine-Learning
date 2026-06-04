@@ -2,59 +2,54 @@
 
 ## Round Format
 
-This mock interview is a 60-minute loop: 5 minutes of clarification, 20 minutes of technical
-fundamentals, 20 minutes of system or project discussion, 10 minutes of debugging tradeoffs, and 5
-minutes for questions.
+This mock is a 60-minute interview round: 5 minutes for problem clarification, 15 minutes for
+fundamentals, 20 minutes for design or modeling depth, 10 minutes for tradeoffs and failure modes,
+and 10 minutes for self-review.
 
-## Interviewer Prompts
+## Interviewer Prompt
 
-1. Describe a realistic problem where this role would use machine learning.
-2. Choose a baseline and explain why it is good enough for the first iteration.
-3. Design the data split, metric, and evaluation plan.
-4. Explain one failure mode and how you would detect it.
-5. Describe how you would deploy, monitor, and improve the system.
+Design or analyze a realistic system for the topic named in this mock. Explain the user problem,
+baseline, data, model or architecture, evaluation, production risks, and improvement plan.
 
-## Expected Answers
+## Expected Clarification Questions
 
-Strong candidates clarify the user action, avoid leakage, compare against a baseline, choose metrics
-based on cost of errors, and discuss monitoring. They also communicate tradeoffs: latency versus
-quality, precision versus recall, automation versus human review, and short-term metric wins versus
-long-term user trust.
+- Who is the user and what decision does the system support?
+- What data is available at training time and serving time?
+- What are the latency, cost, privacy, and reliability constraints?
+- What mistakes are most expensive?
+- How will success be measured online and offline?
+
+## Expected Answer or Design
+
+A strong answer starts with the product goal, defines the data and output, proposes a simple
+baseline, chooses metrics tied to user impact, and then adds complexity only where justified. It also
+covers error analysis, monitoring, rollback, human escalation, and tradeoffs.
 
 ## Scoring Rubric
 
 | Area | Strong Signal | Weak Signal |
 | --- | --- | --- |
-| Problem framing | Clear target, user, and decision | Starts with a model name |
-| Data reasoning | Mentions labels, splits, leakage, bias | Assumes data is clean |
-| Modeling | Baseline first, complexity justified | Chases complexity |
-| Evaluation | Uses task and production metrics | Reports one generic score |
-| Operations | Covers monitoring and rollback | Stops at notebook results |
+| Problem framing | Clear user, decision, constraints, and metric | Starts with a model name |
+| Data reasoning | Mentions labels, splits, leakage, bias, and drift | Assumes data is clean |
+| Modeling or design | Baseline first, complexity justified | Adds complexity without evidence |
+| Evaluation | Uses task metrics and guardrails | Reports one generic score |
+| Production | Covers monitoring, security, rollback, and ownership | Stops at notebook results |
 
 ## Red Flags
 
-- Cannot explain why the metric matches the business problem.
-- Ignores rare but costly errors.
-- Does not ask about labels, latency, privacy, or deployment path.
-- Treats LLM fluency or model accuracy as complete proof of quality.
+- No baseline.
+- No leakage discussion.
+- No primary metric or guardrail metric.
+- No plan for low-confidence or unsafe outputs.
+- No monitoring or rollback path.
 
-## Improvement Plan
+## Self-Review Checklist
 
-After the mock, write down three missed clarifying questions, one better baseline, one better metric,
-and one production risk you forgot. Repeat the same prompt until the answer is structured and concise.
-
-## Diagram
-
-```mermaid
-sequenceDiagram
-    participant I as Interviewer
-    participant C as Candidate
-    I->>C: Problem prompt
-    C->>I: Clarifying questions
-    C->>I: Baseline and metric
-    C->>I: Model and evaluation
-    C->>I: Production plan
-```
+- Did I clarify the user and decision?
+- Did I define data, labels, and constraints?
+- Did I propose a baseline before an advanced approach?
+- Did I explain metrics and failure modes?
+- Did I include production operations and tradeoffs?
 
 ---
 ## Navigation

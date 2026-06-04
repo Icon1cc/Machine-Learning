@@ -14,8 +14,3 @@ technical claims are not acceptable.
 
 Maintainers may edit, reject, or remove contributions that reduce safety, clarity, or trust. Technical
 disagreement is welcome when it is specific and evidence-based.
-
----
-## Navigation
-
-[⬅ Previous](CONTRIBUTING.md) | [🏠 Home](README.md) | [➡ Next](CHANGELOG.md)

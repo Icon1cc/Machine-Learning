@@ -30,8 +30,3 @@ Use quizzes weekly and mocks during the final six weeks.
 flowchart LR
     Question --> Concept --> Practice --> Project --> Interview
 ```
-
----
-## Navigation
-
-[⬅ Previous](GLOSSARY.md) | [🏠 Home](README.md) | [➡ Next](CONTRIBUTING.md)

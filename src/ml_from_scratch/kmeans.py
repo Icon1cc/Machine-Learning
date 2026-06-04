@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import numpy as np
 
-
 class KMeans:
     """Cluster points by alternating assignment and centroid updates."""
 
@@ -41,7 +40,6 @@ class KMeans:
         distances = ((x[:, None, :] - self.centroids[None, :, :]) ** 2).sum(axis=2)
         return distances.argmin(axis=1)
 
-
 def demo() -> None:
     rng = np.random.default_rng(3)
     x = np.vstack([
@@ -53,7 +51,6 @@ def demo() -> None:
     print("centroids:")
     print(model.centroids.round(2))
     print("first ten labels:", model.predict(x[:10]))
-
 
 if __name__ == "__main__":
     demo()

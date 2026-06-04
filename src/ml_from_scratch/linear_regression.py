@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import numpy as np
 
-
 class LinearRegressionGD:
     """Fit y = Xw + b by minimizing mean squared error."""
 
@@ -32,7 +31,6 @@ class LinearRegressionGD:
             raise RuntimeError("Model must be fitted before prediction.")
         return np.asarray(x, dtype=float) @ self.weights + self.bias
 
-
 def demo() -> None:
     rng = np.random.default_rng(42)
     x = rng.normal(size=(200, 2))
@@ -42,7 +40,6 @@ def demo() -> None:
     print("weights:", model.weights.round(3))
     print("bias:", round(model.bias, 3))
     print("mse:", round(float(mse), 4))
-
 
 if __name__ == "__main__":
     demo()

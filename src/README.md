@@ -1,30 +1,43 @@
 # Source Examples
 
-This folder contains small educational Python examples that run locally without API keys. They are
-designed to make the theory in the Markdown lessons concrete.
+## Folder Purpose
 
-## Examples
+Runnable educational Python examples for ML from scratch, RAG, agents, and simple serving.
 
-- [ml_from_scratch/linear_regression.py](ml_from_scratch/linear_regression.py): batch gradient descent for linear regression.
-- [ml_from_scratch/logistic_regression.py](ml_from_scratch/logistic_regression.py): binary classification with sigmoid loss.
-- [ml_from_scratch/kmeans.py](ml_from_scratch/kmeans.py): clustering with centroid updates.
-- [rag_demo/simple_rag_pipeline.py](rag_demo/simple_rag_pipeline.py): local bag-of-words retrieval plus answer synthesis.
-- [agents_demo/simple_tool_agent.py](agents_demo/simple_tool_agent.py): deterministic tool-using agent loop.
-- [mlops_demo/model_serving_example.py](mlops_demo/model_serving_example.py): minimal HTTP model serving example using the standard library.
+## Who Should Read This Section
 
-## Running
+Read this section if you are studying the related topic, preparing interview answers, building a
+project, or reviewing production tradeoffs connected to this part of the curriculum.
 
-Run examples from the repository root:
+## Recommended Reading Order
 
-```bash
-python src/ml_from_scratch/linear_regression.py
-python src/rag_demo/simple_rag_pipeline.py
-python src/agents_demo/simple_tool_agent.py
-```
+Read `src/README.md`, then run the examples that match your current study topic.
 
-The examples avoid external services so they are suitable for offline study and interview practice.
+## Table of Contents
 
----
+| Order | File |
+| --- | --- |
+| 1 | [simple_tool_agent.py](agents_demo/simple_tool_agent.py) |
+| 2 | [kmeans.py](ml_from_scratch/kmeans.py) |
+| 3 | [linear_regression.py](ml_from_scratch/linear_regression.py) |
+| 4 | [logistic_regression.py](ml_from_scratch/logistic_regression.py) |
+| 5 | [model_serving_example.py](mlops_demo/model_serving_example.py) |
+| 6 | [simple_rag_pipeline.py](rag_demo/simple_rag_pipeline.py) |
+
+## What You Should Know After Finishing
+
+- The core vocabulary and mental models for this section.
+- The practical workflow and evaluation questions connected to the topic.
+- Common mistakes and tradeoffs that appear in interviews and real projects.
+- How this section connects to the surrounding curriculum.
+
+## Suggested Exercises
+
+- Summarize each file in five bullets.
+- Write one interview question and one strong answer after each lesson.
+- Connect the section to one case study or project.
+- Revisit the related quiz or cheatsheet after a short break.
+
 ## Navigation
 
-[⬅ Previous](../capstone-projects/15-production-ml-platform.md) | [🏠 Home](../README.md) | [➡ Next](../diagrams/README.md)
+[🏠 Home](../README.md)

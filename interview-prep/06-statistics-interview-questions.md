@@ -41,7 +41,6 @@ quality, calibration, cost, or rollout risk.
 **Common traps:** Treating train/test splits as a formality, assuming more model complexity fixes bad
 labels, and forgetting that the deployed decision is what creates value.
 
-
 ### Question 2: Statistics Interview Questions Scenario 2
 
 **Question:** How would you reason through a statistics interview questions problem when the dataset is messy and the
@@ -66,7 +65,6 @@ quality, calibration, cost, or rollout risk.
 **Common traps:** Treating train/test splits as a formality, assuming more model complexity fixes bad
 labels, and forgetting that the deployed decision is what creates value.
 
-
 ### Question 3: Statistics Interview Questions Scenario 3
 
 **Question:** How would you reason through a statistics interview questions problem when the dataset is messy and the
@@ -90,7 +88,6 @@ quality, calibration, cost, or rollout risk.
 
 **Common traps:** Treating train/test splits as a formality, assuming more model complexity fixes bad
 labels, and forgetting that the deployed decision is what creates value.
-
 
 ## Mini Exercise
 

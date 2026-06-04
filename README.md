@@ -1,130 +1,157 @@
-# Machine Learning Bible
+# Machine Learning and AI Engineering
 
-Start here: [What Is Machine Learning?](fundamentals/01-what-is-machine-learning.md)
+This repository is a structured learning path for machine learning, AI engineering, LLM systems,
+RAG, agents, production AI, and interview preparation. It is designed as a practical engineering
+reference with lessons, case studies, quizzes, cheatsheets, mocks, notebooks, and runnable examples.
 
-## Purpose
+## Who This Repository Is For
 
-Machine Learning Bible is a complete, GitHub-ready self-study repository for moving from absolute
-basics to interview-ready AI, ML, LLM, and production AI engineering. It is designed to be useful
-offline: concepts, examples, quizzes, case studies, project guides, notebooks, and runnable source
-code are stored directly in this repository.
+- Software engineers moving into AI or machine learning engineering.
+- Data scientists who want stronger production and system design foundations.
+- Students who want a clear path from fundamentals to applied projects.
+- Practitioners preparing for AI Engineer, Machine Learning Engineer, LLM Engineer, Data Scientist,
+  Applied Scientist, or GenAI Engineer interviews.
 
-## Who This Is For
+## Start Here
 
-- Future AI Engineers, Machine Learning Engineers, LLM Engineers, Data Scientists, Applied
-  Scientists, and GenAI Engineers.
-- Software engineers who want to move into ML or AI product engineering.
-- Students who understand programming but need a practical map from first principles to interviews.
-- Practitioners who want structured revision material before technical screens and system design
-  interviews.
+Start with [What Is Machine Learning?](fundamentals/01-what-is-machine-learning.md). Then read the
+numbered files in each folder according to the recommended order below. Each learning file includes
+intuition, formal explanation where useful, real-world relevance, common mistakes, interview angles,
+an exercise, a Mermaid diagram, and navigation links.
 
-## How to Use It
+## Beginner Path
 
-Read in numeric order inside each folder. Build projects as you learn rather than saving practice for
-the end. After each major phase, do one quiz, one case study, and one project writeup. Use the source
-examples to make abstract ideas concrete.
+1. Read `fundamentals/`, `math/`, and `statistics/`.
+2. Run the first three notebooks in `notebooks/`.
+3. Complete the fundamentals, linear algebra, and statistics quizzes.
+4. Build one small baseline model from `src/ml_from_scratch/`.
 
-## Mermaid Learning Roadmap
+## Deep Study Path
+
+Use the full curriculum order from fundamentals through production AI. Take notes on assumptions,
+metrics, failure modes, and deployment concerns after each folder. Pair every conceptual section with
+one quiz, one cheatsheet review, and one small implementation or case study.
+
+## Interview Preparation Path
+
+Use [interview-prep/README.md](interview-prep/README.md) after completing the core technical
+sections. Practice explaining tradeoffs out loud, then use [mocks/README.md](mocks/README.md) for
+full-round simulation and scoring.
+
+## Project and Case Study Path
+
+Use [case-studies/README.md](case-studies/README.md) to learn how systems are framed and reviewed.
+Use [capstone-projects/README.md](capstone-projects/README.md) to turn that knowledge into portfolio
+projects with evaluation, failure analysis, and interview explanation.
+
+## Learning Roadmap
 
 ```mermaid
 flowchart LR
-    Basics --> Math --> Statistics --> Python_and_Data[Python and Data] --> Classical_ML[Classical ML]
-    Classical_ML --> Deep_Learning[Deep Learning] --> NLP --> Computer_Vision[Computer Vision]
-    Computer_Vision --> Recommenders --> MLOps --> GenAI --> LLMs
+    Basics --> Math --> Statistics --> Python_and_Data[Python and Data]
+    Python_and_Data --> Classical_ML[Classical ML] --> Deep_Learning[Deep Learning]
+    Deep_Learning --> NLP --> Computer_Vision[Computer Vision] --> Recommenders
+    Recommenders --> MLOps --> GenAI --> LLMs
     LLMs --> Vector_Databases[Vector Databases] --> RAG --> Agents
-    Agents --> Production_AI[Production AI] --> Interviews --> Capstones
+    Agents --> Production_AI[Production AI] --> Ethics
+    Ethics --> Case_Studies[Case Studies] --> Interviews --> Projects
 ```
-
-## 12-Week Fast Track
-
-| Weeks | Focus | Outcome |
-| --- | --- | --- |
-| 1-2 | Fundamentals, math, statistics | Explain core ML vocabulary and uncertainty |
-| 3-4 | Data science and classical ML | Build tabular baselines and evaluate them |
-| 5-6 | Deep learning, NLP, computer vision | Understand neural architectures and training |
-| 7-8 | Recommenders, MLOps, production AI | Design reliable ML systems |
-| 9-10 | GenAI, LLMs, vector databases, RAG | Build grounded LLM applications |
-| 11 | Agents and safety | Design constrained tool-using systems |
-| 12 | Interviews and capstones | Practice full-loop interview explanations |
-
-## 24-Week Deep Track
-
-Spend one week on each major folder through `production-ai/`, then use the remaining weeks for case
-studies, mocks, quizzes, and capstones. The deep track is slower because it includes repeated
-implementation, error analysis, and interview narration.
-
-## 6-Week Interview Revision Track
-
-| Week | Focus |
-| --- | --- |
-| 1 | Fundamentals, statistics, and evaluation |
-| 2 | Classical ML and feature engineering |
-| 3 | Deep learning, transformers, NLP, and vision |
-| 4 | LLMs, RAG, vector databases, and agents |
-| 5 | MLOps, production AI, case studies, and system design |
-| 6 | Mock interviews, cheatsheets, and final revision checklist |
-
-## Project-First Track
-
-Choose a capstone first, then read only the files needed to unblock the next implementation step.
-This is the best route if you learn by building. Use [PROJECTS.md](PROJECTS.md) and
-[capstone-projects/](capstone-projects/) as your home base.
 
 ## Table of Contents
 
-- [fundamentals/](fundamentals/)
-- [math/](math/)
-- [statistics/](statistics/)
-- [data-science/](data-science/)
-- [classical-ml/](classical-ml/)
-- [deep-learning/](deep-learning/)
-- [nlp/](nlp/)
-- [computer-vision/](computer-vision/)
-- [recommender-systems/](recommender-systems/)
-- [mlops/](mlops/)
-- [generative-ai/](generative-ai/)
-- [llms/](llms/)
-- [vector-databases/](vector-databases/)
-- [rag/](rag/)
-- [agents/](agents/)
-- [production-ai/](production-ai/)
-- [ethics-safety/](ethics-safety/)
-- [case-studies/](case-studies/)
-- [interview-prep/](interview-prep/)
-- [mocks/](mocks/)
-- [quizzes/](quizzes/)
-- [cheatsheets/](cheatsheets/)
-- [capstone-projects/](capstone-projects/)
-- [notebooks/](notebooks/)
-- [src/](src/)
-- [diagrams/](diagrams/)
-- [tools/](tools/)
+| Section | What It Contains |
+| --- | --- |
+| [Fundamentals](fundamentals/README.md) | Core machine learning vocabulary, workflows, data splits, generalization, and model evaluation habits. |
+| [Math](math/README.md) | Linear algebra, calculus, optimization, distance metrics, and information theory for machine learning. |
+| [Statistics](statistics/README.md) | Probability, uncertainty, inference, testing, sampling, causality, and experimentation. |
+| [Data Science](data-science/README.md) | Practical data cleaning, exploration, feature engineering, visualization, experimentation, and communication. |
+| [Classical ML](classical-ml/README.md) | Supervised and unsupervised machine learning algorithms, evaluation, interpretability, and model selection. |
+| [Deep Learning](deep-learning/README.md) | Neural networks, optimization, regularization, convolution, sequence models, attention, and transformers. |
+| [NLP](nlp/README.md) | Text preprocessing, tokenization, embeddings, sequence modeling, transformers, semantic search, and NLP evaluation. |
+| [Computer Vision](computer-vision/README.md) | Image tensors, convolution, classification, detection, segmentation, vision transformers, and multimodal models. |
+| [Recommender Systems](recommender-systems/README.md) | Candidate generation, ranking, collaborative filtering, matrix factorization, and recommender evaluation. |
+| [MLOps](mlops/README.md) | Reproducibility, experiment tracking, model registries, serving, monitoring, CI/CD, and governance. |
+| [Generative AI](generative-ai/README.md) | Autoregressive models, VAEs, GANs, diffusion, multimodal generation, and generative AI evaluation. |
+| [LLMs](llms/README.md) | Transformer decoder architecture, pretraining, instruction tuning, prompting, tools, evaluation, and serving. |
+| [Vector Databases](vector-databases/README.md) | Embeddings, similarity search, ANN indexes, filtering, hybrid search, reranking, and vector search scaling. |
+| [RAG](rag/README.md) | Document ingestion, chunking, embeddings, retrieval, reranking, generation, evaluation, observability, and security. |
+| [Agents](agents/README.md) | Agent loops, tool use, planning, memory, multi-agent design, evaluation, observability, and risk controls. |
+| [Production AI](production-ai/README.md) | Architecture patterns, latency, cost, caching, routing, fallbacks, privacy, monitoring, and product metrics. |
+| [Ethics Safety](ethics-safety/README.md) | Fairness, privacy, security risks, misuse, responsible AI, and governance. |
+| [Case Studies](case-studies/README.md) | Applied ML and AI system case studies with production tradeoffs and interview discussion points. |
+| [Interview Prep](interview-prep/README.md) | Role-specific roadmaps, technical question sets, behavioral preparation, and final revision checklists. |
+| [Mocks](mocks/README.md) | Mock interview rounds with prompts, expected answers, scoring rubrics, and self-review material. |
+| [Quizzes](quizzes/README.md) | Ten-question review sets with answer keys and explanations for retrieval practice. |
+| [Cheatsheets](cheatsheets/README.md) | Compact reference pages for fast revision before projects and interviews. |
+| [Capstone Projects](capstone-projects/README.md) | Project guides for portfolio work, implementation planning, evaluation, and interview explanation. |
+| [Notebooks](notebooks/README.md) | Hands-on starter notebooks for NumPy, pandas, classical ML, neural networks, transformers, embeddings, and RAG. |
+| [Source Examples](src/README.md) | Runnable educational Python examples for ML from scratch, RAG, agents, and simple serving. |
+| [Diagrams](diagrams/README.md) | Reusable Mermaid diagram source files for learning paths and architecture sketches. |
+| [Tools](tools/README.md) | Repository maintenance scripts for indexing, link validation, and Markdown quality checks. |
 
 ## Recommended Reading Order
 
-fundamentals -> math -> statistics -> data-science -> classical-ml -> deep-learning -> nlp -> computer-vision -> recommender-systems -> mlops -> generative-ai -> llms -> vector-databases -> rag -> agents -> production-ai -> interview-prep -> capstone-projects
+[Fundamentals](fundamentals/README.md) -> [Math](math/README.md) -> [Statistics](statistics/README.md) -> [Data Science](data-science/README.md) -> [Classical ML](classical-ml/README.md) -> [Deep Learning](deep-learning/README.md) -> [NLP](nlp/README.md) -> [Computer Vision](computer-vision/README.md) -> [Recommender Systems](recommender-systems/README.md) -> [MLOps](mlops/README.md) -> [Generative AI](generative-ai/README.md) -> [LLMs](llms/README.md) -> [Vector Databases](vector-databases/README.md) -> [RAG](rag/README.md) -> [Agents](agents/README.md) -> [Production AI](production-ai/README.md) -> [Ethics Safety](ethics-safety/README.md) -> [Case Studies](case-studies/README.md) -> [Interview Prep](interview-prep/README.md) -> [Mocks](mocks/README.md) -> [Quizzes](quizzes/README.md) -> [Cheatsheets](cheatsheets/README.md) -> [Capstone Projects](capstone-projects/README.md)
 
-## Main Practice Loop
+## Progress Checklist
 
-1. Read one lesson.
-2. Explain it out loud in beginner language.
-3. Complete the mini exercise.
-4. Run or modify one notebook or source example.
-5. Answer related quiz questions.
-6. Add the idea to a project or case study explanation.
+- [ ] Finish `fundamentals/` and complete one retrieval practice item.
+- [ ] Finish `math/` and complete one retrieval practice item.
+- [ ] Finish `statistics/` and complete one retrieval practice item.
+- [ ] Finish `data-science/` and complete one retrieval practice item.
+- [ ] Finish `classical-ml/` and complete one retrieval practice item.
+- [ ] Finish `deep-learning/` and complete one retrieval practice item.
+- [ ] Finish `nlp/` and complete one retrieval practice item.
+- [ ] Finish `computer-vision/` and complete one retrieval practice item.
+- [ ] Finish `recommender-systems/` and complete one retrieval practice item.
+- [ ] Finish `mlops/` and complete one retrieval practice item.
+- [ ] Finish `generative-ai/` and complete one retrieval practice item.
+- [ ] Finish `llms/` and complete one retrieval practice item.
+- [ ] Finish `vector-databases/` and complete one retrieval practice item.
+- [ ] Finish `rag/` and complete one retrieval practice item.
+- [ ] Finish `agents/` and complete one retrieval practice item.
+- [ ] Finish `production-ai/` and complete one retrieval practice item.
+- [ ] Finish `ethics-safety/` and complete one retrieval practice item.
+- [ ] Complete at least five case studies.
+- [ ] Complete at least three mock interviews.
+- [ ] Finish one capstone project with a written evaluation report.
+
+## Using Quizzes
+
+Use quizzes for retrieval practice, not passive reading. Answer first, then check the key and write a
+one-sentence correction for every miss.
+
+## Using Cheatsheets
+
+Use cheatsheets before interviews and project work. They are compact references for concepts,
+metrics, traps, and answer structure.
+
+## Using Mocks
+
+Use mocks to practice the full interview loop: clarification, baseline, design, evaluation,
+tradeoffs, and self-review. Score yourself against the rubric and repeat weak rounds.
+
+## Using Projects and Case Studies
+
+Case studies show how to reason about real systems. Capstone projects turn that reasoning into
+implementation practice. For each project, write down the problem, dataset, baseline, metric, error
+analysis, production risks, and interview explanation.
 
 ## Repository Tools
 
-- `python tools/generate_repo_index.py` creates [REPO_INDEX.md](REPO_INDEX.md).
+- `python tools/generate_repo_index.py` refreshes [REPO_INDEX.md](REPO_INDEX.md).
 - `python tools/check_links.py` validates local Markdown links.
+- `python tools/check_markdown_quality.py` validates structure, naming, navigation, and formatting.
+- `python tools/fix_markdown_formatting.py` applies safe formatting and navigation normalization.
 
-## Definition of Done for Self-Study
+## Contributing
 
-You are interview-ready on a topic when you can define it, derive or trace the core mechanism, build a
-baseline, choose metrics, identify failure modes, explain production concerns, and discuss tradeoffs
-without reading notes.
+Contributions should improve clarity, correctness, examples, project usefulness, or validation. Keep
+the professional tone, avoid unsupported claims, and run the validation tools before submitting
+changes.
 
----
-## Navigation
+## Quality Promise
 
-[⬅ Previous](README.md) | [🏠 Home](README.md) | [➡ Next](ROADMAP.md)
+This repository aims to be practical, readable, and honest about tradeoffs. Content should teach from
+first principles, connect to real engineering work, include practice, and avoid marketing language or
+unsupported claims.

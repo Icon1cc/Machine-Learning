@@ -13,11 +13,9 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 
-
 def predict(x_value: float) -> float:
     """A tiny deterministic model: y = 2x + 1."""
     return 2.0 * x_value + 1.0
-
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
@@ -43,12 +41,10 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, format: str, *args: object) -> None:
         return
 
-
 def main() -> None:
     server = HTTPServer(("127.0.0.1", 8000), Handler)
     print("Serving on http://127.0.0.1:8000/predict?x=2.5")
     server.serve_forever()
-
 
 if __name__ == "__main__":
     main()

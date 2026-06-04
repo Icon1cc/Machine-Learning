@@ -6,17 +6,14 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "REPO_INDEX.md"
-
 
 def title_for(path: Path) -> str:
     first_line = path.read_text(encoding="utf-8").splitlines()[0]
     if first_line.startswith("# "):
         return first_line[2:].strip()
     return path.stem.replace("-", " ").title()
-
 
 def markdown_files() -> list[Path]:
     return sorted(
@@ -26,7 +23,6 @@ def markdown_files() -> list[Path]:
         and "__pycache__" not in path.parts
         and path.name != OUTPUT.name
     )
-
 
 def main() -> int:
     grouped: dict[str, list[Path]] = defaultdict(list)
@@ -50,19 +46,10 @@ def main() -> int:
             lines.append(f"- [{title}]({link})")
         lines.append("")
 
-    lines.extend(
-        [
-            "---",
-            "## Navigation",
-            "",
-            "[⬅ Previous](README.md) | [🏠 Home](README.md) | [➡ Next](ROADMAP.md)",
-            "",
-        ]
-    )
+    lines.extend(["## Maintenance", "", "Regenerate this file with `python tools/generate_repo_index.py`.", ""])
     OUTPUT.write_text("\n".join(lines), encoding="utf-8")
     print(f"Wrote {OUTPUT.relative_to(ROOT)} with {sum(len(v) for v in grouped.values())} Markdown files.")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

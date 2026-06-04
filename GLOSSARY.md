@@ -188,8 +188,3 @@ This glossary defines more than 150 terms by category. Use it for quick recall, 
 - **Evaluation set:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
 - **Human-in-the-loop:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
 - **Quality guardrail:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-
----
-## Navigation
-
-[⬅ Previous](PROJECTS.md) | [🏠 Home](README.md) | [➡ Next](FAQ.md)

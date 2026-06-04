@@ -41,7 +41,6 @@ quality, calibration, cost, or rollout risk.
 **Common traps:** Treating train/test splits as a formality, assuming more model complexity fixes bad
 labels, and forgetting that the deployed decision is what creates value.
 
-
 ### Question 2: AI Engineer Roadmap Scenario 2
 
 **Question:** How would you reason through a ai engineer roadmap problem when the dataset is messy and the
@@ -65,7 +64,6 @@ quality, calibration, cost, or rollout risk.
 
 **Common traps:** Treating train/test splits as a formality, assuming more model complexity fixes bad
 labels, and forgetting that the deployed decision is what creates value.
-
 
 ### Question 3: AI Engineer Roadmap Scenario 3
 
@@ -91,7 +89,6 @@ quality, calibration, cost, or rollout risk.
 **Common traps:** Treating train/test splits as a formality, assuming more model complexity fixes bad
 labels, and forgetting that the deployed decision is what creates value.
 
-
 ## Mini Exercise
 
 Record a five-minute answer for one question above. Listen for vague phrases, missing metrics, and
@@ -112,4 +109,4 @@ flowchart LR
 ---
 ## Navigation
 
-[⬅ Previous](README.md) | [🏠 Home](../README.md) | [➡ Next](02-ml-engineer-roadmap.md)
+[⬅ Previous](../case-studies/20-ai-agent-for-workflows.md) | [🏠 Home](../README.md) | [➡ Next](02-ml-engineer-roadmap.md)

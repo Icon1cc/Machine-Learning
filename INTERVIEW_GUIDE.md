@@ -41,8 +41,3 @@ flowchart TD
     D --> E[Failure modes]
     E --> F[Production plan]
 ```
-
----
-## Navigation
-
-[⬅ Previous](STUDY_PLAN.md) | [🏠 Home](README.md) | [➡ Next](PROJECTS.md)

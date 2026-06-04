@@ -5,9 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable
 
-
 Tool = Callable[[str], str]
-
 
 def calculator(expression: str) -> str:
     """Evaluate a tiny safe arithmetic expression for demo purposes."""
@@ -19,14 +17,12 @@ def calculator(expression: str) -> str:
     except Exception as exc:
         return f"calculator error: {exc}"
 
-
 def lookup_policy(query: str) -> str:
     policies = {
         "vacation": "Employees receive 20 vacation days per year.",
         "expenses": "Expenses must be filed within 30 days.",
     }
     return policies.get(query.lower(), "No matching policy found.")
-
 
 @dataclass
 class SimpleAgent:
@@ -43,12 +39,10 @@ class SimpleAgent:
             return f"I checked the policy: {observation}"
         return "I do not have a suitable tool for this goal."
 
-
 def demo() -> None:
     agent = SimpleAgent({"calculator": calculator, "policy": lookup_policy})
     print(agent.run("Calculate 12 * (3 + 4)"))
     print(agent.run("What is the vacation policy?"))
-
 
 if __name__ == "__main__":
     demo()

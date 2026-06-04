@@ -82,4 +82,4 @@ deployment path, simplify the project until you can.
 ---
 ## Navigation
 
-[⬅ Previous](14-ai-customer-support-agent.md) | [🏠 Home](../README.md) | [➡ Next](../src/README.md)
+[⬅ Previous](14-ai-customer-support-agent.md) | [🏠 Home](../README.md) | [➡ Next](../README.md)

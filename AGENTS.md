@@ -2,7 +2,7 @@
 
 ## Repository Purpose
 
-This repository is a self-contained Machine Learning Bible for AI Engineer, Machine Learning
+This repository is a self-contained Machine Learning and AI Engineering for AI Engineer, Machine Learning
 Engineer, LLM Engineer, Data Scientist, Applied Scientist, and GenAI Engineer preparation.
 
 ## Important Directories
@@ -55,8 +55,3 @@ Engineer, LLM Engineer, Data Scientist, Applied Scientist, and GenAI Engineer pr
 
 A change is done when content is complete, links pass, relevant examples run, no empty files are
 introduced, and the final response reports verification honestly.
-
----
-## Navigation
-
-[⬅ Previous](CHANGELOG.md) | [🏠 Home](README.md) | [➡ Next](fundamentals/01-what-is-machine-learning.md)

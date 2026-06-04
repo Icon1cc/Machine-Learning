@@ -1,44 +1,41 @@
 # ML Fundamentals Cheatsheet
 
-## When to Use This Cheatsheet
+## Core Mental Model
 
-Use this page during revision, project planning, or interview warmups. It compresses the key ideas,
-but it is not a replacement for understanding the longer lessons.
+Use this cheatsheet to revise ML Fundamentals quickly. The central pattern is always the same: define the
+task, choose a baseline, evaluate honestly, inspect errors, and decide whether added complexity is
+worth the operational cost.
 
-## Core Ideas
+## High-Yield Checklist
 
-| Concept | What It Means | What to Check |
-| --- | --- | --- |
-| Problem framing | Convert a vague goal into a measurable task | User, decision, label, metric |
-| Baseline | Simplest useful reference system | Beats naive or rule-based approach |
-| Generalization | Works beyond training examples | Proper split and realistic test data |
-| Error analysis | Learn from wrong predictions | Segment, severity, root cause |
-| Production readiness | Reliable under real constraints | Monitoring, rollback, ownership |
+| Question | What a strong answer includes |
+| --- | --- |
+| What problem is being solved? | User, decision, input, output, and constraints |
+| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, or lexical search |
+| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
+| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
+| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
 
-## Practical Checklist
+## Fast Interview Template
 
-- State the objective in one sentence.
-- Name the input data and output.
-- Choose a simple baseline.
-- Choose one primary metric and two guardrail metrics.
-- Check for leakage, bias, missing values, and distribution shift.
-- Explain the tradeoff between quality, latency, cost, and interpretability.
-- Decide what should happen when confidence is low.
+1. "I would first clarify the user decision and cost of errors."
+2. "I would build a baseline before choosing a complex model."
+3. "I would split data to match deployment and avoid leakage."
+4. "I would evaluate by metric and by error segment."
+5. "I would monitor inputs, outputs, latency, cost, and business impact."
 
-## Interview Phrases That Signal Clarity
+## Common Traps
 
-- "I would start by defining the decision this model supports."
-- "Before using a complex model, I would build a baseline."
-- "The split should match deployment time to avoid leakage."
-- "I would inspect false positives and false negatives separately."
-- "I would monitor both model metrics and business outcomes."
+- Optimizing a metric that does not match the real decision.
+- Comparing models on different data splits.
+- Ignoring rare but high-severity failures.
+- Treating LLM fluency, high accuracy, or attractive charts as sufficient proof.
+- Forgetting that deployment changes the data distribution.
 
-## Common Mistakes
+## Mini Exercise
 
-- Memorizing formulas without knowing when assumptions fail.
-- Using one aggregate metric for a high-stakes or imbalanced problem.
-- Forgetting calibration, confidence thresholds, and human escalation.
-- Treating offline evaluation as proof of production quality.
+Use this cheatsheet to explain ML Fundamentals in two minutes. Record the answer and check whether it
+included problem framing, baseline, metric, failure mode, and production plan.
 
 ## Diagram
 
@@ -47,7 +44,7 @@ flowchart TD
     A[Frame] --> B[Baseline]
     B --> C[Evaluate]
     C --> D[Analyze errors]
-    D --> E[Improve]
+    D --> E[Improve or simplify]
     E --> F[Monitor]
 ```
 

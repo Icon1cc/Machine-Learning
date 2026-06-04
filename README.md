@@ -1,8 +1,8 @@
-# Machine Learning and AI Engineering
+# Machine Learning
 
-This repository is a structured learning path for machine learning, AI engineering, LLM systems,
-RAG, agents, production AI, and interview preparation. It is designed as a practical engineering
-reference with lessons, case studies, quizzes, cheatsheets, mocks, notebooks, and runnable examples.
+This repository is a personal learning path for machine learning, AI engineering, LLM systems, RAG,
+agents, production AI, and interview preparation. It is designed as a practical engineering knowledge
+base with lessons, case studies, quizzes, cheatsheets, mocks, notebooks, and runnable examples.
 
 ## Who This Repository Is For
 
@@ -53,8 +53,8 @@ flowchart LR
     Deep_Learning --> NLP --> Computer_Vision[Computer Vision] --> Recommenders
     Recommenders --> MLOps --> GenAI --> LLMs
     LLMs --> Vector_Databases[Vector Databases] --> RAG --> Agents
-    Agents --> Production_AI[Production AI] --> Ethics
-    Ethics --> Case_Studies[Case Studies] --> Interviews --> Projects
+    Agents --> Production_AI[Production AI] --> ML_System_Design[ML System Design]
+    ML_System_Design --> Ethics --> Case_Studies[Case Studies] --> Interviews --> Projects
 ```
 
 ## Table of Contents
@@ -77,6 +77,7 @@ flowchart LR
 | [RAG](rag/README.md) | Document ingestion, chunking, embeddings, retrieval, reranking, generation, evaluation, observability, and security. |
 | [Agents](agents/README.md) | Agent loops, tool use, planning, memory, multi-agent design, evaluation, observability, and risk controls. |
 | [Production AI](production-ai/README.md) | Architecture patterns, latency, cost, caching, routing, fallbacks, privacy, monitoring, and product metrics. |
+| [Machine Learning System Design](machine-learning-system-design/README.md) | System design practice for ML platforms, recommendation systems, search ranking, RAG, agents, evaluation, and real-time inference. |
 | [Ethics Safety](ethics-safety/README.md) | Fairness, privacy, security risks, misuse, responsible AI, and governance. |
 | [Case Studies](case-studies/README.md) | Applied ML and AI system case studies with production tradeoffs and interview discussion points. |
 | [Interview Prep](interview-prep/README.md) | Role-specific roadmaps, technical question sets, behavioral preparation, and final revision checklists. |
@@ -91,7 +92,7 @@ flowchart LR
 
 ## Recommended Reading Order
 
-[Fundamentals](fundamentals/README.md) -> [Math](math/README.md) -> [Statistics](statistics/README.md) -> [Data Science](data-science/README.md) -> [Classical ML](classical-ml/README.md) -> [Deep Learning](deep-learning/README.md) -> [NLP](nlp/README.md) -> [Computer Vision](computer-vision/README.md) -> [Recommender Systems](recommender-systems/README.md) -> [MLOps](mlops/README.md) -> [Generative AI](generative-ai/README.md) -> [LLMs](llms/README.md) -> [Vector Databases](vector-databases/README.md) -> [RAG](rag/README.md) -> [Agents](agents/README.md) -> [Production AI](production-ai/README.md) -> [Ethics Safety](ethics-safety/README.md) -> [Case Studies](case-studies/README.md) -> [Interview Prep](interview-prep/README.md) -> [Mocks](mocks/README.md) -> [Quizzes](quizzes/README.md) -> [Cheatsheets](cheatsheets/README.md) -> [Capstone Projects](capstone-projects/README.md)
+[Fundamentals](fundamentals/README.md) -> [Math](math/README.md) -> [Statistics](statistics/README.md) -> [Data Science](data-science/README.md) -> [Classical ML](classical-ml/README.md) -> [Deep Learning](deep-learning/README.md) -> [NLP](nlp/README.md) -> [Computer Vision](computer-vision/README.md) -> [Recommender Systems](recommender-systems/README.md) -> [MLOps](mlops/README.md) -> [Generative AI](generative-ai/README.md) -> [LLMs](llms/README.md) -> [Vector Databases](vector-databases/README.md) -> [RAG](rag/README.md) -> [Agents](agents/README.md) -> [Production AI](production-ai/README.md) -> [Machine Learning System Design](machine-learning-system-design/README.md) -> [Ethics Safety](ethics-safety/README.md) -> [Case Studies](case-studies/README.md) -> [Interview Prep](interview-prep/README.md) -> [Mocks](mocks/README.md) -> [Quizzes](quizzes/README.md) -> [Cheatsheets](cheatsheets/README.md) -> [Capstone Projects](capstone-projects/README.md)
 
 ## Progress Checklist
 
@@ -111,7 +112,7 @@ flowchart LR
 - [ ] Finish `rag/` and complete one retrieval practice item.
 - [ ] Finish `agents/` and complete one retrieval practice item.
 - [ ] Finish `production-ai/` and complete one retrieval practice item.
-- [ ] Finish `ethics-safety/` and complete one retrieval practice item.
+- [ ] Finish `machine-learning-system-design/` and complete one retrieval practice item.
 - [ ] Complete at least five case studies.
 - [ ] Complete at least three mock interviews.
 - [ ] Finish one capstone project with a written evaluation report.
@@ -144,11 +145,11 @@ analysis, production risks, and interview explanation.
 - `python tools/check_markdown_quality.py` validates structure, naming, navigation, and formatting.
 - `python tools/fix_markdown_formatting.py` applies safe formatting and navigation normalization.
 
-## Contributing
+## Repository Scope
 
-Contributions should improve clarity, correctness, examples, project usefulness, or validation. Keep
-the professional tone, avoid unsupported claims, and run the validation tools before submitting
-changes.
+This repository is maintained for personal study and interview preparation. It is not structured as a
+community-maintained open-source project. The root is intentionally kept focused on learning paths,
+reference material, practice, projects, and validation tools.
 
 ## Quality Promise
 

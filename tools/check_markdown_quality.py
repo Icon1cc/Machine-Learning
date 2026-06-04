@@ -26,6 +26,7 @@ LEARNING_FOLDERS = [
     "rag",
     "agents",
     "production-ai",
+    "machine-learning-system-design",
     "ethics-safety",
     "case-studies",
     "interview-prep",
@@ -46,6 +47,14 @@ NAV_RE = re.compile(
 
 def phrase(*parts: str) -> str:
     return "".join(parts)
+
+FORBIDDEN_ROOT_FILES = [
+    phrase("CODE", "_OF_CONDUCT.md"),
+    phrase("CONTRIB", "UTING.md"),
+    phrase("CHANGE", "LOG.md"),
+    phrase("F", "AQ.md"),
+    phrase("AG", "ENTS.md"),
+]
 
 BANNED_PATTERNS = [
     re.compile(pattern, re.IGNORECASE)
@@ -75,7 +84,7 @@ REQUIRED_ROOT_SECTIONS = [
     "Using Cheatsheets",
     "Using Mocks",
     "Using Projects and Case Studies",
-    "Contributing",
+    "Repository Scope",
     "Quality Promise",
 ]
 
@@ -151,8 +160,8 @@ def check_root_readme(errors: list[str]) -> None:
         report(errors, "README.md is missing.")
         return
     text = readme.read_text(encoding="utf-8")
-    if not text.startswith("# Machine Learning and AI Engineering\n"):
-        report(errors, "README.md must start with '# Machine Learning and AI Engineering'.")
+    if not text.startswith("# Machine Learning\n"):
+        report(errors, "README.md must start with '# Machine Learning'.")
     if "```mermaid" not in text:
         report(errors, "README.md must include a Mermaid roadmap.")
     if NAV_RE.search(text):
@@ -160,6 +169,11 @@ def check_root_readme(errors: list[str]) -> None:
     for section in REQUIRED_ROOT_SECTIONS:
         if f"## {section}" not in text:
             report(errors, f"README.md missing required section: {section}.")
+
+def check_forbidden_root_files(errors: list[str]) -> None:
+    for name in FORBIDDEN_ROOT_FILES:
+        if (ROOT / name).exists():
+            report(errors, f"{name} should not exist in this personal learning repository.")
 
 def check_major_folder_readmes(errors: list[str]) -> None:
     for folder in MAJOR_FOLDERS:
@@ -280,6 +294,7 @@ def check_markdown_basics(errors: list[str]) -> None:
 def main() -> int:
     errors: list[str] = []
     check_root_readme(errors)
+    check_forbidden_root_files(errors)
     check_major_folder_readmes(errors)
     check_numbering(errors)
     check_notebook_numbering(errors)

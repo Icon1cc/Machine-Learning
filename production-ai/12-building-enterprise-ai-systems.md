@@ -102,4 +102,4 @@ flowchart LR
 ---
 ## Navigation
 
-[⬅ Previous](11-ai-product-metrics.md) | [🏠 Home](../README.md) | [➡ Next](../ethics-safety/01-ai-ethics-overview.md)
+[⬅ Previous](11-ai-product-metrics.md) | [🏠 Home](../README.md) | [➡ Next](../machine-learning-system-design/01-design-a-recommendation-system.md)

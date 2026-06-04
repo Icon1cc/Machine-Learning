@@ -320,7 +320,24 @@ connects the phase to a real product.
 **Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
 ideas in a small project or interview answer.
 
-## Phase 20. Interview preparation
+## Phase 20. Machine learning system design
+
+**Goal:** Build practical mastery of ML system design with enough depth to explain architectures,
+tradeoffs, scaling, reliability, security, observability, and interview reasoning.
+
+**Concepts:** recommendation systems, search ranking, fraud detection platforms, training
+platforms, feature stores, RAG platforms, agent platforms, LLM evaluation systems, real-time
+inference, and AI copilot platforms.
+
+**Files to read:** machine-learning-system-design/01-design-a-recommendation-system.md through machine-learning-system-design/10-design-an-ai-copilot-platform.md.
+
+**Exercises:** draw each architecture, identify the baseline, name online and offline metrics, and
+write the biggest tradeoff in one paragraph.
+
+**Expected outcome:** You can walk through an ML system design interview with requirements, data
+flow, serving path, evaluation, monitoring, failure handling, and tradeoffs.
+
+## Phase 21. Interview preparation
 
 **Goal:** Build practical mastery of interview preparation with enough depth to explain, implement, and
 evaluate the ideas.
@@ -336,7 +353,7 @@ connects the phase to a real product.
 **Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
 ideas in a small project or interview answer.
 
-## Phase 21. Capstone projects
+## Phase 22. Capstone projects
 
 **Goal:** Build practical mastery of capstone projects with enough depth to explain, implement, and
 evaluate the ideas.
@@ -358,5 +375,6 @@ ideas in a small project or interview answer.
 flowchart TD
     P0[Setup] --> P1[Foundations] --> P2[Math] --> P3[Statistics] --> P4[Data]
     P4 --> P5[Classical ML] --> P8[Deep Learning] --> P14[LLMs]
-    P14 --> P17[RAG] --> P18[Agents] --> P19[Production AI] --> P20[Interviews] --> P21[Capstones]
+    P14 --> P17[RAG] --> P18[Agents] --> P19[Production AI]
+    P19 --> P20[ML System Design] --> P21[Interviews] --> P22[Capstones]
 ```

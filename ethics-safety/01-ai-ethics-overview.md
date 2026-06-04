@@ -101,4 +101,4 @@ flowchart LR
 ---
 ## Navigation
 
-[⬅ Previous](../production-ai/12-building-enterprise-ai-systems.md) | [🏠 Home](../README.md) | [➡ Next](02-bias-and-fairness.md)
+[⬅ Previous](../machine-learning-system-design/10-design-an-ai-copilot-platform.md) | [🏠 Home](../README.md) | [➡ Next](02-bias-and-fairness.md)

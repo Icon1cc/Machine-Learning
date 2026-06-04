@@ -31,6 +31,7 @@ LEARNING_FOLDERS = [
     "rag",
     "agents",
     "production-ai",
+    "machine-learning-system-design",
     "ethics-safety",
     "case-studies",
     "interview-prep",
@@ -59,6 +60,7 @@ FOLDER_DESCRIPTIONS = {
     "rag": "Document ingestion, chunking, embeddings, retrieval, reranking, generation, evaluation, observability, and security.",
     "agents": "Agent loops, tool use, planning, memory, multi-agent design, evaluation, observability, and risk controls.",
     "production-ai": "Architecture patterns, latency, cost, caching, routing, fallbacks, privacy, monitoring, and product metrics.",
+    "machine-learning-system-design": "System design practice for ML platforms, recommendation systems, search ranking, RAG, agents, evaluation, and real-time inference.",
     "ethics-safety": "Fairness, privacy, security risks, misuse, responsible AI, and governance.",
     "case-studies": "Applied ML and AI system case studies with production tradeoffs and interview discussion points.",
     "interview-prep": "Role-specific roadmaps, technical question sets, behavioral preparation, and final revision checklists.",
@@ -71,6 +73,19 @@ FOLDER_DESCRIPTIONS = {
     "diagrams": "Reusable Mermaid diagram source files for learning paths and architecture sketches.",
     "tools": "Repository maintenance scripts for indexing, link validation, and Markdown quality checks.",
 }
+
+SYSTEM_DESIGN_FILES = [
+    "01-design-a-recommendation-system.md",
+    "02-design-a-search-ranking-system.md",
+    "03-design-a-fraud-detection-platform.md",
+    "04-design-an-ml-training-platform.md",
+    "05-design-a-feature-store.md",
+    "06-design-a-rag-platform.md",
+    "07-design-an-agent-platform.md",
+    "08-design-an-llm-evaluation-system.md",
+    "09-design-a-real-time-inference-system.md",
+    "10-design-an-ai-copilot-platform.md",
+]
 
 ROOT_README_SECTIONS = [
     "Start Here",
@@ -86,7 +101,7 @@ ROOT_README_SECTIONS = [
     "Using Cheatsheets",
     "Using Mocks",
     "Using Projects and Case Studies",
-    "Contributing",
+    "Repository Scope",
     "Quality Promise",
 ]
 
@@ -94,7 +109,7 @@ def phrase(*parts: str) -> str:
     return "".join(parts)
 
 BANNED_REPLACEMENTS = [
-    (re.compile(phrase("Machine Learning Bi", "ble"), re.IGNORECASE), "Machine Learning and AI Engineering"),
+    (re.compile(phrase("Machine Learning Bi", "ble"), re.IGNORECASE), "Machine Learning"),
     (re.compile(phrase("System Design Bi", "ble"), re.IGNORECASE), "System Design Engineering"),
     (re.compile(r"\b" + phrase("Bi", "ble") + r"\b", re.IGNORECASE), "Learning Repository"),
     (re.compile(r"\b" + phrase("Complete", " Guide") + r"\b", re.IGNORECASE), "Structured Reference"),
@@ -225,11 +240,11 @@ def root_readme() -> str:
         f"- [ ] Finish `{folder}/` and complete one retrieval practice item."
         for folder in LEARNING_FOLDERS[:17]
     )
-    return f"""# Machine Learning and AI Engineering
+    return f"""# Machine Learning
 
-This repository is a structured learning path for machine learning, AI engineering, LLM systems,
-RAG, agents, production AI, and interview preparation. It is designed as a practical engineering
-reference with lessons, case studies, quizzes, cheatsheets, mocks, notebooks, and runnable examples.
+This repository is a personal learning path for machine learning, AI engineering, LLM systems, RAG,
+agents, production AI, and interview preparation. It is designed as a practical engineering knowledge
+base with lessons, case studies, quizzes, cheatsheets, mocks, notebooks, and runnable examples.
 
 ## Who This Repository Is For
 
@@ -280,8 +295,8 @@ flowchart LR
     Deep_Learning --> NLP --> Computer_Vision[Computer Vision] --> Recommenders
     Recommenders --> MLOps --> GenAI --> LLMs
     LLMs --> Vector_Databases[Vector Databases] --> RAG --> Agents
-    Agents --> Production_AI[Production AI] --> Ethics
-    Ethics --> Case_Studies[Case Studies] --> Interviews --> Projects
+    Agents --> Production_AI[Production AI] --> ML_System_Design[ML System Design]
+    ML_System_Design --> Ethics --> Case_Studies[Case Studies] --> Interviews --> Projects
 ```
 
 ## Table of Contents
@@ -329,11 +344,11 @@ analysis, production risks, and interview explanation.
 - `python tools/check_markdown_quality.py` validates structure, naming, navigation, and formatting.
 - `python tools/fix_markdown_formatting.py` applies safe formatting and navigation normalization.
 
-## Contributing
+## Repository Scope
 
-Contributions should improve clarity, correctness, examples, project usefulness, or validation. Keep
-the professional tone, avoid unsupported claims, and run the validation tools before submitting
-changes.
+This repository is maintained for personal study and interview preparation. It is not structured as a
+community-maintained open-source project. The root is intentionally kept focused on learning paths,
+reference material, practice, projects, and validation tools.
 
 ## Quality Promise
 
@@ -548,6 +563,107 @@ and a feedback loop before increasing model complexity.
 - Treating offline performance as proof of production reliability.
 """
 
+def system_design_body(path: Path) -> str:
+    title = title_from_filename(path)
+    return f"""# {title}
+
+## Beginner-Friendly Intuition
+
+{title} is about turning an ML idea into a reliable system. A model is only one part of the design.
+The full system must collect data, train or retrieve useful signals, serve results, monitor quality,
+handle failures, protect sensitive information, and support iteration.
+
+Think of the design as a set of promises: what the user gets, how quickly they get it, how the system
+stays correct, and what happens when the model is uncertain or wrong.
+
+## Formal Explanation
+
+An ML system design should define functional requirements, non-functional requirements, data flow,
+model or retrieval architecture, serving path, evaluation strategy, reliability controls, security
+boundaries, and observability. The design is successful when it connects model quality to product
+behavior under realistic constraints.
+
+Important dimensions:
+
+| Dimension | Design Question |
+| --- | --- |
+| Product goal | What decision or workflow does the system support? |
+| Data | What data is available, fresh, reliable, and permitted? |
+| Model path | What baseline and advanced approaches are justified? |
+| Serving | Is the system batch, online, streaming, or hybrid? |
+| Operations | How are drift, failures, cost, and latency monitored? |
+
+## Why It Matters
+
+Interviewers use ML system design to test engineering judgment. Real teams need engineers who can
+balance model quality with latency, cost, privacy, reliability, and product impact. A strong design
+does not only name an algorithm. It explains why the architecture fits the user need and how the team
+would operate it after launch.
+
+## How It Works
+
+1. Clarify the user, product goal, constraints, and failure cost.
+2. Define input data, labels, feedback, privacy boundaries, and freshness requirements.
+3. Propose a simple baseline that can be evaluated quickly.
+4. Add the advanced model, retrieval, ranking, or agent architecture only where needed.
+5. Design serving, caching, model registry, feature or embedding pipelines, and fallbacks.
+6. Define offline metrics, online metrics, guardrails, monitoring, and rollback.
+7. Explain bottlenecks, tradeoffs, and future extensions.
+
+## Real-World Example
+
+A product team may want a system that ranks items, detects fraud, evaluates LLM outputs, or supports
+a copilot. The system must ingest data, produce a useful response, and improve with feedback. If the
+design ignores data quality, low-confidence handling, or monitoring, the model can appear strong in a
+notebook and still fail in production.
+
+## Common Mistakes
+
+- Starting with a complex model before defining the product decision.
+- Ignoring training-serving skew, leakage, delayed labels, or feedback loops.
+- Treating offline metrics as sufficient proof of production quality.
+- Forgetting privacy, authorization, audit logs, and abuse cases.
+- Missing cost, latency, rollback, and human escalation paths.
+
+## Interview Angle
+
+**Question:** Design this system for a product team and explain the major tradeoffs.
+
+**Strong answer:** Clarifies requirements, starts with a baseline, separates offline and online
+paths, defines metrics and guardrails, discusses failure modes, and explains monitoring and rollback.
+
+**Weak answer:** Lists models without data flow, evaluation, reliability, security, or operational
+ownership.
+
+**Follow-up questions:**
+
+- What is the simplest baseline?
+- What changes if latency must be below 100 milliseconds?
+- How would you detect drift or quality regression?
+- What data should not be logged?
+- How would you handle low-confidence outputs?
+
+## Mini Exercise
+
+Draw the first version of this system on one page. Include data sources, feature or embedding
+generation, model or retrieval path, serving layer, monitoring, and human review. Then write one
+paragraph explaining the biggest tradeoff.
+
+## Diagram
+
+```mermaid
+flowchart LR
+    A[Product goal] --> B[Data and feedback]
+    B --> C[Baseline]
+    B --> D[Advanced ML system]
+    C --> E[Evaluation]
+    D --> E
+    E --> F[Serving path]
+    F --> G[Monitoring and rollback]
+    G --> B
+```
+"""
+
 def mock_body(path: Path) -> str:
     title = title_from_filename(path)
     return f"""# {title}
@@ -608,6 +724,17 @@ def apply_folder_readmes() -> None:
     for folder in MAJOR_FOLDERS:
         write(ROOT / folder / "README.md", folder_readme(folder))
 
+def apply_system_design_files() -> None:
+    folder = ROOT / "machine-learning-system-design"
+    folder.mkdir(parents=True, exist_ok=True)
+    for filename in SYSTEM_DESIGN_FILES:
+        path = folder / filename
+        text = read(path) if path.exists() else ""
+        marker = "\n---\n## Navigation\n"
+        existing_nav = text[text.rfind(marker) + 1 :] if marker in text else ""
+        body = system_design_body(path)
+        write(path, body + ("\n\n" + existing_nav if existing_nav else ""))
+
 def apply_root_readme() -> None:
     write(ROOT / "README.md", root_readme())
 
@@ -662,6 +789,7 @@ def normalize_root_markdown_without_navigation() -> None:
         write(path, text)
 
 def main() -> int:
+    apply_system_design_files()
     apply_root_readme()
     apply_folder_readmes()
     apply_case_studies_and_mocks()

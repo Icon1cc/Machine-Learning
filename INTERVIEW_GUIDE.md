@@ -27,9 +27,9 @@ is useful, but a strong answer also explains assumptions, metrics, failures, and
 
 ## Practice Plan
 
-Use [interview-prep/](interview-prep/) for question drills, [mocks/](mocks/) for full rounds, and
-[cheatsheets/](cheatsheets/) for quick revision. After every mock, rewrite one answer in a tighter
-structure.
+Use [interview-prep/](interview-prep/) for question drills, [machine-learning-system-design/](machine-learning-system-design/)
+for architecture practice, [mocks/](mocks/) for full rounds, and [cheatsheets/](cheatsheets/) for
+quick revision. After every mock, rewrite one answer in a tighter structure.
 
 ## Diagram
 

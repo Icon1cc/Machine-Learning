@@ -23,6 +23,23 @@ steps, evaluation results, error analysis, and an interview-ready explanation.
 | [AI Customer Support Agent](capstone-projects/14-ai-customer-support-agent.md) | Portfolio project | Build, evaluate, explain |
 | [Production ML Platform](capstone-projects/15-production-ml-platform.md) | Portfolio project | Build, evaluate, explain |
 
+## System Design Practice
+
+Use these prompts when you want architecture practice rather than implementation practice.
+
+| Prompt | Focus | Outcome |
+| --- | --- | --- |
+| [Design A Recommendation System](machine-learning-system-design/01-design-a-recommendation-system.md) | Ranking and personalization | Explain candidate generation, ranking, metrics, and feedback |
+| [Design A Search Ranking System](machine-learning-system-design/02-design-a-search-ranking-system.md) | Retrieval and ranking | Explain indexing, ranking features, evaluation, and latency |
+| [Design A Fraud Detection Platform](machine-learning-system-design/03-design-a-fraud-detection-platform.md) | Risk scoring | Explain labels, thresholds, review queues, and drift |
+| [Design An ML Training Platform](machine-learning-system-design/04-design-an-ml-training-platform.md) | Training infrastructure | Explain data, orchestration, artifacts, registry, and reproducibility |
+| [Design A Feature Store](machine-learning-system-design/05-design-a-feature-store.md) | Feature management | Explain offline-online consistency, freshness, and serving |
+| [Design A RAG Platform](machine-learning-system-design/06-design-a-rag-platform.md) | Retrieval-augmented generation | Explain ingestion, retrieval, generation, evaluation, and security |
+| [Design An Agent Platform](machine-learning-system-design/07-design-an-agent-platform.md) | Tool-using agents | Explain tool permissions, memory, observability, and fallback |
+| [Design An LLM Evaluation System](machine-learning-system-design/08-design-an-llm-evaluation-system.md) | Evaluation infrastructure | Explain datasets, rubrics, judges, regression checks, and reporting |
+| [Design A Real Time Inference System](machine-learning-system-design/09-design-a-real-time-inference-system.md) | Low-latency serving | Explain routing, caching, batching, fallbacks, and monitoring |
+| [Design An AI Copilot Platform](machine-learning-system-design/10-design-an-ai-copilot-platform.md) | Product architecture | Explain context, tools, permissions, UX, and quality guardrails |
+
 ## Project Quality Bar
 
 - A baseline is implemented before advanced modeling.

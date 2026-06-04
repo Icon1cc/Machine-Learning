@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data and model artifacts
+data/
+models/
+artifacts/
+*.pkl
+*.joblib
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/

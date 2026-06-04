@@ -2,34 +2,22 @@
 
 ## Folder Purpose
 
-Compact reference pages for fast revision before projects, quizzes, case studies, mocks, and
-interviews. These are not substitutes for the lessons. They are pressure-test pages that help you
-recall the right framing, metric, baseline, and failure mode quickly.
+Compact reference pages for fast revision before projects and interviews.
 
 ## Who Should Read This Section
 
-Use this section when you need fast recall without losing engineering judgment. It is useful after a
-first pass through a folder, before a mock interview, before implementing a capstone, or when you
-notice that your answers are correct but too slow.
+Read this section if you are studying the related topic, preparing interview answers, building a
+project, or reviewing production tradeoffs connected to this part of the curriculum.
 
-These cheatsheets are strongest when used for retrieval practice:
+## What to Know Before Starting
 
-- Cover the page title and explain the topic from memory.
-- Reveal the checklist and compare it to your answer.
-- Add one concrete example from a case study or project.
-- State one common mistake you have personally made or might make under interview pressure.
+- Read the previous folder in the root recommended order when possible.
+- Know the user problem, input data, output, metric, and one common failure mode for the topic.
+- Keep a small notes file with definitions, examples, and questions that remain unclear.
 
 ## Recommended Reading Order
 
-Read the pages in curriculum order for broad review. For targeted review, use these clusters:
-
-- **ML foundations:** 01 through 06.
-- **Modeling depth:** 07 through 09.
-- **Production and LLM systems:** 10 through 14.
-- **Interview execution:** 15 after every mock round.
-
-Do not try to memorize every sentence. The goal is to build a short mental checklist that you can
-apply to unfamiliar prompts.
+Read the numbered Markdown files in ascending order. They are arranged from foundation to application.
 
 ## Table of Contents
 
@@ -53,33 +41,23 @@ apply to unfamiliar prompts.
 
 ## What You Should Know After Finishing
 
-- The one-minute explanation for each topic.
-- The baseline and metric that should come before deeper modeling.
-- The failure modes that interviewers expect you to catch.
-- The production concerns that separate a classroom answer from an engineering answer.
-- The related folder, quiz, and case study to revisit when a topic still feels vague.
-
-## How to Use a Cheatsheet Under Time Pressure
-
-Use a page in three passes:
-
-1. **Recall pass:** write the definition, baseline, metric, and failure mode without looking.
-2. **Correction pass:** compare your answer with the cheatsheet and add missing constraints.
-3. **Transfer pass:** apply the same checklist to a different system such as fraud detection,
-   semantic search, support routing, or model monitoring.
-
-If you cannot transfer the idea to a new system, you do not own the concept yet.
+- The core vocabulary and mental models for this section.
+- The practical workflow and evaluation questions connected to the topic.
+- Common mistakes and tradeoffs that appear in interviews and real projects.
+- How this section connects to the surrounding curriculum.
 
 ## Suggested Exercises
 
-- Turn each cheatsheet into five flashcards: definition, baseline, metric, failure mode, and
-  production control.
-- Pair each cheatsheet with one quiz and one case study before marking the topic reviewed.
-- For `15-ai-interview-cheatsheet.md`, write a two-minute answer for one ML, one LLM, one RAG, and
-  one agent prompt.
-- After a mock interview, mark the exact cheatsheet section that would have improved your answer.
-- Once per week, choose a random cheatsheet and explain it without using the topic name until the
-  final sentence.
+- Summarize each file in five bullets.
+- Write one interview question and one strong answer after each lesson.
+- Connect the section to one case study or project.
+- Revisit the related quiz or cheatsheet after a short break.
+
+## Practice Guidance
+
+For each lesson, write a concrete example before reviewing the interview angle. If the topic has a
+model, retrieval, serving, or evaluation component, identify the simplest baseline and the most
+likely production failure. End the section by explaining the tradeoff out loud in two minutes.
 
 ## Navigation
 

@@ -1,4 +1,4 @@
-# What Is An AI Agent
+# What Is an AI Agent
 
 ## Beginner-Friendly Intuition
 

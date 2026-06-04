@@ -2,32 +2,22 @@
 
 ## Folder Purpose
 
-Project guides for portfolio work, implementation planning, evaluation, failure analysis, production
-thinking, and interview explanation. This folder turns the curriculum into artifacts that can be
-shown, defended, and improved.
+Project guides for portfolio work, implementation planning, evaluation, and interview explanation.
 
 ## Who Should Read This Section
 
-Use this section when you want proof of skill rather than more notes. A good capstone should show
-that you can frame a problem, choose a baseline, build a minimal system, evaluate honestly, explain
-errors, and make a responsible production plan.
+Read this section if you are studying the related topic, preparing interview answers, building a
+project, or reviewing production tradeoffs connected to this part of the curriculum.
 
-This folder is useful for:
+## What to Know Before Starting
 
-- Building resume projects with enough depth to support technical follow-ups.
-- Practicing applied ML beyond notebooks.
-- Turning case-study reasoning into implementation choices.
-- Learning how to discuss limitations without weakening your story.
+- Read the previous folder in the root recommended order when possible.
+- Know the user problem, input data, output, metric, and one common failure mode for the topic.
+- Keep a small notes file with definitions, examples, and questions that remain unclear.
 
 ## Recommended Reading Order
 
-Start with a project that matches your target role and current skill level. Do not pick the most
-complex project first if you cannot yet define the metric and baseline.
-
-- **First portfolio project:** 01, 02, 04, or 08.
-- **ML Engineer track:** 03, 05, 06, 09, 15.
-- **LLM and RAG track:** 10, 11, 12, 13, 14.
-- **Production depth track:** 12, 14, 15 after completing relevant case studies.
+Read the numbered Markdown files in ascending order. They are arranged from foundation to application.
 
 ## Table of Contents
 
@@ -51,31 +41,23 @@ complex project first if you cannot yet define the metric and baseline.
 
 ## What You Should Know After Finishing
 
-- How to scope a project small enough to finish but deep enough to defend.
-- How to define the dataset, baseline, metric, error analysis, and iteration plan before building.
-- How to write a project narrative that explains tradeoffs, not just tools.
-- How to discuss failure modes, monitoring, privacy, cost, and future work honestly.
-- How to connect one project to a case study, a mock interview, and a resume bullet.
-
-## Capstone Definition of Done
-
-A capstone is not done when the demo runs once. It is done when it has:
-
-- A clear problem statement and target user.
-- A reproducible data or document source.
-- A baseline result and a reason the chosen improvement is justified.
-- An evaluation section with errors, slices, and limitations.
-- A short architecture note covering serving or workflow shape.
-- A README section that explains what you would monitor or change before production use.
-- A two-minute interview explanation and a deeper technical follow-up answer.
+- The core vocabulary and mental models for this section.
+- The practical workflow and evaluation questions connected to the topic.
+- Common mistakes and tradeoffs that appear in interviews and real projects.
+- How this section connects to the surrounding curriculum.
 
 ## Suggested Exercises
 
-- Before coding, write the baseline, metric, and first three failure modes.
-- After coding, create an error table with at least ten examples.
-- Convert the project into three resume bullets: impact, technical depth, and production judgment.
-- Present the project as a five-minute system design answer.
-- Revisit the related case study and identify one production feature you intentionally did not build.
+- Summarize each file in five bullets.
+- Write one interview question and one strong answer after each lesson.
+- Connect the section to one case study or project.
+- Revisit the related quiz or cheatsheet after a short break.
+
+## Practice Guidance
+
+For each lesson, write a concrete example before reviewing the interview angle. If the topic has a
+model, retrieval, serving, or evaluation component, identify the simplest baseline and the most
+likely production failure. End the section by explaining the tradeoff out loud in two minutes.
 
 ## Navigation
 

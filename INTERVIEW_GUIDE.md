@@ -1,43 +1,66 @@
 # Interview Guide
 
-## What Interviewers Are Really Testing
+## What Interviewers Are Testing
 
-AI and ML interviews test whether you can turn uncertain data problems into useful systems. You need
-to show fundamentals, practical judgment, communication, and operational awareness. A correct formula
-is useful, but a strong answer also explains assumptions, metrics, failures, and deployment.
+AI and ML interviews test whether you can turn uncertain data problems into useful systems. A strong
+answer moves from product framing to data, baseline, model choice, evaluation, failure modes, and
+production operations. Formulas matter, but they are not enough without assumptions and tradeoffs.
 
 ## Core Answer Framework
 
-1. Clarify the product goal and user decision.
-2. Define inputs, labels, constraints, and success metrics.
-3. Start with a simple baseline.
-4. Choose a model family and justify the tradeoff.
-5. Evaluate with realistic splits and segment analysis.
-6. Discuss failure modes, monitoring, rollback, and iteration.
+| Step | What to say |
+| --- | --- |
+| Clarify | User, decision, scope, constraints, and cost of mistakes |
+| Data | Inputs, labels, feedback, freshness, permissions, and leakage risks |
+| Baseline | The simplest measurable approach and why it is a fair reference |
+| Model or design | The chosen method, why it fits, and what complexity it adds |
+| Evaluation | Primary metric, guardrails, slices, regression set, and error analysis |
+| Production | Serving path, latency, cost, monitoring, rollback, privacy, and ownership |
+
+## Strong Answer Pattern
+
+1. State the goal in one sentence.
+2. Define input, output, and metric.
+3. Start with a baseline.
+4. Add the model or architecture only after naming the failure the baseline cannot handle.
+5. Evaluate with slices and hard examples.
+6. Discuss deployment constraints and rollback.
+7. End with the biggest tradeoff.
 
 ## Common Interview Areas
 
-- ML fundamentals and bias-variance reasoning.
-- Statistics, experiments, and uncertainty.
-- Classical ML algorithms and evaluation.
-- Deep learning and transformers.
-- LLMs, RAG, vector search, agents, and guardrails.
-- ML system design and production AI operations.
-- Behavioral stories about ambiguity, debugging, and impact.
+| Area | High-signal topics |
+| --- | --- |
+| Fundamentals | Splits, leakage, baselines, bias-variance, metrics, and generalization |
+| Statistics | A/B tests, uncertainty, sampling bias, causality, and experiment design |
+| Classical ML | Linear models, trees, ensembles, clustering, calibration, and interpretability |
+| Deep Learning | Backpropagation, optimization, regularization, transformers, and debugging |
+| LLM Systems | Prompting, RAG, vector search, agents, guardrails, evaluation, and serving |
+| System Design | Offline-online paths, data flow, monitoring, scaling, reliability, and cost |
+| Behavioral | Ownership, ambiguity, debugging, stakeholder communication, and impact |
+
+## Traps to Avoid
+
+- Starting with a model name before clarifying the decision.
+- Reporting one aggregate metric without segment analysis.
+- Ignoring leakage, delayed labels, drift, or feedback loops.
+- Treating offline performance as production readiness.
+- Forgetting privacy, authorization, audit logs, rollback, and human review.
 
 ## Practice Plan
 
 Use [interview-prep/](interview-prep/) for question drills, [machine-learning-system-design/](machine-learning-system-design/)
 for architecture practice, [mocks/](mocks/) for full rounds, and [cheatsheets/](cheatsheets/) for
-quick revision. After every mock, rewrite one answer in a tighter structure.
+quick revision. After every mock, rewrite one answer using the framework above.
 
 ## Diagram
 
 ```mermaid
 flowchart TD
-    A[Clarify] --> B[Baseline]
-    B --> C[Model]
-    C --> D[Metric]
-    D --> E[Failure modes]
+    A[Clarify] --> B[Data]
+    B --> C[Baseline]
+    C --> D[Model or design]
+    D --> E[Evaluation]
     E --> F[Production plan]
+    F --> G[Tradeoff summary]
 ```

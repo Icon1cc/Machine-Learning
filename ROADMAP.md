@@ -1,380 +1,172 @@
 # Roadmap
 
-## Phase 0. Setup and learning strategy
+This roadmap keeps the repository practical. Move from foundations to implementation, then to
+production systems, case studies, projects, and interviews. Each phase should end with something you
+can explain out loud.
 
-**Goal:** Build practical mastery of setup and learning strategy with enough depth to explain, implement, and
-evaluate the ideas.
+## Summary
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+| Phase | Area | Focus | Outcome |
+| --- | --- | --- | --- |
+| 0 | Setup and Learning Strategy | Read the root README, choose a study plan, and set up Python examples. | A realistic schedule and a clear definition of done for each study block. |
+| 1 | ML Foundations | Study `fundamentals/` and practice framing inputs, labels, metrics, baselines, and splits. | You can explain what makes a problem suitable for ML and what makes an evaluation misleading. |
+| 2 | Math for ML | Study `math/` with emphasis on vectors, matrices, gradients, optimization, entropy, and distance. | You can explain the math intuition behind loss minimization, similarity, PCA, and backpropagation. |
+| 3 | Statistics and Experimentation | Study `statistics/` and connect uncertainty, sampling, hypothesis tests, and A/B tests to product decisions. | You can reason about noisy evidence, confidence, leakage, bias, and causal claims. |
+| 4 | Data Science Workflow | Study `data-science/` and practice cleaning, exploration, visualization, feature engineering, and communication. | You can inspect a dataset, expose quality risks, and explain findings without overstating them. |
+| 5 | Classical ML | Study `classical-ml/` and implement simple baselines before model selection. | You can choose and compare linear models, trees, ensembles, clustering methods, and metrics. |
+| 6 | Deep Learning | Study `deep-learning/` and trace forward propagation, backpropagation, optimizers, regularization, and transformers. | You can debug training behavior and explain architecture tradeoffs clearly. |
+| 7 | Applied Modalities | Study `nlp/`, `computer-vision/`, and `recommender-systems/`. | You can map text, image, and ranking tasks to data, models, metrics, and failure modes. |
+| 8 | MLOps and Production AI | Study `mlops/` and `production-ai/` together. | You can describe reproducibility, serving, monitoring, rollback, latency, cost, privacy, and governance. |
+| 9 | Generative AI and LLMs | Study `generative-ai/` and `llms/`. | You can explain transformer-style generation, prompting, tuning choices, evaluation, guardrails, and serving constraints. |
+| 10 | Vector Search, RAG, and Agents | Study `vector-databases/`, `rag/`, and `agents/`. | You can design grounded assistants, retrieval pipelines, tool use, memory, observability, and risk controls. |
+| 11 | ML System Design | Study `machine-learning-system-design/` and draw each architecture. | You can walk through requirements, data flow, serving, scaling, evaluation, monitoring, and tradeoffs. |
+| 12 | Case Studies and Projects | Study `case-studies/`, then build from `capstone-projects/`. | You can turn concepts into a portfolio-quality project with evaluation and interview explanation. |
+| 13 | Interview Preparation | Use `interview-prep/`, `mocks/`, `quizzes/`, and `cheatsheets/`. | You can answer under time pressure with baseline, metric, failure mode, and production judgment. |
 
-**Files to read:** README.md, STUDY_PLAN.md.
+## How to Use This Roadmap
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+1. Read the listed folders in order.
+2. Complete the mini exercises inside each lesson.
+3. Use one quiz or cheatsheet for retrieval practice.
+4. Build or sketch one small artifact before advancing.
+5. Explain the phase using baseline, metric, failure mode, and production tradeoff.
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+## Phase 0. Setup and Learning Strategy
 
-## Phase 1. Foundations
+**Focus:** Read the root README, choose a study plan, and set up Python examples.
 
-**Goal:** Build practical mastery of foundations with enough depth to explain, implement, and
-evaluate the ideas.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+**Expected outcome:** A realistic schedule and a clear definition of done for each study block.
 
-**Files to read:** fundamentals/01-what-is-machine-learning.md through fundamentals/10-end-to-end-ml-workflow.md.
+## Phase 1. ML Foundations
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+**Focus:** Study `fundamentals/` and practice framing inputs, labels, metrics, baselines, and splits.
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
+
+**Expected outcome:** You can explain what makes a problem suitable for ML and what makes an evaluation misleading.
 
 ## Phase 2. Math for ML
 
-**Goal:** Build practical mastery of math for ml with enough depth to explain, implement, and
-evaluate the ideas.
+**Focus:** Study `math/` with emphasis on vectors, matrices, gradients, optimization, entropy, and distance.
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Files to read:** math/01-why-math-matters-for-ml.md through math/12-distance-metrics.md.
+**Expected outcome:** You can explain the math intuition behind loss minimization, similarity, PCA, and backpropagation.
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+## Phase 3. Statistics and Experimentation
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+**Focus:** Study `statistics/` and connect uncertainty, sampling, hypothesis tests, and A/B tests to product decisions.
 
-## Phase 3. Statistics and probability
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Goal:** Build practical mastery of statistics and probability with enough depth to explain, implement, and
-evaluate the ideas.
+**Expected outcome:** You can reason about noisy evidence, confidence, leakage, bias, and causal claims.
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+## Phase 4. Data Science Workflow
 
-**Files to read:** statistics/01-probability-basics.md through statistics/12-statistics-for-interviews.md.
+**Focus:** Study `data-science/` and practice cleaning, exploration, visualization, feature engineering, and communication.
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 4. Python, NumPy, Pandas, visualization
-
-**Goal:** Build practical mastery of python, numpy, pandas, visualization with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** data-science/01-data-science-workflow.md through data-science/10-communicating-results.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+**Expected outcome:** You can inspect a dataset, expose quality risks, and explain findings without overstating them.
 
 ## Phase 5. Classical ML
 
-**Goal:** Build practical mastery of classical ml with enough depth to explain, implement, and
-evaluate the ideas.
+**Focus:** Study `classical-ml/` and implement simple baselines before model selection.
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Files to read:** classical-ml/01-linear-regression.md through classical-ml/15-time-series-basics.md.
+**Expected outcome:** You can choose and compare linear models, trees, ensembles, clustering methods, and metrics.
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+## Phase 6. Deep Learning
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+**Focus:** Study `deep-learning/` and trace forward propagation, backpropagation, optimizers, regularization, and transformers.
 
-## Phase 6. Model evaluation
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Goal:** Build practical mastery of model evaluation with enough depth to explain, implement, and
-evaluate the ideas.
+**Expected outcome:** You can debug training behavior and explain architecture tradeoffs clearly.
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+## Phase 7. Applied Modalities
 
-**Files to read:** classical-ml/16-model-selection.md through classical-ml/18-evaluation-metrics.md.
+**Focus:** Study `nlp/`, `computer-vision/`, and `recommender-systems/`.
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+**Expected outcome:** You can map text, image, and ranking tasks to data, models, metrics, and failure modes.
 
-## Phase 7. Feature engineering
+## Phase 8. MLOps and Production AI
 
-**Goal:** Build practical mastery of feature engineering with enough depth to explain, implement, and
-evaluate the ideas.
+**Focus:** Study `mlops/` and `production-ai/` together.
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Files to read:** data-science/04-feature-engineering.md, data-science/05-handling-missing-values.md, data-science/06-handling-imbalanced-data.md.
+**Expected outcome:** You can describe reproducibility, serving, monitoring, rollback, latency, cost, privacy, and governance.
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+## Phase 9. Generative AI and LLMs
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+**Focus:** Study `generative-ai/` and `llms/`.
 
-## Phase 8. Deep learning
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Goal:** Build practical mastery of deep learning with enough depth to explain, implement, and
-evaluate the ideas.
+**Expected outcome:** You can explain transformer-style generation, prompting, tuning choices, evaluation, guardrails, and serving constraints.
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+## Phase 10. Vector Search, RAG, and Agents
 
-**Files to read:** deep-learning/01-what-is-a-neural-network.md through deep-learning/15-deep-learning-interview-patterns.md.
+**Focus:** Study `vector-databases/`, `rag/`, and `agents/`.
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+**Expected outcome:** You can design grounded assistants, retrieval pipelines, tool use, memory, observability, and risk controls.
 
-## Phase 9. NLP
+## Phase 11. ML System Design
 
-**Goal:** Build practical mastery of nlp with enough depth to explain, implement, and
-evaluate the ideas.
+**Focus:** Study `machine-learning-system-design/` and draw each architecture.
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Files to read:** nlp/01-nlp-overview.md through nlp/11-nlp-evaluation.md.
+**Expected outcome:** You can walk through requirements, data flow, serving, scaling, evaluation, monitoring, and tradeoffs.
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+## Phase 12. Case Studies and Projects
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+**Focus:** Study `case-studies/`, then build from `capstone-projects/`.
 
-## Phase 10. Computer vision
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Goal:** Build practical mastery of computer vision with enough depth to explain, implement, and
-evaluate the ideas.
+**Expected outcome:** You can turn concepts into a portfolio-quality project with evaluation and interview explanation.
 
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
+## Phase 13. Interview Preparation
 
-**Files to read:** computer-vision/01-computer-vision-overview.md through computer-vision/08-multimodal-models.md.
+**Focus:** Use `interview-prep/`, `mocks/`, `quizzes/`, and `cheatsheets/`.
 
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
 
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 11. Recommender systems
-
-**Goal:** Build practical mastery of recommender systems with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** recommender-systems/01-recommender-systems-overview.md through recommender-systems/08-recommender-system-case-study.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 12. MLOps
-
-**Goal:** Build practical mastery of mlops with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** mlops/01-what-is-mlops.md through mlops/12-ml-system-design.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 13. Generative AI
-
-**Goal:** Build practical mastery of generative ai with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** generative-ai/01-generative-ai-overview.md through generative-ai/08-generative-ai-evaluation.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 14. LLM fundamentals
-
-**Goal:** Build practical mastery of llm fundamentals with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** llms/01-what-is-an-llm.md through llms/07-context-windows.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 15. Prompting and evaluation
-
-**Goal:** Build practical mastery of prompting and evaluation with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** llms/08-prompt-engineering.md through llms/12-guardrails.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 16. Embeddings and vector databases
-
-**Goal:** Build practical mastery of embeddings and vector databases with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** vector-databases/01-what-is-a-vector-database.md through vector-databases/10-vector-database-interview-patterns.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 17. RAG
-
-**Goal:** Build practical mastery of rag with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** rag/01-what-is-rag.md through rag/16-rag-interview-patterns.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 18. Agents
-
-**Goal:** Build practical mastery of agents with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** agents/01-what-is-an-ai-agent.md through agents/13-agent-interview-patterns.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 19. Production AI systems
-
-**Goal:** Build practical mastery of production ai systems with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** production-ai/01-production-ai-overview.md through production-ai/12-building-enterprise-ai-systems.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 20. Machine learning system design
-
-**Goal:** Build practical mastery of ML system design with enough depth to explain architectures,
-tradeoffs, scaling, reliability, security, observability, and interview reasoning.
-
-**Concepts:** recommendation systems, search ranking, fraud detection platforms, training
-platforms, feature stores, RAG platforms, agent platforms, LLM evaluation systems, real-time
-inference, and AI copilot platforms.
-
-**Files to read:** machine-learning-system-design/01-design-a-recommendation-system.md through machine-learning-system-design/10-design-an-ai-copilot-platform.md.
-
-**Exercises:** draw each architecture, identify the baseline, name online and offline metrics, and
-write the biggest tradeoff in one paragraph.
-
-**Expected outcome:** You can walk through an ML system design interview with requirements, data
-flow, serving path, evaluation, monitoring, failure handling, and tradeoffs.
-
-## Phase 21. Interview preparation
-
-**Goal:** Build practical mastery of interview preparation with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** interview-prep/README.md through interview-prep/15-final-revision-checklist.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
-
-## Phase 22. Capstone projects
-
-**Goal:** Build practical mastery of capstone projects with enough depth to explain, implement, and
-evaluate the ideas.
-
-**Concepts:** problem framing, data assumptions, baselines, model behavior, metrics, failure modes,
-and production tradeoffs as they apply to this phase.
-
-**Files to read:** capstone-projects/01-end-to-end-classical-ml-project.md through capstone-projects/15-production-ml-platform.md.
-
-**Exercises:** complete lesson mini exercises, answer the closest quiz, and write one paragraph that
-connects the phase to a real product.
-
-**Expected outcome:** You can explain the phase clearly, identify common mistakes, and apply the
-ideas in a small project or interview answer.
+**Expected outcome:** You can answer under time pressure with baseline, metric, failure mode, and production judgment.
 
 ## Roadmap Diagram
 
 ```mermaid
 flowchart TD
-    P0[Setup] --> P1[Foundations] --> P2[Math] --> P3[Statistics] --> P4[Data]
-    P4 --> P5[Classical ML] --> P8[Deep Learning] --> P14[LLMs]
-    P14 --> P17[RAG] --> P18[Agents] --> P19[Production AI]
-    P19 --> P20[ML System Design] --> P21[Interviews] --> P22[Capstones]
+    A[Foundations] --> B[Math and Statistics]
+    B --> C[Data and Classical ML]
+    C --> D[Deep Learning and Modalities]
+    D --> E[MLOps and Production AI]
+    E --> F[LLMs, RAG, and Agents]
+    F --> G[ML System Design]
+    G --> H[Case Studies and Projects]
+    H --> I[Interview Preparation]
 ```

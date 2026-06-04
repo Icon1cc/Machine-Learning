@@ -1,190 +1,119 @@
 # Glossary
 
-This glossary defines more than 150 terms by category. Use it for quick recall, then return to the lessons for deeper explanation.
+This glossary defines high-yield terms used across the repository. Use it for quick recall, then
+return to the lessons, cheatsheets, and case studies for deeper practice.
 
-## ML basics
-- **Label:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Feature:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Dataset:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Training set:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Validation set:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Test set:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Model:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Parameter:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Hyperparameter:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Loss:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Metric:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Baseline:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Generalization:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Overfitting:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
-- **Underfitting:** A core concept used to reason about ml basics systems; define it by its role, inputs, outputs, and failure modes.
+## How to Use This Glossary
 
-## math
-- **Vector:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Matrix:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Tensor:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Dot product:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Norm:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Projection:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Eigenvector:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Gradient:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Derivative:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Jacobian:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Hessian:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Convexity:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Entropy:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **Cross entropy:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
-- **KL divergence:** A core concept used to reason about math systems; define it by its role, inputs, outputs, and failure modes.
+- Review one category before starting the matching folder.
+- Convert each definition into a concrete example.
+- During interview prep, explain the term with input, output, metric, and failure mode where relevant.
 
-## statistics
-- **Probability:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Random variable:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Distribution:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Expectation:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Variance:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Covariance:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Correlation:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Confidence interval:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Hypothesis test:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **p-value:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Bayes theorem:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Likelihood:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Sampling bias:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **Causal inference:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
-- **A/B test:** A core concept used to reason about statistics systems; define it by its role, inputs, outputs, and failure modes.
+## ML Fundamentals
 
-## classical ML
-- **Linear regression:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **Logistic regression:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **Decision tree:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **Random forest:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **Gradient boosting:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **SVM:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **Naive Bayes:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **KNN:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **K-means:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **DBSCAN:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **PCA:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **Calibration:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **ROC AUC:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **PR AUC:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
-- **Cross-validation:** A core concept used to reason about classical ml systems; define it by its role, inputs, outputs, and failure modes.
+| Term | Meaning |
+| --- | --- |
+| Label | The target value the model learns to predict. Bad labels create a ceiling on model quality. |
+| Feature | An input signal used by a model. Good features are available at prediction time and reflect the decision. |
+| Dataset | A collection of examples with inputs, metadata, labels, and provenance needed for learning or evaluation. |
+| Training Set | The examples used to fit model parameters. |
+| Validation Set | The examples used to choose models, thresholds, and hyperparameters before final testing. |
+| Test Set | A held-out set used for the final estimate of generalization. |
+| Baseline | The simplest measurable approach that a more complex model must beat. |
+| Generalization | Performance on new examples from the intended deployment distribution. |
+| Overfitting | Learning noise or quirks from training data that do not hold in deployment. |
+| Underfitting | Missing important structure because the model or features are too simple. |
+| Data Leakage | Using information during training or evaluation that would not be available at prediction time. |
+| Calibration | The degree to which predicted probabilities match observed frequencies. |
 
-## deep learning
-- **Neuron:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Activation:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Layer:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Backpropagation:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Optimizer:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Learning rate:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Batch size:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Dropout:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Weight decay:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Batch normalization:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Layer normalization:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **CNN:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **RNN:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Attention:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
-- **Transformer:** A core concept used to reason about deep learning systems; define it by its role, inputs, outputs, and failure modes.
+## Math and Statistics
 
-## NLP
-- **Corpus:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Token:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Vocabulary:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Embedding:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Word2Vec:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **NER:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Text classification:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Sequence labeling:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Semantic search:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **BLEU:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **ROUGE:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Perplexity:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Stemming:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Lemmatization:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
-- **Stop words:** A core concept used to reason about nlp systems; define it by its role, inputs, outputs, and failure modes.
+| Term | Meaning |
+| --- | --- |
+| Vector | An ordered list of numbers that can represent features, embeddings, gradients, or parameters. |
+| Matrix | A rectangular array that represents linear transformations, batches, or model weights. |
+| Dot Product | A similarity and projection operation used in linear models, attention, and vector search. |
+| Gradient | The direction and rate of steepest increase for a function. Training usually moves against it. |
+| Loss Function | The objective a model minimizes during training. |
+| Entropy | A measure of uncertainty in a distribution. |
+| Cross Entropy | A loss used when comparing predicted probabilities with true classes. |
+| KL Divergence | A measure of how one probability distribution differs from another. |
+| p-value | A measure of how surprising the observed data would be under a null hypothesis. |
+| Confidence Interval | A range that describes uncertainty around an estimate. |
+| Sampling Bias | A mismatch between sampled data and the population or traffic you care about. |
+| Causal Effect | The change caused by an intervention, not just an association. |
 
-## LLMs
-- **Decoder:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Pretraining:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Instruction tuning:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **RLHF:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Context window:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Prompt:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **System message:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Tool use:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Function calling:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Sampling temperature:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Top-p:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Hallucination:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Guardrail:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Fine-tuning:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
-- **Inference:** A core concept used to reason about llms systems; define it by its role, inputs, outputs, and failure modes.
+## Classical ML
 
-## RAG
-- **Chunk:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Embedding model:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Retriever:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Reranker:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Hybrid search:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Query rewriting:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Context compression:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Faithfulness:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Groundedness:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Citation:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Vector index:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Recall at k:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Ingestion:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Document parser:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
-- **Retrieval drift:** A core concept used to reason about rag systems; define it by its role, inputs, outputs, and failure modes.
+| Term | Meaning |
+| --- | --- |
+| Linear Regression | A model that predicts numeric values using a weighted sum of features. |
+| Logistic Regression | A linear classifier that outputs calibrated class probabilities when assumptions are reasonable. |
+| Decision Tree | A model that splits data with if-then rules. |
+| Random Forest | An ensemble of decision trees that reduces variance through averaging. |
+| Gradient Boosting | An ensemble that builds trees sequentially to correct previous errors. |
+| SVM | A margin-based classifier that can use kernels for non-linear boundaries. |
+| Naive Bayes | A probabilistic classifier with strong independence assumptions. |
+| KNN | A similarity-based method that predicts from nearby examples. |
+| K-means | A clustering method that assigns points to the nearest centroid. |
+| DBSCAN | A density-based clustering method that can find arbitrary shapes and noise. |
+| PCA | A dimensionality reduction method that finds directions of maximum variance. |
+| SHAP | An attribution method that estimates feature contribution to a prediction. |
 
-## agents
-- **Agent loop:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Tool:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Planner:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Executor:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Observation:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Memory:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Reflection:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Workflow agent:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Autonomous agent:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Human approval:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Action budget:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Tool schema:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Multi-agent:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Trace:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
-- **Escalation:** A core concept used to reason about agents systems; define it by its role, inputs, outputs, and failure modes.
+## Deep Learning and NLP
 
-## MLOps
-- **Experiment tracking:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Model registry:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Feature store:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Data versioning:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Pipeline:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Artifact:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Batch inference:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Online inference:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Drift:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Monitoring:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Rollback:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **CI/CD:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Canary:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Shadow deployment:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
-- **Model card:** A core concept used to reason about mlops systems; define it by its role, inputs, outputs, and failure modes.
+| Term | Meaning |
+| --- | --- |
+| Neuron | A weighted transformation followed by a non-linear activation. |
+| Activation Function | A non-linearity that lets networks model complex relationships. |
+| Backpropagation | The algorithm that computes gradients through a computational graph. |
+| Optimizer | The update rule that changes parameters based on gradients. |
+| Dropout | A regularization method that randomly disables activations during training. |
+| Batch Normalization | A normalization layer that stabilizes training across mini-batches. |
+| Attention | A mechanism that weights relevant tokens, patches, or features for a given query. |
+| Transformer | An architecture built around attention, feed-forward layers, residual connections, and normalization. |
+| Token | A text unit processed by a model, often a word piece or byte-pair segment. |
+| Embedding | A dense vector representation of text, images, users, items, or documents. |
+| NER | Named entity recognition, which extracts entities such as people, products, locations, or dates. |
+| Perplexity | A language modeling metric related to how surprised the model is by text. |
 
-## production AI
-- **Latency:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Throughput:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Cost per task:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Cache:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Fallback:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Router:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **SLA:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **SLO:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Privacy:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **PII:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Redaction:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Audit log:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Evaluation set:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Human-in-the-loop:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
-- **Quality guardrail:** A core concept used to reason about production ai systems; define it by its role, inputs, outputs, and failure modes.
+## LLMs, RAG, and Agents
+
+| Term | Meaning |
+| --- | --- |
+| Context Window | The maximum amount of text or tokens the model can consider in one request. |
+| Instruction Tuning | Training that makes a base model better at following user instructions. |
+| RLHF | Preference optimization using human feedback or preference models. |
+| Hallucination | A plausible output that is unsupported, false, or not grounded in available evidence. |
+| Guardrail | A control that constrains model behavior, validates output, or routes risky cases. |
+| Chunk | A document segment indexed for retrieval. |
+| Retriever | The component that finds candidate documents or chunks for a query. |
+| Reranker | A model that reorders retrieved candidates using richer relevance scoring. |
+| Hybrid Search | A retrieval strategy combining lexical and vector signals. |
+| Faithfulness | Whether an answer is supported by the retrieved evidence. |
+| Agent Loop | The observe, plan, act, and evaluate cycle used by a tool-using system. |
+| Tool Schema | The structured contract that tells an agent how to call an external capability. |
+
+## MLOps and Production AI
+
+| Term | Meaning |
+| --- | --- |
+| Experiment Tracking | Recording parameters, datasets, metrics, artifacts, and code versions for comparison. |
+| Model Registry | A controlled store for model versions, stages, metadata, and deployment approvals. |
+| Feature Store | A system for sharing, versioning, and serving features consistently offline and online. |
+| Training-Serving Skew | A mismatch between how features are produced during training and serving. |
+| Batch Inference | Predictions produced on a schedule for many examples at once. |
+| Online Inference | Predictions produced on demand for a live request. |
+| Drift | A change in data, labels, behavior, or relationships after deployment. |
+| Canary Release | A limited rollout used to compare a new version before broad release. |
+| Shadow Deployment | Running a model beside production without using its output for decisions. |
+| Rollback | Returning to a prior stable version after a bad release or incident. |
+| SLO | A target level for system behavior, such as latency or availability. |
+| Audit Log | A record of inputs, outputs, versions, and decisions needed for investigation. |
+
+## Revision Checklist
+
+- [ ] I can define each term in plain language.
+- [ ] I can give one example for each major category.
+- [ ] I can name one common mistake or failure mode for the production-facing terms.
+- [ ] I can connect glossary terms back to a project or case study.

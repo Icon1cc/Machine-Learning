@@ -2,123 +2,106 @@
 
 ## How to Use This File
 
-Use this page to practice full-system ML design answers. A good answer must cover requirements,
-data flow, model strategy, evaluation, serving, monitoring, reliability, privacy, and rollback. If
-your answer only describes a model, it is incomplete.
-
-For each prompt, speak in this order: clarify, requirements, data, baseline, architecture,
-evaluation, production controls, tradeoffs. Draw a simple diagram while speaking if possible.
+Use this page to practice structured interview answers for requirements, data flow, model architecture, serving, monitoring, and rollback. Read each question, answer out
+loud, then compare your response with the strong and weak answer patterns. Keep answers concrete:
+name the user, data, baseline, metric, failure mode, and production plan.
 
 ## Core Preparation Checklist
 
-- Clarify users, scale, latency, freshness, permissions, and failure cost.
-- Separate functional requirements from non-functional requirements.
-- Define data sources, labels, feedback, ownership, and retention.
-- Propose a baseline before advanced modeling.
-- Separate offline training or indexing from online serving.
-- Specify API inputs, outputs, model version, confidence, and audit identifiers.
-- Include evaluation with primary metric, guardrails, slices, and hard examples.
-- Add monitoring, alerts, rollback, canary release, human review, and incident ownership.
-- Discuss privacy, security, fairness, and abuse risks where relevant.
+- Clarify the role, user, decision, and constraints before naming a model.
+- State assumptions about data availability, labels, latency, privacy, and cost.
+- Start with a simple baseline and explain why added complexity is justified.
+- Choose metrics that match the product decision and the cost of mistakes.
+- Discuss leakage, drift, monitoring, rollback, and human review.
+- Communicate tradeoffs in plain language and connect them to user impact.
 
 ## Interview Question Sections
 
-### Question 1: Design a recommendation system for a marketplace.
+### Question 1: Problem Framing and Baseline
 
-**Strong answer:** Clarify whether the goal is clicks, purchases, retention, seller fairness, or
-long-term satisfaction. Define candidate generation from popularity, collaborative filtering, and
-content similarity, then ranking with user, item, context, freshness, and business features. Evaluate
-with recall at k for candidates, NDCG or MRR for ranking, conversion and retention online, plus
-guardrails for diversity, latency, fairness, and inventory health. Monitor drift, feedback loops,
-cold start, and segment failures.
+**Question:** You are asked to design or analyze a solution involving requirements, data flow, model architecture, serving, monitoring, and rollback. What would you clarify
+first, and what baseline would you build before using a more complex approach?
 
-**Weak answer:** Train a collaborative filtering model and rank by predicted rating.
+**What the interviewer is testing:** Whether you can turn an ambiguous prompt into a measurable
+engineering problem without hiding behind model names.
 
-**Follow-up questions:**
+**Strong answer:** Clarify the user decision, available data, label or feedback source, constraints,
+and failure cost. Propose a baseline that can be evaluated quickly, then state what evidence would
+justify a more advanced model or architecture.
 
-- How do you handle new users and new items?
-- How do you prevent popularity bias from dominating?
-- What should be computed offline versus online?
-- What metric would you not optimize alone?
-
-**Common traps:** Ignoring candidate generation, optimizing short-term clicks only, and forgetting
-feedback loops.
-
-### Question 2: Design a fraud detection platform.
-
-**Strong answer:** Clarify whether the output approves, blocks, challenges, or routes to review.
-Define real-time features such as amount, merchant, device, account age, velocity, location, and
-prior disputes. Start with rules and a calibrated tabular model, then consider graph or sequence
-features. Evaluate fraud loss, false decline rate, review precision, recall at fixed friction budget,
-latency, and fairness. Add human review, audit logs, rollback, and monitoring for new attack
-patterns.
-
-**Weak answer:** Train a classifier on past fraud and block every high score.
+**Weak answer:** Jump straight to a model, skip the baseline, ignore data quality, and never define
+how success will be measured.
 
 **Follow-up questions:**
 
-- How do delayed chargeback labels affect training?
-- What features are likely to leak?
-- How do you handle adversarial adaptation?
-- What happens when model confidence is low?
+- What data would be available only after the decision is made?
+- Which simple baseline would be hardest to beat?
+- What metric would be misleading if used alone?
 
-**Common traps:** Ignoring false declines, using future dispute data, and missing reviewer workflow.
+**Common traps:** Optimizing the offline metric without understanding the product decision, assuming
+labels are clean, and ignoring high-risk segments.
 
-### Question 3: Design a RAG platform for internal company knowledge.
+### Question 2: Evaluation and Failure Modes
 
-**Strong answer:** Clarify corpus scope, user permissions, freshness, citation requirements, and
-unanswerable questions. Design ingestion with parsing, chunking, metadata, embeddings, index
-versioning, and deletion. Use permission-aware hybrid retrieval, reranking, and answer generation
-that cites evidence and abstains when context is missing. Evaluate retrieval recall, context
-precision, faithfulness, citation accuracy, latency, cost, and permission correctness.
+**Question:** How would you evaluate a system for requirements, data flow, model architecture, serving, monitoring, and rollback, and how would you explain its most
+important failure modes?
 
-**Weak answer:** Put documents into a vector database and ask an LLM to answer.
+**What the interviewer is testing:** Whether you can connect metrics, error analysis, guardrails, and
+production risk.
 
-**Follow-up questions:**
+**Strong answer:** Define a primary metric, guardrail metrics, slice analysis, and a hard-example
+set. Explain false positives, false negatives, latency or cost failures, privacy risks, and what
+human review should handle.
 
-- How do you handle permission changes?
-- How do you evaluate retrieval separately from generation?
-- What should happen with conflicting documents?
-- How do you defend against prompt injection in retrieved text?
-
-**Common traps:** Skipping access control, measuring only final answers, and assuming vector search
-solves all retrieval.
-
-### Question 4: Design a real-time inference platform.
-
-**Strong answer:** Define model types, latency SLOs, traffic patterns, feature freshness, batch size,
-fallback behavior, and model versioning. Separate feature computation, model serving, routing,
-observability, and rollback. Include canary deployments, shadow traffic, autoscaling, timeout
-budgets, cache strategy, circuit breakers, and monitoring for data drift, prediction drift, errors,
-latency, and business outcomes.
-
-**Weak answer:** Put the model behind an API endpoint.
+**Weak answer:** Report one aggregate score and treat it as proof that the system is ready.
 
 **Follow-up questions:**
 
-- What gets cached and what cannot be cached?
-- How do you roll back a bad model?
-- How do you detect train-serving skew?
-- What happens when the feature store is unavailable?
+- How would you detect a regression after release?
+- Which segment would you inspect first?
+- What would make the evaluation set untrustworthy?
 
-**Common traps:** Forgetting timeouts, serving skew, model versioning, and operational ownership.
+**Common traps:** Confusing correlation with impact, overlooking delayed labels, and failing to
+calibrate confidence.
+
+### Question 3: Production Design and Communication
+
+**Question:** How would you move a solution for requirements, data flow, model architecture, serving, monitoring, and rollback from prototype to production, and how would
+you explain the tradeoffs to a non-technical stakeholder?
+
+**What the interviewer is testing:** Whether you understand ownership after launch.
+
+**Strong answer:** Separate offline and online paths, version data and models, add monitoring and
+rollback, define escalation, and explain tradeoffs between quality, latency, cost, privacy, and user
+trust.
+
+**Weak answer:** Stop at a notebook result or architecture sketch without deployment, monitoring, or
+support plans.
+
+**Follow-up questions:**
+
+- What should be logged and what should not be logged?
+- What happens when confidence is low?
+- How would you roll back a bad release?
+
+**Common traps:** Forgetting operational ownership, treating model output as always safe, and
+communicating metrics without business context.
 
 ## Mini Exercise
 
-Choose one system from `machine-learning-system-design/`. Draw the offline path and online path as
-separate diagrams. Then write a five-minute answer with one baseline, one advanced approach, three
-metrics, two failure modes, and one rollback plan.
+Pick one project from this repository and give a five-minute answer using this structure: clarify,
+baseline, data, metric, failure modes, production plan, and tradeoff summary. Rewrite the weakest
+part until it is specific enough to defend.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Clarify requirements] --> B[Data contracts]
-    B --> C[Offline training or indexing]
-    C --> D[Online serving]
-    D --> E[Evaluation]
-    E --> F[Monitoring and rollback]
-    F --> B
+    A[Clarify] --> B[Baseline]
+    B --> C[Data and model]
+    C --> D[Evaluation]
+    D --> E[Production controls]
+    E --> F[Stakeholder explanation]
 ```
 
 ---

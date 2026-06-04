@@ -2,33 +2,22 @@
 
 ## Folder Purpose
 
-Mock interview rounds with prompts, clarification expectations, answer outlines, scoring rubrics,
-red flags, and self-review checklists. This folder is for rehearsing the whole interview loop under
-time pressure, not for reading model answers passively.
+Mock interview rounds with prompts, expected answers, scoring rubrics, and self-review material.
 
 ## Who Should Read This Section
 
-Use this section after you have reviewed the relevant lessons, cheatsheets, and interview-prep files.
-Mocks are most valuable when your knowledge is adequate but your delivery is inconsistent: unclear
-opening assumptions, weak baselines, shallow evaluation, missing rollback, or rambling follow-ups.
+Read this section if you are studying the related topic, preparing interview answers, building a
+project, or reviewing production tradeoffs connected to this part of the curriculum.
 
-Read this section if you want to test whether you can:
+## What to Know Before Starting
 
-- Clarify an ambiguous prompt before solving it.
-- Structure a thirty-to-forty-five-minute technical discussion.
-- Notice when the interviewer is asking for depth, breadth, or risk analysis.
-- Score your own answer honestly instead of treating fluency as correctness.
+- Read the previous folder in the root recommended order when possible.
+- Know the user problem, input data, output, metric, and one common failure mode for the topic.
+- Keep a small notes file with definitions, examples, and questions that remain unclear.
 
 ## Recommended Reading Order
 
-Choose mocks by target role, then repeat the same mock after reviewing the rubric. The second attempt
-should be much sharper than the first.
-
-- Start with 01 or 02 for general AI and ML engineering.
-- Use 03, 05, and 06 for LLM, RAG, and agent loops.
-- Use 04 and 07 for data science and statistics rounds.
-- Use 08 and 09 for deep learning and MLOps depth.
-- Use 10 only after completing at least three narrower mocks.
+Read the numbered Markdown files in ascending order. They are arranged from foundation to application.
 
 ## Table of Contents
 
@@ -47,31 +36,23 @@ should be much sharper than the first.
 
 ## What You Should Know After Finishing
 
-- How to pace a mock round from clarification through final tradeoff summary.
-- How to recognize missing pieces in your own answer using the scoring rubric.
-- How to handle follow-ups about leakage, drift, latency, cost, privacy, fairness, safety, and
-  rollback.
-- How to convert a weak answer into a targeted study plan.
-
-## Mock Practice Protocol
-
-Use the same protocol for every mock:
-
-1. Set a timer and answer without opening the expected answer.
-2. Write the assumptions you made and the questions you should have asked.
-3. Score yourself against the rubric before reading the answer.
-4. Rewrite the opening, baseline, metric, and failure-mode sections.
-5. Repeat the same prompt within forty-eight hours.
+- The core vocabulary and mental models for this section.
+- The practical workflow and evaluation questions connected to the topic.
+- Common mistakes and tradeoffs that appear in interviews and real projects.
+- How this section connects to the surrounding curriculum.
 
 ## Suggested Exercises
 
-- Record one mock and mark every minute where you are clarifying, designing, evaluating, or
-  summarizing.
-- After each mock, write one sentence beginning with "The most dangerous missing assumption was...".
-- Pair a mock with a case study and compare whether your architecture matches the production
-  tradeoffs.
-- Build a personal error log with categories: framing, baseline, metrics, data, systems, safety, and
-  communication.
+- Summarize each file in five bullets.
+- Write one interview question and one strong answer after each lesson.
+- Connect the section to one case study or project.
+- Revisit the related quiz or cheatsheet after a short break.
+
+## Practice Guidance
+
+For each lesson, write a concrete example before reviewing the interview angle. If the topic has a
+model, retrieval, serving, or evaluation component, identify the simplest baseline and the most
+likely production failure. End the section by explaining the tradeoff out loud in two minutes.
 
 ## Navigation
 

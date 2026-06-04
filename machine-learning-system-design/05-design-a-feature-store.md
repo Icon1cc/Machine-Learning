@@ -1,10 +1,10 @@
-# Design A Feature Store
+# Design a Feature Store
 
 ## Beginner-Friendly Intuition
 
-Design A Feature Store is about turning an ML idea into a reliable system. A model is only one part of the design.
-The full system must collect data, train or retrieve useful signals, serve results, monitor quality,
-handle failures, protect sensitive information, and support iteration.
+Design a Feature Store is about designing a reliable workflow for ML teams sharing features between offline training and online inference. The model is only one part of the design.
+The system must collect trustworthy data, produce the expected output (consistent offline datasets and low-latency online feature values), serve it within
+constraints, monitor quality, handle failures, and give the team a way to improve or roll back.
 
 Think of the design as a set of promises: what the user gets, how quickly they get it, how the system
 stays correct, and what happens when the model is uncertain or wrong.
@@ -21,10 +21,25 @@ Important dimensions:
 | Dimension | Design Question |
 | --- | --- |
 | Product goal | What decision or workflow does the system support? |
-| Data | What data is available, fresh, reliable, and permitted? |
-| Model path | What baseline and advanced approaches are justified? |
+| Data | What data is available, fresh, reliable, permitted, and logged? |
+| Baseline | What simple design creates the first measurable reference point? |
 | Serving | Is the system batch, online, streaming, or hybrid? |
 | Operations | How are drift, failures, cost, and latency monitored? |
+
+## Requirements to Clarify
+
+- User and decision: ML teams sharing features between offline training and online inference.
+- Expected output: consistent offline datasets and low-latency online feature values.
+- Latency, throughput, freshness, privacy, and cost constraints.
+- Error cost, human review policy, and rollback expectations.
+- Data access rules, audit requirements, and abuse cases.
+
+## Capacity and Data Assumptions
+
+- Start with realistic traffic and latency assumptions, then state how the design scales.
+- Data includes raw events, entities, timestamps, transformation code, feature definitions, and freshness metadata.
+- Labels or feedback may be delayed, biased by what the system showed, or missing for rare failures.
+- Offline training data must be separated from online serving data by time and availability.
 
 ## Why It Matters
 
@@ -43,12 +58,53 @@ would operate it after launch.
 6. Define offline metrics, online metrics, guardrails, monitoring, and rollback.
 7. Explain bottlenecks, tradeoffs, and future extensions.
 
+## API Contract
+
+GET /features?entity_id=&feature_set= returns feature values, timestamps, and version metadata.
+
+The response should include enough metadata to debug production behavior: model or index version,
+feature or prompt version, latency, fallback status, and trace id.
+
+## Data and Feature Design
+
+Store raw events separately from derived features, chunks, rankings, predictions, traces, and labels.
+Version every artifact that can change. For online systems, enforce point-in-time correctness so the
+training path does not use information that would not exist at serving time.
+
+## Baseline and Advanced Design
+
+| Layer | First version | Stronger version |
+| --- | --- | --- |
+| Decision logic | documented SQL transformations and batch materialized feature tables | managed feature registry with point-in-time joins, streaming updates, and online serving |
+| Evaluation | Offline metric and hand-inspected failures | Slices, hard examples, online tests, and guardrails |
+| Operations | Logs and simple alerts | Versioned rollouts, drift monitoring, ownership, and rollback |
+
 ## Real-World Example
 
-A product team may want a system that ranks items, detects fraud, evaluates LLM outputs, or supports
-a copilot. The system must ingest data, produce a useful response, and improve with feedback. If the
-design ignores data quality, low-confidence handling, or monitoring, the model can appear strong in a
-notebook and still fail in production.
+A realistic first version would ship documented SQL transformations and batch materialized feature tables. The team would measure training-serving skew rate, feature freshness, p95 lookup latency, reuse, and incident count, inspect failures,
+and only then move toward managed feature registry with point-in-time joins, streaming updates, and online serving. This keeps the design honest: model complexity is justified by
+a measured miss, not by preference for a sophisticated architecture.
+
+## Scaling, Reliability, and Cost
+
+- Separate offline computation from online serving where possible.
+- Cache stable features, embeddings, candidates, or responses when freshness allows.
+- Use canaries, shadow traffic, and rollback for risky releases.
+- Define fallback behavior for missing features, model timeouts, provider errors, and low confidence.
+- Track cost per request, expensive dependencies, and the point where batching or precomputation pays off.
+
+## Observability and Security
+
+- Log inputs, versions, outputs, latency, fallback status, and user feedback with privacy controls.
+- Monitor training-serving skew rate, feature freshness, p95 lookup latency, reuse, and incident count plus technical health such as error rate, queue depth, and p95 latency.
+- Enforce authorization before retrieval, scoring, or tool action when sensitive data is involved.
+- Redact private data, limit retention, and make audit trails available for high-impact decisions.
+
+## Bottlenecks and Failure Modes
+
+The primary failure to plan around is leaky point-in-time joins or stale online features create misleading model performance. Other common bottlenecks include delayed labels,
+feature freshness, expensive inference, unowned alerts, biased feedback, and silent data pipeline
+changes.
 
 ## Common Mistakes
 
@@ -75,6 +131,7 @@ ownership.
 - How would you detect drift or quality regression?
 - What data should not be logged?
 - How would you handle low-confidence outputs?
+- How would you defend the design if traffic or data volume increased ten times?
 
 ## Mini Exercise
 
@@ -86,13 +143,13 @@ paragraph explaining the biggest tradeoff.
 
 ```mermaid
 flowchart LR
-    A[Product goal] --> B[Data and feedback]
+    A[User workflow] --> B[Data and context]
     B --> C[Baseline]
-    B --> D[Advanced ML system]
-    C --> E[Evaluation]
+    B --> D[Advanced design]
+    C --> E[Evaluation and guardrails]
     D --> E
-    E --> F[Serving path]
-    F --> G[Monitoring and rollback]
+    E --> F[Serving layer]
+    F --> G[Logs, feedback, monitoring]
     G --> B
 ```
 

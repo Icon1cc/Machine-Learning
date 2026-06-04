@@ -2,9 +2,10 @@
 
 ## Problem Statement
 
-Design a production-minded search ranking system case study for search relevance. The system should use query text, document fields, click logs, freshness, permissions, and result feedback
-to produce ranked search results with snippets and relevance scores. The goal is to show how a practical ML or AI design moves from product framing
-to data, modeling, evaluation, serving, monitoring, and human review.
+Build a search ranking system for search relevance. The system uses query text, document fields, click logs, freshness, permissions, and result feedback to support this output:
+ranked search results with snippets and relevance scores. Treat the case as an interview design exercise and a production review: define the
+decision, start with a baseline, measure quality honestly, and explain how the system behaves when
+confidence is low.
 
 ## Domain Context
 
@@ -35,19 +36,26 @@ will recover when confidence is low. The highest-risk failure to plan around is 
 - The first version should prioritize measurable reliability over model complexity.
 - Deployment traffic may differ from development data.
 
+## Data Assumptions
+
+- Inputs are timestamped so training, validation, and serving windows can be separated.
+- Sensitive fields are minimized, redacted, or access-controlled before modeling.
+- Labels or judgments have known delay, noise, and reviewer disagreement.
+- Feedback can be joined back to model versions, prompts, features, or retrieval indexes.
+
 ## Architecture Diagram
 
 ```mermaid
 flowchart LR
-    A[Data sources] --> B[Validation and cleaning]
-    B --> C[Feature or context pipeline]
+    A[Product request] --> B[Input validation]
+    B --> C[Feature, chunk, or context pipeline]
     C --> D[Baseline]
-    C --> E[Improved model or retrieval system]
-    D --> F[Evaluation]
+    C --> E[Advanced approach]
+    D --> F[Offline evaluation]
     E --> F
     F --> G[Serving or workflow layer]
-    G --> H[Monitoring and feedback]
-    H --> B
+    G --> H[Monitoring, feedback, and review]
+    H --> C
 ```
 
 ## Data Model or Data Design
@@ -73,11 +81,29 @@ expose data quality problems before advanced modeling begins.
 After measuring the baseline, consider hybrid lexical and vector retrieval followed by a learned reranker. Add complexity only when it improves a named
 metric or reduces a known operational risk.
 
+## Model Choices
+
+| Option | When it fits | Main risk |
+| --- | --- | --- |
+| Rules or search baseline | The workflow needs explainability and fast iteration | Can miss nuanced patterns |
+| Classical model | Tabular or sparse features carry strong signal | Can leak features or underfit complex behavior |
+| Deep model or LLM workflow | Text, images, retrieval, or reasoning dominate the task | Higher latency, cost, and evaluation burden |
+| Human review | Errors are costly or confidence is low | Review capacity can become the bottleneck |
+
 ## Evaluation Plan
 
 Evaluate with NDCG, MRR, zero-result rate, latency, abandonment, and judged relevance. Include slice analysis for important user, item, time, source, language, or
 risk segments. Keep a small set of hard examples for regression checks and review disagreements
 between model outputs and human judgment.
+
+## Metrics and Guardrails
+
+| Metric Type | Examples |
+| --- | --- |
+| Primary quality | NDCG, MRR, zero-result rate, latency, abandonment, and judged relevance |
+| Guardrail | Latency, cost, privacy incidents, unsafe actions, and user complaints |
+| Data quality | Missing fields, stale inputs, label delay, and source coverage |
+| Operations | Error rate, timeout rate, review backlog, rollback count, and alert response time |
 
 ## Scaling Strategy
 
@@ -105,6 +131,14 @@ confidence, decision outcomes, and human feedback. Use dashboards and alerts tie
 
 Common bottlenecks include slow feature generation, expensive model calls, poor retrieval recall,
 manual labeling throughput, delayed ground truth, and noisy feedback loops.
+
+## Failure Modes
+
+- The system optimizes an offline metric that does not match the product decision.
+- Feedback loops reinforce early mistakes or popular items.
+- A data pipeline change silently shifts feature values or retrieval quality.
+- Confidence is poorly calibrated, causing the system to automate cases that need review.
+- The critical failure to plan around is ranking inaccessible, stale, or wrong documents above the answer users need.
 
 ## Tradeoffs
 

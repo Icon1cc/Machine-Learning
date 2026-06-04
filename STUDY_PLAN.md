@@ -1,88 +1,93 @@
 # Study Plan
 
-Use these plans as schedules, not rules. If a week feels too dense, keep the order and slow down.
-Every week includes reading, exercises, a mini-project, and interview practice because real skill
-comes from recall and application.
+Use these plans as schedules, not rules. Keep the order when possible, but slow down when a topic
+needs more practice. Every week should produce a visible artifact: notes, a diagram, a baseline, an
+evaluation, a case-study walkthrough, or a mock interview review.
 
-ML system design should be practiced after production AI and before final mock interviews. Use
-`machine-learning-system-design/` to turn model knowledge into architecture explanations.
+## 12-Week Focused Plan
 
-## 12-Week Aggressive Plan
-
-| Week | Topics | Files | Exercises | Mini-project | Interview practice |
-| --- | --- | --- | --- | --- | --- |
-| 1 | ML basics | `fundamentals/` | Define labels, splits, metrics | Dataset framing memo | Explain bias and variance |
-| 2 | Math and stats | `math/, statistics/` | Compute gradients and uncertainty | A/B test analysis | Explain leakage |
-| 3 | Data and classical ML | `data-science/, classical-ml/` | Train baselines | Tabular classifier | Compare models |
-| 4 | Deep learning | `deep-learning/` | Trace forward and backward pass | Tiny neural net | Debug loss curves |
-| 5 | NLP, vision, recommenders | `nlp/, computer-vision/, recommender-systems/` | Evaluate task metrics | Search or ranking demo | Discuss embeddings |
-| 6 | MLOps and production | `mlops/, production-ai/` | Design monitoring | Serving sketch | System design tradeoffs |
-| 7 | GenAI and LLMs | `generative-ai/, llms/` | Prompt and evaluate | LLM app design | Discuss hallucinations |
-| 8 | Vector DB, RAG, agents | `vector-databases/, rag/, agents/` | Build retrieval flow | RAG assistant | Agent risk controls |
-| 9 | ML system design | `machine-learning-system-design/` | Draw data and serving paths | Design review memo | System design tradeoffs |
-| 10 | Case studies | `case-studies/` | Write architecture notes | Choose one case | Metrics and failure modes |
-| 11 | ML basics | `fundamentals/` | Define labels, splits, metrics | Dataset framing memo | Explain bias and variance |
-| 12 | Math and stats | `math/, statistics/` | Compute gradients and uncertainty | A/B test analysis | Explain leakage |
+| Week | Topics | Files | Outcome |
+| --- | --- | --- | --- |
+| 1 | Foundations | `fundamentals/` | Frame one product problem with input, label, metric, and baseline. |
+| 2 | Math | `math/` | Explain gradients, matrix multiplication, and similarity with one worked example. |
+| 3 | Statistics | `statistics/` | Design an A/B test and list leakage or sampling risks. |
+| 4 | Data Science | `data-science/` | Clean a small dataset and write an EDA memo. |
+| 5 | Classical ML | `classical-ml/` | Train a baseline and compare two metrics. |
+| 6 | Deep Learning | `deep-learning/` | Trace a forward pass and debug one training failure. |
+| 7 | NLP, Vision, Recommenders | `nlp/`, `computer-vision/`, `recommender-systems/` | Map each modality to its data, metric, and common failure. |
+| 8 | MLOps and Production AI | `mlops/`, `production-ai/` | Draw a serving and monitoring plan. |
+| 9 | Generative AI and LLMs | `generative-ai/`, `llms/` | Compare prompting, RAG, and fine-tuning for one use case. |
+| 10 | Vector Search, RAG, Agents | `vector-databases/`, `rag/`, `agents/` | Design a grounded assistant with permissions and evaluation. |
+| 11 | ML System Design and Case Studies | `machine-learning-system-design/`, `case-studies/` | Complete two architecture walkthroughs. |
+| 12 | Projects and Interviews | `capstone-projects/`, `interview-prep/`, `mocks/` | Finish one project plan and run two mock rounds. |
 
 ## 24-Week Balanced Plan
 
-| Week | Topics | Files | Exercises | Mini-project | Interview practice |
-| --- | --- | --- | --- | --- | --- |
-| 1 | ML basics | `fundamentals/` | Define labels, splits, metrics | Dataset framing memo | Explain bias and variance |
-| 2 | Math and stats | `math/, statistics/` | Compute gradients and uncertainty | A/B test analysis | Explain leakage |
-| 3 | Data and classical ML | `data-science/, classical-ml/` | Train baselines | Tabular classifier | Compare models |
-| 4 | Deep learning | `deep-learning/` | Trace forward and backward pass | Tiny neural net | Debug loss curves |
-| 5 | NLP, vision, recommenders | `nlp/, computer-vision/, recommender-systems/` | Evaluate task metrics | Search or ranking demo | Discuss embeddings |
-| 6 | MLOps and production | `mlops/, production-ai/` | Design monitoring | Serving sketch | System design tradeoffs |
-| 7 | GenAI and LLMs | `generative-ai/, llms/` | Prompt and evaluate | LLM app design | Discuss hallucinations |
-| 8 | Vector DB, RAG, agents | `vector-databases/, rag/, agents/` | Build retrieval flow | RAG assistant | Agent risk controls |
-| 9 | Case studies | `case-studies/` | Write architecture notes | Choose one case | Metrics and failure modes |
-| 10 | Capstone and mocks | `capstone-projects/, mocks/` | Finish portfolio story | Capstone demo | Full mock loop |
-| 11 | ML basics | `fundamentals/` | Define labels, splits, metrics | Dataset framing memo | Explain bias and variance |
-| 12 | Math and stats | `math/, statistics/` | Compute gradients and uncertainty | A/B test analysis | Explain leakage |
-| 13 | Data and classical ML | `data-science/, classical-ml/` | Train baselines | Tabular classifier | Compare models |
-| 14 | Deep learning | `deep-learning/` | Trace forward and backward pass | Tiny neural net | Debug loss curves |
-| 15 | NLP, vision, recommenders | `nlp/, computer-vision/, recommender-systems/` | Evaluate task metrics | Search or ranking demo | Discuss embeddings |
-| 16 | MLOps and production | `mlops/, production-ai/` | Design monitoring | Serving sketch | System design tradeoffs |
-| 17 | GenAI and LLMs | `generative-ai/, llms/` | Prompt and evaluate | LLM app design | Discuss hallucinations |
-| 18 | Vector DB, RAG, agents | `vector-databases/, rag/, agents/` | Build retrieval flow | RAG assistant | Agent risk controls |
-| 19 | ML system design | `machine-learning-system-design/` | Draw data and serving paths | Design review memo | System design tradeoffs |
-| 20 | Case studies | `case-studies/` | Write architecture notes | Choose one case | Metrics and failure modes |
-| 21 | ML basics | `fundamentals/` | Define labels, splits, metrics | Dataset framing memo | Explain bias and variance |
-| 22 | Math and stats | `math/, statistics/` | Compute gradients and uncertainty | A/B test analysis | Explain leakage |
-| 23 | Data and classical ML | `data-science/, classical-ml/` | Train baselines | Tabular classifier | Compare models |
-| 24 | Deep learning | `deep-learning/` | Trace forward and backward pass | Tiny neural net | Debug loss curves |
+| Week | Topics | Files | Outcome |
+| --- | --- | --- | --- |
+| 1 | Foundations | `fundamentals/` | Read, summarize, and answer one quiz. |
+| 2 | Foundations | `fundamentals/` | Frame one product problem with input, label, metric, and baseline. |
+| 3 | Math | `math/` | Read, summarize, and answer one quiz. |
+| 4 | Math | `math/` | Explain gradients, matrix multiplication, and similarity with one worked example. |
+| 5 | Statistics | `statistics/` | Read, summarize, and answer one quiz. |
+| 6 | Statistics | `statistics/` | Design an A/B test and list leakage or sampling risks. |
+| 7 | Data Science | `data-science/` | Read, summarize, and answer one quiz. |
+| 8 | Data Science | `data-science/` | Clean a small dataset and write an EDA memo. |
+| 9 | Classical ML | `classical-ml/` | Read, summarize, and answer one quiz. |
+| 10 | Classical ML | `classical-ml/` | Train a baseline and compare two metrics. |
+| 11 | Deep Learning | `deep-learning/` | Read, summarize, and answer one quiz. |
+| 12 | Deep Learning | `deep-learning/` | Trace a forward pass and debug one training failure. |
+| 13 | NLP, Vision, Recommenders | `nlp/`, `computer-vision/`, `recommender-systems/` | Read, summarize, and answer one quiz. |
+| 14 | NLP, Vision, Recommenders | `nlp/`, `computer-vision/`, `recommender-systems/` | Map each modality to its data, metric, and common failure. |
+| 15 | MLOps and Production AI | `mlops/`, `production-ai/` | Read, summarize, and answer one quiz. |
+| 16 | MLOps and Production AI | `mlops/`, `production-ai/` | Draw a serving and monitoring plan. |
+| 17 | Generative AI and LLMs | `generative-ai/`, `llms/` | Read, summarize, and answer one quiz. |
+| 18 | Generative AI and LLMs | `generative-ai/`, `llms/` | Compare prompting, RAG, and fine-tuning for one use case. |
+| 19 | Vector Search, RAG, Agents | `vector-databases/`, `rag/`, `agents/` | Read, summarize, and answer one quiz. |
+| 20 | Vector Search, RAG, Agents | `vector-databases/`, `rag/`, `agents/` | Design a grounded assistant with permissions and evaluation. |
+| 21 | ML System Design and Case Studies | `machine-learning-system-design/`, `case-studies/` | Read, summarize, and answer one quiz. |
+| 22 | ML System Design and Case Studies | `machine-learning-system-design/`, `case-studies/` | Complete two architecture walkthroughs. |
+| 23 | Projects and Interviews | `capstone-projects/`, `interview-prep/`, `mocks/` | Read, summarize, and answer one quiz. |
+| 24 | Projects and Interviews | `capstone-projects/`, `interview-prep/`, `mocks/` | Finish one project plan and run two mock rounds. |
 
 ## 6-Week Interview Revision Plan
 
-| Week | Topics | Files | Exercises | Mini-project | Interview practice |
-| --- | --- | --- | --- | --- | --- |
-| 1 | ML basics | `fundamentals/` | Define labels, splits, metrics | Dataset framing memo | Explain bias and variance |
-| 2 | Math and stats | `math/, statistics/` | Compute gradients and uncertainty | A/B test analysis | Explain leakage |
-| 3 | Data and classical ML | `data-science/, classical-ml/` | Train baselines | Tabular classifier | Compare models |
-| 4 | Deep learning | `deep-learning/` | Trace forward and backward pass | Tiny neural net | Debug loss curves |
-| 5 | NLP, vision, recommenders | `nlp/, computer-vision/, recommender-systems/` | Evaluate task metrics | Search or ranking demo | Discuss embeddings |
-| 6 | MLOps, production, and system design | `mlops/, production-ai/, machine-learning-system-design/` | Design monitoring | Serving sketch | System design tradeoffs |
+| Week | Topics | Files | Outcome |
+| --- | --- | --- | --- |
+| 1 | Core ML | `fundamentals/`, `math/`, `statistics/` | Explain splits, leakage, metrics, and uncertainty. |
+| 2 | Data and Classical ML | `data-science/`, `classical-ml/` | Defend a baseline and compare model families. |
+| 3 | Deep Learning and Modalities | `deep-learning/`, `nlp/`, `computer-vision/`, `recommender-systems/` | Explain architectures and task metrics. |
+| 4 | Production and LLM Systems | `mlops/`, `production-ai/`, `llms/`, `rag/`, `agents/` | Discuss latency, cost, monitoring, safety, and evaluation. |
+| 5 | System Design | `machine-learning-system-design/`, `case-studies/` | Complete three whiteboard-style designs. |
+| 6 | Mocks and Final Review | `interview-prep/`, `mocks/`, `cheatsheets/` | Run timed mocks and repair weak answers. |
 
-## Weekend-Only Plan
+## Weekly Routine
 
-Use one weekend for each major folder. Saturday is for reading and notes. Sunday is for exercises,
-one notebook or source example, and a spoken interview explanation. Expect this route to take about
-six months if you also complete capstones.
+| Activity | Time | Output |
+| --- | --- | --- |
+| Reading | 2 to 4 sessions | Five-bullet summary per file |
+| Practice | 1 to 2 sessions | Quiz answers, exercises, or notebook edits |
+| Build or design | 1 session | Baseline, diagram, or project note |
+| Interview rehearsal | 1 session | Spoken answer with feedback notes |
+| Review | 30 minutes | Updated weak-topic list |
 
-## Project-First Plan
+## Project-First Route
 
-1. Choose one guide from [capstone-projects/](capstone-projects/) or one system design prompt from [machine-learning-system-design/](machine-learning-system-design/).
-2. Read only the files needed for the next implementation step.
-3. Build a baseline in the first weekend.
-4. Add evaluation before adding complexity.
+1. Choose one guide from [capstone-projects/](capstone-projects/) or one prompt from [machine-learning-system-design/](machine-learning-system-design/).
+2. Read only the files needed for the next implementation or design step.
+3. Build a baseline before adding model complexity.
+4. Add evaluation before optimizing.
 5. Keep a project journal with data choices, failed experiments, and tradeoffs.
-6. Turn the final writeup into interview stories and resume bullets.
+6. Turn the final writeup into resume bullets and interview stories.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    Read --> Practice --> Build --> Evaluate --> Explain --> Review
+    Read --> Recall
+    Recall --> Build
+    Build --> Evaluate
+    Evaluate --> Explain
+    Explain --> Review
     Review --> Read
 ```

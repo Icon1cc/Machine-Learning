@@ -4,29 +4,20 @@
 
 Practical data cleaning, exploration, feature engineering, visualization, experimentation, and communication.
 
-## Beginner Intuition
-
-Data science is the work between a vague business question and a defensible answer. Most of the job is
-not modeling; it is cleaning messy data, exploring it until you understand it, engineering signals,
-and communicating a result someone will act on. The model is often the smallest part.
-
-## Why It Matters
-
-Teams do not pay for accuracy; they pay for better decisions. A clean analysis with a clear
-recommendation beats a fancy model nobody trusts. This section is where raw data becomes an
-explanation a stakeholder can use.
-
 ## Who Should Read This Section
 
-Read this if you are preparing for data-scientist or analyst roles, or if you build models but
-struggle to frame the question, clean the data, or present the result. It connects directly to the
-statistics section.
+Read this section if you are studying the related topic, preparing interview answers, building a
+project, or reviewing production tradeoffs connected to this part of the curriculum.
+
+## What to Know Before Starting
+
+- Read the previous folder in the root recommended order when possible.
+- Know the user problem, input data, output, metric, and one common failure mode for the topic.
+- Keep a small notes file with definitions, examples, and questions that remain unclear.
 
 ## Recommended Reading Order
 
-Read in order: workflow first, then cleaning, exploration, feature engineering, missing and
-imbalanced data, visualization, experimentation, business metrics, and communication last because it
-ties everything together.
+Read the numbered Markdown files in ascending order. They are arranged from foundation to application.
 
 ## Table of Contents
 
@@ -43,47 +34,25 @@ ties everything together.
 | 9 | [Business Metrics](09-business-metrics.md) |
 | 10 | [Communicating Results](10-communicating-results.md) |
 
-## Real-World Examples
-
-- A "revenue went up during the promo" claim that falls apart once you control for seasonality.
-- A model that breaks because 30 percent of a key column was missing and silently imputed as zero.
-- A dashboard that misleads because a bar chart started its axis at 90 instead of 0.
-- A churn analysis that drives a retention campaign worth more than any model tweak.
-
-## Pattern Recognition
-
-- "The numbers look wrong" usually traces to data cleaning or a join that duplicated rows.
-- "It works in the notebook" but not in the meeting means the communication failed, not the model.
-- "We optimized the metric but the business did not improve" means the metric was a proxy, not the
-  goal.
-- A skewed or imbalanced target changes both modeling and metric choice.
-
-## Common Mistakes
-
-- Skipping exploration and trusting the data is clean.
-- Imputing missing values without an indicator and without thinking about why they are missing.
-- Optimizing a vanity metric instead of a decision metric.
-- Presenting analysis without a clear recommendation.
-
-## Interview Notes
-
-Expect a case prompt like "metric X dropped, investigate" or "design an experiment for feature Y".
-Strong answers clarify the decision, check the data, slice by segment, and end with a recommendation
-and its risks.
-
 ## What You Should Know After Finishing
 
-- The end-to-end workflow from question to communicated result.
-- How to clean data and handle missing and imbalanced values responsibly.
-- How to design and read an experiment.
-- How to pick business metrics and present findings that drive action.
+- The core vocabulary and mental models for this section.
+- The practical workflow and evaluation questions connected to the topic.
+- Common mistakes and tradeoffs that appear in interviews and real projects.
+- How this section connects to the surrounding curriculum.
 
 ## Suggested Exercises
 
-- Take a messy public dataset and write a five-step cleaning plan.
-- Investigate a fictional metric drop: list checks in priority order.
-- Turn one analysis into a three-sentence recommendation for a non-technical reader.
-- Choose a decision metric and a guardrail metric for a product you use.
+- Summarize each file in five bullets.
+- Write one interview question and one strong answer after each lesson.
+- Connect the section to one case study or project.
+- Revisit the related quiz or cheatsheet after a short break.
+
+## Practice Guidance
+
+For each lesson, write a concrete example before reviewing the interview angle. If the topic has a
+model, retrieval, serving, or evaluation component, identify the simplest baseline and the most
+likely production failure. End the section by explaining the tradeoff out loud in two minutes.
 
 ## Navigation
 

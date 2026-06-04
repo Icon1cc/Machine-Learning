@@ -96,6 +96,11 @@ flowchart LR
 | [Diagrams](diagrams/README.md) | Reusable Mermaid diagram source files for learning paths and architecture sketches. |
 | [Tools](tools/README.md) | Repository maintenance scripts for indexing, link validation, and Markdown quality checks. |
 
+## Repository Index
+
+Use [REPO_INDEX.md](REPO_INDEX.md) when you want a single grouped list of every Markdown file in
+the repository. Regenerate it after adding, renaming, or removing learning material.
+
 ## Recommended Reading Order
 
 [Fundamentals](fundamentals/README.md) -> [Math](math/README.md) -> [Statistics](statistics/README.md) -> [Data Science](data-science/README.md) -> [Classical ML](classical-ml/README.md) -> [Deep Learning](deep-learning/README.md) -> [NLP](nlp/README.md) -> [Computer Vision](computer-vision/README.md) -> [Recommender Systems](recommender-systems/README.md) -> [MLOps](mlops/README.md) -> [Generative AI](generative-ai/README.md) -> [LLMs](llms/README.md) -> [Vector Databases](vector-databases/README.md) -> [RAG](rag/README.md) -> [Agents](agents/README.md) -> [Production AI](production-ai/README.md) -> [Machine Learning System Design](machine-learning-system-design/README.md) -> [Ethics Safety](ethics-safety/README.md) -> [Case Studies](case-studies/README.md) -> [Interview Prep](interview-prep/README.md) -> [Mocks](mocks/README.md) -> [Quizzes](quizzes/README.md) -> [Cheatsheets](cheatsheets/README.md) -> [Capstone Projects](capstone-projects/README.md)

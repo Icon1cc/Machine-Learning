@@ -1,4 +1,4 @@
-# What Is An LLM
+# What Is an LLM
 
 ## Beginner-Friendly Intuition
 

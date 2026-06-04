@@ -87,6 +87,30 @@ LOW_QUALITY_PATTERNS = [
         "generic case study problem statement",
     ),
     (
+        re.compile(r"\brecurring goal\b", re.IGNORECASE),
+        "repeated generic topic introduction",
+    ),
+    (
+        re.compile(r"\bplain workflow\b", re.IGNORECASE),
+        "repeated generic workflow phrasing",
+    ),
+    (
+        re.compile(r"\bDesign a production-minded\b", re.IGNORECASE),
+        "generic case study opening",
+    ),
+    (
+        re.compile(r"\bdemonstrates practical machine learning engineering\b", re.IGNORECASE),
+        "generic capstone opening",
+    ),
+    (
+        re.compile(r"\bdefine it by its role, inputs, outputs, and failure modes\b", re.IGNORECASE),
+        "placeholder glossary definition",
+    ),
+    (
+        re.compile(r"\bBuild practical mastery of\b", re.IGNORECASE),
+        "repeated roadmap template phrasing",
+    ),
+    (
         re.compile(r"\bscenario\s+[123]\b", re.IGNORECASE),
         "placeholder interview scenario heading",
     ),
@@ -109,6 +133,7 @@ REQUIRED_ROOT_SECTIONS = [
     "Project and Case Study Path",
     "Learning Roadmap",
     "Table of Contents",
+    "Repository Index",
     "Recommended Reading Order",
     "Progress Checklist",
     "Using Quizzes",
@@ -144,6 +169,8 @@ CASE_STUDY_REQUIRED = [
     "observability",
     "bottlenecks",
     "tradeoffs",
+    "failure modes",
+    "metrics and guardrails",
     "interview explanation script",
     "follow-up questions",
     "common mistakes",
@@ -190,6 +217,8 @@ CAPSTONE_REQUIRED = [
     "dataset idea",
     "step-by-step implementation plan",
     "evaluation",
+    "evaluation strategy",
+    "extensions",
     "common mistakes",
     "interview angle",
     "mini exercise",
@@ -257,10 +286,12 @@ def check_major_folder_readmes(errors: list[str]) -> None:
         for required in [
             "Folder Purpose",
             "Who Should Read This Section",
+            "What to Know Before Starting",
             "Recommended Reading Order",
             "Table of Contents",
             "What You Should Know After Finishing",
             "Suggested Exercises",
+            "Practice Guidance",
             "Navigation",
         ]:
             if f"## {required}" not in text:

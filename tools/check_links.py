@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import re
 import sys
+from functools import lru_cache
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
@@ -38,6 +39,7 @@ def github_anchor_slug(heading: str) -> str:
     heading = re.sub(r"\s+", "-", heading)
     return heading
 
+@lru_cache(maxsize=None)
 def anchors_for(path: Path) -> set[str]:
     text = path.read_text(encoding="utf-8")
     anchors: set[str] = set()

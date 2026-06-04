@@ -2,9 +2,8 @@
 
 ## Goal
 
-Build a focused enterprise RAG assistant that demonstrates practical machine learning engineering: problem
-framing, data handling, a measurable baseline, an improved approach, evaluation, communication, and
-production thinking.
+Build a focused enterprise RAG assistant with a clear problem statement, reproducible data path, measurable
+baseline, improved approach, evaluation report, and interview-ready explanation.
 
 ## Why This Project Matters
 
@@ -44,6 +43,12 @@ flowchart LR
     G --> H[Monitoring plan]
 ```
 
+## Architecture
+
+Keep the first implementation small. Use a data preparation layer, one baseline, one improved
+approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
+be reproduced later.
+
 ## Dataset Idea
 
 Use documents, ACLs, queries, and audit logs. If a public dataset is not available, create a small synthetic dataset that preserves
@@ -68,6 +73,20 @@ cases.
 Use answer quality, access correctness, and freshness. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
 where the system succeeds, fails, and should defer to a human.
 
+## Evaluation Strategy
+
+- Compare the baseline and improved approach on the same split.
+- Include at least three representative success cases and three failure cases.
+- Report segment-level results, not only one aggregate metric.
+- Add a small regression set that protects the most important behavior.
+
+## Extensions
+
+- Add monitoring for data drift, latency, cost, and quality regressions.
+- Add a human review path for low-confidence or high-risk outputs.
+- Package the result as a CLI, notebook, small API, or dashboard.
+- Write a short model card or system card covering intended use and limits.
+
 ## Common Mistakes
 
 - Starting with the advanced approach before measuring the baseline.
@@ -78,7 +97,7 @@ where the system succeeds, fails, and should defer to a human.
 
 ## Resume Bullet Points
 
-- Built a enterprise RAG assistant with documented data pipeline, baseline, model comparison, and evaluation.
+- Built an enterprise RAG assistant with documented data pipeline, baseline, model comparison, and evaluation.
 - Improved answer quality, access correctness, and freshness while adding error analysis and production risk assessment.
 - Communicated tradeoffs using business impact, failure modes, and deployment constraints.
 

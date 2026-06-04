@@ -74,6 +74,127 @@ FOLDER_DESCRIPTIONS = {
     "tools": "Repository maintenance scripts for indexing, link validation, and Markdown quality checks.",
 }
 
+FOLDER_INTUITION = {
+    "fundamentals": "connect a business or product question to data, labels, models, metrics, and failure modes",
+    "math": "turn geometry, rates of change, and information measures into tools for understanding model behavior",
+    "statistics": "reason under uncertainty, measure evidence, and avoid drawing claims the data cannot support",
+    "data-science": "turn messy records into evidence that supports a decision and can be explained to others",
+    "classical-ml": "build strong, interpretable baselines for structured data before reaching for larger models",
+    "deep-learning": "learn layered representations from tensors using gradients, architecture choices, and careful debugging",
+    "nlp": "represent language so software can classify, extract, search, summarize, or generate text",
+    "computer-vision": "treat images as tensors and learn spatial patterns that support visual decisions",
+    "recommender-systems": "rank useful items for users while balancing relevance, diversity, freshness, and feedback loops",
+    "mlops": "make machine learning reproducible, deployable, observable, and governable after the notebook stage",
+    "generative-ai": "create useful new outputs while controlling quality, safety, provenance, and evaluation risk",
+    "vector-databases": "retrieve semantically related items with embeddings, metadata, indexes, and ranking controls",
+    "production-ai": "ship AI features that balance quality, latency, cost, privacy, safety, and ownership",
+    "ethics-safety": "anticipate harms, privacy risks, misuse paths, and governance needs before release",
+}
+
+ROADMAP_PHASES = [
+    ("0", "Setup and Learning Strategy", "Read the root README, choose a study plan, and set up Python examples.", "A realistic schedule and a clear definition of done for each study block."),
+    ("1", "ML Foundations", "Study `fundamentals/` and practice framing inputs, labels, metrics, baselines, and splits.", "You can explain what makes a problem suitable for ML and what makes an evaluation misleading."),
+    ("2", "Math for ML", "Study `math/` with emphasis on vectors, matrices, gradients, optimization, entropy, and distance.", "You can explain the math intuition behind loss minimization, similarity, PCA, and backpropagation."),
+    ("3", "Statistics and Experimentation", "Study `statistics/` and connect uncertainty, sampling, hypothesis tests, and A/B tests to product decisions.", "You can reason about noisy evidence, confidence, leakage, bias, and causal claims."),
+    ("4", "Data Science Workflow", "Study `data-science/` and practice cleaning, exploration, visualization, feature engineering, and communication.", "You can inspect a dataset, expose quality risks, and explain findings without overstating them."),
+    ("5", "Classical ML", "Study `classical-ml/` and implement simple baselines before model selection.", "You can choose and compare linear models, trees, ensembles, clustering methods, and metrics."),
+    ("6", "Deep Learning", "Study `deep-learning/` and trace forward propagation, backpropagation, optimizers, regularization, and transformers.", "You can debug training behavior and explain architecture tradeoffs clearly."),
+    ("7", "Applied Modalities", "Study `nlp/`, `computer-vision/`, and `recommender-systems/`.", "You can map text, image, and ranking tasks to data, models, metrics, and failure modes."),
+    ("8", "MLOps and Production AI", "Study `mlops/` and `production-ai/` together.", "You can describe reproducibility, serving, monitoring, rollback, latency, cost, privacy, and governance."),
+    ("9", "Generative AI and LLMs", "Study `generative-ai/` and `llms/`.", "You can explain transformer-style generation, prompting, tuning choices, evaluation, guardrails, and serving constraints."),
+    ("10", "Vector Search, RAG, and Agents", "Study `vector-databases/`, `rag/`, and `agents/`.", "You can design grounded assistants, retrieval pipelines, tool use, memory, observability, and risk controls."),
+    ("11", "ML System Design", "Study `machine-learning-system-design/` and draw each architecture.", "You can walk through requirements, data flow, serving, scaling, evaluation, monitoring, and tradeoffs."),
+    ("12", "Case Studies and Projects", "Study `case-studies/`, then build from `capstone-projects/`.", "You can turn concepts into a portfolio-quality project with evaluation and interview explanation."),
+    ("13", "Interview Preparation", "Use `interview-prep/`, `mocks/`, `quizzes/`, and `cheatsheets/`.", "You can answer under time pressure with baseline, metric, failure mode, and production judgment."),
+]
+
+GLOSSARY_SECTIONS = {
+    "ML Fundamentals": [
+        ("Label", "The target value the model learns to predict. Bad labels create a ceiling on model quality."),
+        ("Feature", "An input signal used by a model. Good features are available at prediction time and reflect the decision."),
+        ("Dataset", "A collection of examples with inputs, metadata, labels, and provenance needed for learning or evaluation."),
+        ("Training Set", "The examples used to fit model parameters."),
+        ("Validation Set", "The examples used to choose models, thresholds, and hyperparameters before final testing."),
+        ("Test Set", "A held-out set used for the final estimate of generalization."),
+        ("Baseline", "The simplest measurable approach that a more complex model must beat."),
+        ("Generalization", "Performance on new examples from the intended deployment distribution."),
+        ("Overfitting", "Learning noise or quirks from training data that do not hold in deployment."),
+        ("Underfitting", "Missing important structure because the model or features are too simple."),
+        ("Data Leakage", "Using information during training or evaluation that would not be available at prediction time."),
+        ("Calibration", "The degree to which predicted probabilities match observed frequencies."),
+    ],
+    "Math and Statistics": [
+        ("Vector", "An ordered list of numbers that can represent features, embeddings, gradients, or parameters."),
+        ("Matrix", "A rectangular array that represents linear transformations, batches, or model weights."),
+        ("Dot Product", "A similarity and projection operation used in linear models, attention, and vector search."),
+        ("Gradient", "The direction and rate of steepest increase for a function. Training usually moves against it."),
+        ("Loss Function", "The objective a model minimizes during training."),
+        ("Entropy", "A measure of uncertainty in a distribution."),
+        ("Cross Entropy", "A loss used when comparing predicted probabilities with true classes."),
+        ("KL Divergence", "A measure of how one probability distribution differs from another."),
+        ("p-value", "A measure of how surprising the observed data would be under a null hypothesis."),
+        ("Confidence Interval", "A range that describes uncertainty around an estimate."),
+        ("Sampling Bias", "A mismatch between sampled data and the population or traffic you care about."),
+        ("Causal Effect", "The change caused by an intervention, not just an association."),
+    ],
+    "Classical ML": [
+        ("Linear Regression", "A model that predicts numeric values using a weighted sum of features."),
+        ("Logistic Regression", "A linear classifier that outputs calibrated class probabilities when assumptions are reasonable."),
+        ("Decision Tree", "A model that splits data with if-then rules."),
+        ("Random Forest", "An ensemble of decision trees that reduces variance through averaging."),
+        ("Gradient Boosting", "An ensemble that builds trees sequentially to correct previous errors."),
+        ("SVM", "A margin-based classifier that can use kernels for non-linear boundaries."),
+        ("Naive Bayes", "A probabilistic classifier with strong independence assumptions."),
+        ("KNN", "A similarity-based method that predicts from nearby examples."),
+        ("K-means", "A clustering method that assigns points to the nearest centroid."),
+        ("DBSCAN", "A density-based clustering method that can find arbitrary shapes and noise."),
+        ("PCA", "A dimensionality reduction method that finds directions of maximum variance."),
+        ("SHAP", "An attribution method that estimates feature contribution to a prediction."),
+    ],
+    "Deep Learning and NLP": [
+        ("Neuron", "A weighted transformation followed by a non-linear activation."),
+        ("Activation Function", "A non-linearity that lets networks model complex relationships."),
+        ("Backpropagation", "The algorithm that computes gradients through a computational graph."),
+        ("Optimizer", "The update rule that changes parameters based on gradients."),
+        ("Dropout", "A regularization method that randomly disables activations during training."),
+        ("Batch Normalization", "A normalization layer that stabilizes training across mini-batches."),
+        ("Attention", "A mechanism that weights relevant tokens, patches, or features for a given query."),
+        ("Transformer", "An architecture built around attention, feed-forward layers, residual connections, and normalization."),
+        ("Token", "A text unit processed by a model, often a word piece or byte-pair segment."),
+        ("Embedding", "A dense vector representation of text, images, users, items, or documents."),
+        ("NER", "Named entity recognition, which extracts entities such as people, products, locations, or dates."),
+        ("Perplexity", "A language modeling metric related to how surprised the model is by text."),
+    ],
+    "LLMs, RAG, and Agents": [
+        ("Context Window", "The maximum amount of text or tokens the model can consider in one request."),
+        ("Instruction Tuning", "Training that makes a base model better at following user instructions."),
+        ("RLHF", "Preference optimization using human feedback or preference models."),
+        ("Hallucination", "A plausible output that is unsupported, false, or not grounded in available evidence."),
+        ("Guardrail", "A control that constrains model behavior, validates output, or routes risky cases."),
+        ("Chunk", "A document segment indexed for retrieval."),
+        ("Retriever", "The component that finds candidate documents or chunks for a query."),
+        ("Reranker", "A model that reorders retrieved candidates using richer relevance scoring."),
+        ("Hybrid Search", "A retrieval strategy combining lexical and vector signals."),
+        ("Faithfulness", "Whether an answer is supported by the retrieved evidence."),
+        ("Agent Loop", "The observe, plan, act, and evaluate cycle used by a tool-using system."),
+        ("Tool Schema", "The structured contract that tells an agent how to call an external capability."),
+    ],
+    "MLOps and Production AI": [
+        ("Experiment Tracking", "Recording parameters, datasets, metrics, artifacts, and code versions for comparison."),
+        ("Model Registry", "A controlled store for model versions, stages, metadata, and deployment approvals."),
+        ("Feature Store", "A system for sharing, versioning, and serving features consistently offline and online."),
+        ("Training-Serving Skew", "A mismatch between how features are produced during training and serving."),
+        ("Batch Inference", "Predictions produced on a schedule for many examples at once."),
+        ("Online Inference", "Predictions produced on demand for a live request."),
+        ("Drift", "A change in data, labels, behavior, or relationships after deployment."),
+        ("Canary Release", "A limited rollout used to compare a new version before broad release."),
+        ("Shadow Deployment", "Running a model beside production without using its output for decisions."),
+        ("Rollback", "Returning to a prior stable version after a bad release or incident."),
+        ("SLO", "A target level for system behavior, such as latency or availability."),
+        ("Audit Log", "A record of inputs, outputs, versions, and decisions needed for investigation."),
+    ],
+}
+
 SYSTEM_DESIGN_FILES = [
     "01-design-a-recommendation-system.md",
     "02-design-a-search-ranking-system.md",
@@ -86,6 +207,109 @@ SYSTEM_DESIGN_FILES = [
     "09-design-a-real-time-inference-system.md",
     "10-design-an-ai-copilot-platform.md",
 ]
+
+SYSTEM_DESIGN_DETAILS = {
+    "design-a-recommendation-system": {
+        "user": "a consumer app user opening a personalized home surface",
+        "output": "a ranked list of items with diversity, freshness, and safety constraints",
+        "baseline": "popular, recent, and followed-source candidates with simple engagement scoring",
+        "advanced": "two-stage candidate generation and learning-to-rank with exploration and reranking",
+        "data": "impressions, clicks, dwell time, hides, follows, item metadata, creator features, and freshness",
+        "api": "GET /recommendations?user_id=&surface=&limit= returns ranked item ids, scores, reasons, and trace id",
+        "metric": "NDCG, CTR, long-term retention, diversity, freshness, and negative feedback rate",
+        "failure": "a feedback loop that over-optimizes short-term clicks and narrows discovery",
+    },
+    "design-a-search-ranking-system": {
+        "user": "a user searching a product, document, or content corpus",
+        "output": "ranked results with snippets, filters, scores, and trace metadata",
+        "baseline": "BM25 with field boosts, query normalization, and permission or catalog filters",
+        "advanced": "hybrid retrieval with vector search, learned ranking features, and reranking",
+        "data": "queries, documents, metadata, clicks, skips, judgments, freshness, and permissions",
+        "api": "GET /search?q=&filters=&user_id= returns ranked documents, snippets, facets, and trace id",
+        "metric": "NDCG, MRR, zero-result rate, latency, abandonment, and judged relevance",
+        "failure": "ranking stale, inaccessible, or semantically similar but wrong documents above the answer",
+    },
+    "design-a-fraud-detection-platform": {
+        "user": "a payments or trust team deciding whether to approve, challenge, block, or review an event",
+        "output": "risk score, action, reason codes, and review trace",
+        "baseline": "velocity rules, deny lists, allow lists, and calibrated logistic regression",
+        "advanced": "cost-sensitive gradient boosting with graph, device, and sequence features",
+        "data": "transactions, account age, device, merchant, location, velocity, disputes, chargebacks, and review labels",
+        "api": "POST /risk/score accepts event context and returns action, score, reason codes, and model version",
+        "metric": "fraud loss prevented, false decline rate, review precision, chargeback rate, and p95 latency",
+        "failure": "blocking legitimate high-value users or missing coordinated attacks because labels arrive late",
+    },
+    "design-an-ml-training-platform": {
+        "user": "ML teams that need reproducible training, evaluation, model registration, and deployment handoff",
+        "output": "versioned training runs, artifacts, metrics, lineage, and promotion decisions",
+        "baseline": "scripted training jobs with manual experiment tracking and model artifact storage",
+        "advanced": "orchestrated pipelines with dataset versioning, registry, approval gates, and scheduled retraining",
+        "data": "datasets, feature snapshots, code versions, configs, metrics, artifacts, logs, and ownership metadata",
+        "api": "POST /training-runs starts a run and GET /training-runs/{id} returns status, metrics, and artifacts",
+        "metric": "reproducibility rate, training success rate, time to train, cost, and failed deployment rate",
+        "failure": "a model cannot be reproduced or rolled back because data, code, or parameters were not versioned",
+    },
+    "design-a-feature-store": {
+        "user": "ML teams sharing features between offline training and online inference",
+        "output": "consistent offline datasets and low-latency online feature values",
+        "baseline": "documented SQL transformations and batch materialized feature tables",
+        "advanced": "managed feature registry with point-in-time joins, streaming updates, and online serving",
+        "data": "raw events, entities, timestamps, transformation code, feature definitions, and freshness metadata",
+        "api": "GET /features?entity_id=&feature_set= returns feature values, timestamps, and version metadata",
+        "metric": "training-serving skew rate, feature freshness, p95 lookup latency, reuse, and incident count",
+        "failure": "leaky point-in-time joins or stale online features create misleading model performance",
+    },
+    "design-a-rag-platform": {
+        "user": "employees or customers asking questions over private and changing documents",
+        "output": "grounded answer with citations, abstention, permissions, and trace id",
+        "baseline": "permission-filtered keyword search with snippets and source links",
+        "advanced": "hybrid retrieval, reranking, context compression, cite-or-abstain generation, and RAG evaluation",
+        "data": "documents, chunks, ACLs, metadata, embeddings, queries, answers, citations, and feedback",
+        "api": "POST /rag/query accepts question and user context and returns answer, citations, abstention, and trace id",
+        "metric": "retrieval recall, context precision, faithfulness, citation accuracy, p95 latency, and access violations",
+        "failure": "retrieving restricted or stale content, or generating an unsupported answer with confident wording",
+    },
+    "design-an-agent-platform": {
+        "user": "teams building tool-using assistants for bounded operational workflows",
+        "output": "task result, tool trace, approval requests, state transitions, and audit log",
+        "baseline": "deterministic workflow automation with forms, rules, and manual approval steps",
+        "advanced": "bounded agent loop with tool schemas, state store, policy checks, memory, and human checkpoints",
+        "data": "user goals, tool schemas, permissions, task state, documents, observations, and feedback",
+        "api": "POST /agent/tasks starts a task and GET /agent/tasks/{id} returns state, actions, and approvals",
+        "metric": "task success, unsafe action rate, approval rate, intervention rate, latency, and audit completeness",
+        "failure": "the agent changes external state without permission or repeats tool calls after partial failure",
+    },
+    "design-an-llm-evaluation-system": {
+        "user": "product and ML teams deciding whether an LLM workflow is safe enough to release",
+        "output": "scorecards, regressions, trace failures, review queues, and release recommendation",
+        "baseline": "golden datasets with deterministic checks and human-reviewed release notes",
+        "advanced": "calibrated LLM judges, pairwise comparison, trace-level diagnostics, and slice dashboards",
+        "data": "prompts, outputs, rubrics, traces, citations, tool calls, judge versions, human labels, and costs",
+        "api": "POST /eval/runs starts an evaluation and GET /eval/runs/{id} returns scorecards and failures",
+        "metric": "regression detection, judge agreement, coverage, false alarm rate, review load, latency, and cost",
+        "failure": "a fluent but unsupported output passes because the judge or dataset missed the workflow risk",
+    },
+    "design-a-real-time-inference-system": {
+        "user": "a product surface that needs low-latency model predictions during live requests",
+        "output": "prediction, confidence, model version, feature version, and fallback decision",
+        "baseline": "single model endpoint with cached features and a rules fallback",
+        "advanced": "autoscaled serving, batching, model routing, feature cache, canary release, and observability",
+        "data": "online features, request context, model artifacts, prediction logs, labels, latency, and errors",
+        "api": "POST /predict accepts request context and returns prediction, confidence, versions, and trace id",
+        "metric": "p95 latency, timeout rate, throughput, cost per prediction, model quality, and fallback rate",
+        "failure": "feature lookup or model latency exceeds budget and silently changes product behavior",
+    },
+    "design-an-ai-copilot-platform": {
+        "user": "knowledge workers using an AI assistant inside an existing product workflow",
+        "output": "draft, recommendation, tool action, or explanation with citations and approval state",
+        "baseline": "retrieval-backed suggestions with templates and human confirmation",
+        "advanced": "context orchestration, tool use, permissions, policy checks, evaluation, and feedback learning",
+        "data": "user context, documents, UI state, permissions, tool results, prompts, traces, and feedback",
+        "api": "POST /copilot/actions accepts context and intent and returns suggestion, evidence, tools, and trace id",
+        "metric": "task completion, acceptance rate, edit rate, groundedness, unsafe action rate, latency, and cost",
+        "failure": "the assistant suggests or performs an action outside user intent, policy, or permissions",
+    },
+}
 
 CASE_STUDY_DETAILS = {
     "spam-classifier": {
@@ -379,7 +603,8 @@ def title_from_filename(path: Path) -> str:
                 "cd": "CD",
             }.get(part, part.capitalize())
         )
-    return " ".join(words).replace("End To End", "End-to-End")
+    title = " ".join(words).replace("End To End", "End-to-End")
+    return title.replace(" A ", " a ").replace(" An ", " an ").replace(" The ", " the ")
 
 def content_slug(path: Path) -> str:
     return re.sub(r"^\d+-", "", path.stem)
@@ -404,7 +629,7 @@ def sentence_label(title: str) -> str:
 
 def indefinite_article(label: str) -> str:
     lower_label = label.lower()
-    if lower_label.startswith(("ai", "end-to-end", "image", "llm", "ml", "nlp")):
+    if lower_label.startswith(("ai", "end-to-end", "enterprise", "image", "llm", "ml", "nlp")):
         return "an"
     return "a"
 
@@ -558,6 +783,11 @@ flowchart LR
 | --- | --- |
 {chr(10).join(toc_rows)}
 
+## Repository Index
+
+Use [REPO_INDEX.md](REPO_INDEX.md) when you want a single grouped list of every Markdown file in
+the repository. Regenerate it after adding, renaming, or removing learning material.
+
 ## Recommended Reading Order
 
 {reading_order}
@@ -610,6 +840,300 @@ first principles, connect to real engineering work, include practice, and avoid 
 unsupported claims.
 """
 
+def roadmap_doc() -> str:
+    rows = [
+        f"| {number} | {name} | {focus} | {outcome} |"
+        for number, name, focus, outcome in ROADMAP_PHASES
+    ]
+    phases = []
+    for number, name, focus, outcome in ROADMAP_PHASES:
+        phases.append(
+            f"""## Phase {number}. {name}
+
+**Focus:** {focus}
+
+**Practice:** Write one concrete example, one failure mode, one interview question, and one metric
+for this phase before moving on.
+
+**Expected outcome:** {outcome}
+"""
+        )
+    return f"""# Roadmap
+
+This roadmap keeps the repository practical. Move from foundations to implementation, then to
+production systems, case studies, projects, and interviews. Each phase should end with something you
+can explain out loud.
+
+## Summary
+
+| Phase | Area | Focus | Outcome |
+| --- | --- | --- | --- |
+{chr(10).join(rows)}
+
+## How to Use This Roadmap
+
+1. Read the listed folders in order.
+2. Complete the mini exercises inside each lesson.
+3. Use one quiz or cheatsheet for retrieval practice.
+4. Build or sketch one small artifact before advancing.
+5. Explain the phase using baseline, metric, failure mode, and production tradeoff.
+
+{chr(10).join(phases)}
+## Roadmap Diagram
+
+```mermaid
+flowchart TD
+    A[Foundations] --> B[Math and Statistics]
+    B --> C[Data and Classical ML]
+    C --> D[Deep Learning and Modalities]
+    D --> E[MLOps and Production AI]
+    E --> F[LLMs, RAG, and Agents]
+    F --> G[ML System Design]
+    G --> H[Case Studies and Projects]
+    H --> I[Interview Preparation]
+```
+"""
+
+def study_plan_doc() -> str:
+    twelve_week = [
+        ("1", "Foundations", "`fundamentals/`", "Frame one product problem with input, label, metric, and baseline."),
+        ("2", "Math", "`math/`", "Explain gradients, matrix multiplication, and similarity with one worked example."),
+        ("3", "Statistics", "`statistics/`", "Design an A/B test and list leakage or sampling risks."),
+        ("4", "Data Science", "`data-science/`", "Clean a small dataset and write an EDA memo."),
+        ("5", "Classical ML", "`classical-ml/`", "Train a baseline and compare two metrics."),
+        ("6", "Deep Learning", "`deep-learning/`", "Trace a forward pass and debug one training failure."),
+        ("7", "NLP, Vision, Recommenders", "`nlp/`, `computer-vision/`, `recommender-systems/`", "Map each modality to its data, metric, and common failure."),
+        ("8", "MLOps and Production AI", "`mlops/`, `production-ai/`", "Draw a serving and monitoring plan."),
+        ("9", "Generative AI and LLMs", "`generative-ai/`, `llms/`", "Compare prompting, RAG, and fine-tuning for one use case."),
+        ("10", "Vector Search, RAG, Agents", "`vector-databases/`, `rag/`, `agents/`", "Design a grounded assistant with permissions and evaluation."),
+        ("11", "ML System Design and Case Studies", "`machine-learning-system-design/`, `case-studies/`", "Complete two architecture walkthroughs."),
+        ("12", "Projects and Interviews", "`capstone-projects/`, `interview-prep/`, `mocks/`", "Finish one project plan and run two mock rounds."),
+    ]
+    twenty_four_rows = []
+    for week, topic, files, outcome in twelve_week:
+        first = int(week) * 2 - 1
+        second = first + 1
+        twenty_four_rows.append((str(first), topic, files, "Read, summarize, and answer one quiz."))
+        twenty_four_rows.append((str(second), topic, files, outcome))
+    six_week = [
+        ("1", "Core ML", "`fundamentals/`, `math/`, `statistics/`", "Explain splits, leakage, metrics, and uncertainty."),
+        ("2", "Data and Classical ML", "`data-science/`, `classical-ml/`", "Defend a baseline and compare model families."),
+        ("3", "Deep Learning and Modalities", "`deep-learning/`, `nlp/`, `computer-vision/`, `recommender-systems/`", "Explain architectures and task metrics."),
+        ("4", "Production and LLM Systems", "`mlops/`, `production-ai/`, `llms/`, `rag/`, `agents/`", "Discuss latency, cost, monitoring, safety, and evaluation."),
+        ("5", "System Design", "`machine-learning-system-design/`, `case-studies/`", "Complete three whiteboard-style designs."),
+        ("6", "Mocks and Final Review", "`interview-prep/`, `mocks/`, `cheatsheets/`", "Run timed mocks and repair weak answers."),
+    ]
+
+    def table(rows: list[tuple[str, str, str, str]]) -> str:
+        lines = ["| Week | Topics | Files | Outcome |", "| --- | --- | --- | --- |"]
+        lines.extend(f"| {week} | {topic} | {files} | {outcome} |" for week, topic, files, outcome in rows)
+        return "\n".join(lines)
+
+    return f"""# Study Plan
+
+Use these plans as schedules, not rules. Keep the order when possible, but slow down when a topic
+needs more practice. Every week should produce a visible artifact: notes, a diagram, a baseline, an
+evaluation, a case-study walkthrough, or a mock interview review.
+
+## 12-Week Focused Plan
+
+{table(twelve_week)}
+
+## 24-Week Balanced Plan
+
+{table(twenty_four_rows)}
+
+## 6-Week Interview Revision Plan
+
+{table(six_week)}
+
+## Weekly Routine
+
+| Activity | Time | Output |
+| --- | --- | --- |
+| Reading | 2 to 4 sessions | Five-bullet summary per file |
+| Practice | 1 to 2 sessions | Quiz answers, exercises, or notebook edits |
+| Build or design | 1 session | Baseline, diagram, or project note |
+| Interview rehearsal | 1 session | Spoken answer with feedback notes |
+| Review | 30 minutes | Updated weak-topic list |
+
+## Project-First Route
+
+1. Choose one guide from [capstone-projects/](capstone-projects/) or one prompt from [machine-learning-system-design/](machine-learning-system-design/).
+2. Read only the files needed for the next implementation or design step.
+3. Build a baseline before adding model complexity.
+4. Add evaluation before optimizing.
+5. Keep a project journal with data choices, failed experiments, and tradeoffs.
+6. Turn the final writeup into resume bullets and interview stories.
+
+## Diagram
+
+```mermaid
+flowchart LR
+    Read --> Recall
+    Recall --> Build
+    Build --> Evaluate
+    Evaluate --> Explain
+    Explain --> Review
+    Review --> Read
+```
+"""
+
+def interview_guide_doc() -> str:
+    return """# Interview Guide
+
+## What Interviewers Are Testing
+
+AI and ML interviews test whether you can turn uncertain data problems into useful systems. A strong
+answer moves from product framing to data, baseline, model choice, evaluation, failure modes, and
+production operations. Formulas matter, but they are not enough without assumptions and tradeoffs.
+
+## Core Answer Framework
+
+| Step | What to say |
+| --- | --- |
+| Clarify | User, decision, scope, constraints, and cost of mistakes |
+| Data | Inputs, labels, feedback, freshness, permissions, and leakage risks |
+| Baseline | The simplest measurable approach and why it is a fair reference |
+| Model or design | The chosen method, why it fits, and what complexity it adds |
+| Evaluation | Primary metric, guardrails, slices, regression set, and error analysis |
+| Production | Serving path, latency, cost, monitoring, rollback, privacy, and ownership |
+
+## Strong Answer Pattern
+
+1. State the goal in one sentence.
+2. Define input, output, and metric.
+3. Start with a baseline.
+4. Add the model or architecture only after naming the failure the baseline cannot handle.
+5. Evaluate with slices and hard examples.
+6. Discuss deployment constraints and rollback.
+7. End with the biggest tradeoff.
+
+## Common Interview Areas
+
+| Area | High-signal topics |
+| --- | --- |
+| Fundamentals | Splits, leakage, baselines, bias-variance, metrics, and generalization |
+| Statistics | A/B tests, uncertainty, sampling bias, causality, and experiment design |
+| Classical ML | Linear models, trees, ensembles, clustering, calibration, and interpretability |
+| Deep Learning | Backpropagation, optimization, regularization, transformers, and debugging |
+| LLM Systems | Prompting, RAG, vector search, agents, guardrails, evaluation, and serving |
+| System Design | Offline-online paths, data flow, monitoring, scaling, reliability, and cost |
+| Behavioral | Ownership, ambiguity, debugging, stakeholder communication, and impact |
+
+## Traps to Avoid
+
+- Starting with a model name before clarifying the decision.
+- Reporting one aggregate metric without segment analysis.
+- Ignoring leakage, delayed labels, drift, or feedback loops.
+- Treating offline performance as production readiness.
+- Forgetting privacy, authorization, audit logs, rollback, and human review.
+
+## Practice Plan
+
+Use [interview-prep/](interview-prep/) for question drills, [machine-learning-system-design/](machine-learning-system-design/)
+for architecture practice, [mocks/](mocks/) for full rounds, and [cheatsheets/](cheatsheets/) for
+quick revision. After every mock, rewrite one answer using the framework above.
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A[Clarify] --> B[Data]
+    B --> C[Baseline]
+    C --> D[Model or design]
+    D --> E[Evaluation]
+    E --> F[Production plan]
+    F --> G[Tradeoff summary]
+```
+"""
+
+def projects_doc() -> str:
+    capstone_rows = []
+    for path in learning_markdown_files("capstone-projects"):
+        details = CAPSTONE_DETAILS.get(content_slug(path), ("project work", "data", "baseline", "advanced", "metric"))
+        capstone_rows.append(f"| [{title_from_filename(path)}]({path.relative_to(ROOT).as_posix()}) | {details[0]} | {details[2]} | {details[4]} |")
+    design_rows = []
+    for path in learning_markdown_files("machine-learning-system-design"):
+        design_rows.append(f"| [{title_from_filename(path)}]({path.relative_to(ROOT).as_posix()}) | Requirements, data flow, serving, monitoring, and tradeoffs |")
+    return f"""# Projects
+
+Projects turn passive reading into durable skill. Each project should produce a clear README,
+reproducible steps, a baseline, evaluation results, error analysis, and an interview-ready
+explanation.
+
+## Project Catalog
+
+| Project | Domain | Baseline | Evaluation |
+| --- | --- | --- | --- |
+{chr(10).join(capstone_rows)}
+
+## System Design Practice
+
+Use these prompts when you want architecture practice rather than implementation practice.
+
+| Prompt | Focus |
+| --- | --- |
+{chr(10).join(design_rows)}
+
+## Project Quality Bar
+
+- A baseline is implemented before advanced modeling.
+- Data assumptions and limitations are documented.
+- Evaluation includes more than one aggregate score.
+- Failure cases are shown honestly.
+- The project includes a short monitoring and rollback plan.
+- The project can be explained in two minutes and defended for twenty minutes.
+
+## Recommended Portfolio Sequence
+
+1. Build one tabular classical ML project.
+2. Build one retrieval or RAG project.
+3. Build one production or MLOps project.
+4. Write one system design walkthrough.
+5. Convert the strongest project into resume bullets and a mock interview story.
+
+## Diagram
+
+```mermaid
+flowchart LR
+    Idea --> Dataset
+    Dataset --> Baseline
+    Baseline --> Improved_Model[Improved model]
+    Improved_Model --> Evaluation
+    Evaluation --> Error_Analysis[Error analysis]
+    Error_Analysis --> Writeup
+    Writeup --> Interview
+```
+"""
+
+def glossary_doc() -> str:
+    sections = []
+    for section, terms in GLOSSARY_SECTIONS.items():
+        rows = ["| Term | Meaning |", "| --- | --- |"]
+        rows.extend(f"| {term} | {definition} |" for term, definition in terms)
+        sections.append(f"## {section}\n\n" + "\n".join(rows) + "\n")
+    return f"""# Glossary
+
+This glossary defines high-yield terms used across the repository. Use it for quick recall, then
+return to the lessons, cheatsheets, and case studies for deeper practice.
+
+## How to Use This Glossary
+
+- Review one category before starting the matching folder.
+- Convert each definition into a concrete example.
+- During interview prep, explain the term with input, output, metric, and failure mode where relevant.
+
+{chr(10).join(sections)}
+
+## Revision Checklist
+
+- [ ] I can define each term in plain language.
+- [ ] I can give one example for each major category.
+- [ ] I can name one common mistake or failure mode for the production-facing terms.
+- [ ] I can connect glossary terms back to a project or case study.
+"""
+
 def folder_readme(folder: str) -> str:
     files = direct_files_for_folder(folder)
     rows = []
@@ -640,6 +1164,12 @@ def folder_readme(folder: str) -> str:
 Read this section if you are studying the related topic, preparing interview answers, building a
 project, or reviewing production tradeoffs connected to this part of the curriculum.
 
+## What to Know Before Starting
+
+- Read the previous folder in the root recommended order when possible.
+- Know the user problem, input data, output, metric, and one common failure mode for the topic.
+- Keep a small notes file with definitions, examples, and questions that remain unclear.
+
 ## Recommended Reading Order
 
 {order_note}
@@ -664,6 +1194,12 @@ project, or reviewing production tradeoffs connected to this part of the curricu
 - Connect the section to one case study or project.
 - Revisit the related quiz or cheatsheet after a short break.
 
+## Practice Guidance
+
+For each lesson, write a concrete example before reviewing the interview angle. If the topic has a
+model, retrieval, serving, or evaluation component, identify the simplest baseline and the most
+likely production failure. End the section by explaining the tradeoff out loud in two minutes.
+
 ## Navigation
 
 [🏠 Home](../README.md)
@@ -671,6 +1207,10 @@ project, or reviewing production tradeoffs connected to this part of the curricu
 
 def normalize_text(text: str) -> str:
     text = text.replace("\u2014", "-")
+    text = text.replace("What Is a ", "What Is a ")
+    text = text.replace("What Is an ", "What Is an ")
+    text = text.replace("Design a ", "Design a ")
+    text = text.replace("Design an ", "Design an ")
     for pattern, replacement in BANNED_REPLACEMENTS:
         text = pattern.sub(replacement, text)
     lines = [line.rstrip() for line in text.splitlines()]
@@ -686,6 +1226,8 @@ def normalize_text(text: str) -> str:
 
 def case_study_body(path: Path) -> str:
     title = title_from_filename(path)
+    title_label = sentence_label(title)
+    article = indefinite_article(title_label)
     details = CASE_STUDY_DETAILS.get(content_slug(path), {})
     domain = details.get("domain", title.lower())
     inputs = details.get("inputs", "the most relevant user, item, event, document, and feedback signals")
@@ -698,9 +1240,10 @@ def case_study_body(path: Path) -> str:
 
 ## Problem Statement
 
-Design a production-minded {title.lower()} case study for {domain}. The system should use {inputs}
-to produce {output}. The goal is to show how a practical ML or AI design moves from product framing
-to data, modeling, evaluation, serving, monitoring, and human review.
+Build {article} {title_label} for {domain}. The system uses {inputs} to support this output:
+{output}. Treat the case as an interview design exercise and a production review: define the
+decision, start with a baseline, measure quality honestly, and explain how the system behaves when
+confidence is low.
 
 ## Domain Context
 
@@ -731,19 +1274,26 @@ will recover when confidence is low. The highest-risk failure to plan around is 
 - The first version should prioritize measurable reliability over model complexity.
 - Deployment traffic may differ from development data.
 
+## Data Assumptions
+
+- Inputs are timestamped so training, validation, and serving windows can be separated.
+- Sensitive fields are minimized, redacted, or access-controlled before modeling.
+- Labels or judgments have known delay, noise, and reviewer disagreement.
+- Feedback can be joined back to model versions, prompts, features, or retrieval indexes.
+
 ## Architecture Diagram
 
 ```mermaid
 flowchart LR
-    A[Data sources] --> B[Validation and cleaning]
-    B --> C[Feature or context pipeline]
+    A[Product request] --> B[Input validation]
+    B --> C[Feature, chunk, or context pipeline]
     C --> D[Baseline]
-    C --> E[Improved model or retrieval system]
-    D --> F[Evaluation]
+    C --> E[Advanced approach]
+    D --> F[Offline evaluation]
     E --> F
     F --> G[Serving or workflow layer]
-    G --> H[Monitoring and feedback]
-    H --> B
+    G --> H[Monitoring, feedback, and review]
+    H --> C
 ```
 
 ## Data Model or Data Design
@@ -769,11 +1319,29 @@ expose data quality problems before advanced modeling begins.
 After measuring the baseline, consider {advanced}. Add complexity only when it improves a named
 metric or reduces a known operational risk.
 
+## Model Choices
+
+| Option | When it fits | Main risk |
+| --- | --- | --- |
+| Rules or search baseline | The workflow needs explainability and fast iteration | Can miss nuanced patterns |
+| Classical model | Tabular or sparse features carry strong signal | Can leak features or underfit complex behavior |
+| Deep model or LLM workflow | Text, images, retrieval, or reasoning dominate the task | Higher latency, cost, and evaluation burden |
+| Human review | Errors are costly or confidence is low | Review capacity can become the bottleneck |
+
 ## Evaluation Plan
 
 Evaluate with {metric}. Include slice analysis for important user, item, time, source, language, or
 risk segments. Keep a small set of hard examples for regression checks and review disagreements
 between model outputs and human judgment.
+
+## Metrics and Guardrails
+
+| Metric Type | Examples |
+| --- | --- |
+| Primary quality | {metric} |
+| Guardrail | Latency, cost, privacy incidents, unsafe actions, and user complaints |
+| Data quality | Missing fields, stale inputs, label delay, and source coverage |
+| Operations | Error rate, timeout rate, review backlog, rollback count, and alert response time |
 
 ## Scaling Strategy
 
@@ -801,6 +1369,14 @@ confidence, decision outcomes, and human feedback. Use dashboards and alerts tie
 
 Common bottlenecks include slow feature generation, expensive model calls, poor retrieval recall,
 manual labeling throughput, delayed ground truth, and noisy feedback loops.
+
+## Failure Modes
+
+- The system optimizes an offline metric that does not match the product decision.
+- Feedback loops reinforce early mistakes or popular items.
+- A data pipeline change silently shifts feature values or retrieval quality.
+- Confidence is poorly calibrated, causing the system to automate cases that need review.
+- The critical failure to plan around is {failure}.
 
 ## Tradeoffs
 
@@ -836,13 +1412,22 @@ review, and a feedback loop before increasing automation.
 
 def system_design_body(path: Path) -> str:
     title = title_from_filename(path)
+    details = SYSTEM_DESIGN_DETAILS.get(content_slug(path), {})
+    user = details.get("user", "a product team using machine learning in a live workflow")
+    output = details.get("output", "a useful prediction, ranking, answer, or action")
+    baseline = details.get("baseline", "a simple measurable baseline")
+    advanced = details.get("advanced", "a more capable architecture with explicit controls")
+    data = details.get("data", "events, features, labels, metadata, model versions, logs, and feedback")
+    api = details.get("api", "a minimal API that returns output, confidence, versions, and trace id")
+    metric = details.get("metric", "task quality, latency, cost, reliability, and user impact")
+    failure = details.get("failure", "a production behavior that is not covered by offline evaluation")
     return f"""# {title}
 
 ## Beginner-Friendly Intuition
 
-{title} is about turning an ML idea into a reliable system. A model is only one part of the design.
-The full system must collect data, train or retrieve useful signals, serve results, monitor quality,
-handle failures, protect sensitive information, and support iteration.
+{title} is about designing a reliable workflow for {user}. The model is only one part of the design.
+The system must collect trustworthy data, produce the expected output ({output}), serve it within
+constraints, monitor quality, handle failures, and give the team a way to improve or roll back.
 
 Think of the design as a set of promises: what the user gets, how quickly they get it, how the system
 stays correct, and what happens when the model is uncertain or wrong.
@@ -859,10 +1444,25 @@ Important dimensions:
 | Dimension | Design Question |
 | --- | --- |
 | Product goal | What decision or workflow does the system support? |
-| Data | What data is available, fresh, reliable, and permitted? |
-| Model path | What baseline and advanced approaches are justified? |
+| Data | What data is available, fresh, reliable, permitted, and logged? |
+| Baseline | What simple design creates the first measurable reference point? |
 | Serving | Is the system batch, online, streaming, or hybrid? |
 | Operations | How are drift, failures, cost, and latency monitored? |
+
+## Requirements to Clarify
+
+- User and decision: {user}.
+- Expected output: {output}.
+- Latency, throughput, freshness, privacy, and cost constraints.
+- Error cost, human review policy, and rollback expectations.
+- Data access rules, audit requirements, and abuse cases.
+
+## Capacity and Data Assumptions
+
+- Start with realistic traffic and latency assumptions, then state how the design scales.
+- Data includes {data}.
+- Labels or feedback may be delayed, biased by what the system showed, or missing for rare failures.
+- Offline training data must be separated from online serving data by time and availability.
 
 ## Why It Matters
 
@@ -881,12 +1481,53 @@ would operate it after launch.
 6. Define offline metrics, online metrics, guardrails, monitoring, and rollback.
 7. Explain bottlenecks, tradeoffs, and future extensions.
 
+## API Contract
+
+{api}.
+
+The response should include enough metadata to debug production behavior: model or index version,
+feature or prompt version, latency, fallback status, and trace id.
+
+## Data and Feature Design
+
+Store raw events separately from derived features, chunks, rankings, predictions, traces, and labels.
+Version every artifact that can change. For online systems, enforce point-in-time correctness so the
+training path does not use information that would not exist at serving time.
+
+## Baseline and Advanced Design
+
+| Layer | First version | Stronger version |
+| --- | --- | --- |
+| Decision logic | {baseline} | {advanced} |
+| Evaluation | Offline metric and hand-inspected failures | Slices, hard examples, online tests, and guardrails |
+| Operations | Logs and simple alerts | Versioned rollouts, drift monitoring, ownership, and rollback |
+
 ## Real-World Example
 
-A product team may want a system that ranks items, detects fraud, evaluates LLM outputs, or supports
-a copilot. The system must ingest data, produce a useful response, and improve with feedback. If the
-design ignores data quality, low-confidence handling, or monitoring, the model can appear strong in a
-notebook and still fail in production.
+A realistic first version would ship {baseline}. The team would measure {metric}, inspect failures,
+and only then move toward {advanced}. This keeps the design honest: model complexity is justified by
+a measured miss, not by preference for a sophisticated architecture.
+
+## Scaling, Reliability, and Cost
+
+- Separate offline computation from online serving where possible.
+- Cache stable features, embeddings, candidates, or responses when freshness allows.
+- Use canaries, shadow traffic, and rollback for risky releases.
+- Define fallback behavior for missing features, model timeouts, provider errors, and low confidence.
+- Track cost per request, expensive dependencies, and the point where batching or precomputation pays off.
+
+## Observability and Security
+
+- Log inputs, versions, outputs, latency, fallback status, and user feedback with privacy controls.
+- Monitor {metric} plus technical health such as error rate, queue depth, and p95 latency.
+- Enforce authorization before retrieval, scoring, or tool action when sensitive data is involved.
+- Redact private data, limit retention, and make audit trails available for high-impact decisions.
+
+## Bottlenecks and Failure Modes
+
+The primary failure to plan around is {failure}. Other common bottlenecks include delayed labels,
+feature freshness, expensive inference, unowned alerts, biased feedback, and silent data pipeline
+changes.
 
 ## Common Mistakes
 
@@ -913,6 +1554,7 @@ ownership.
 - How would you detect drift or quality regression?
 - What data should not be logged?
 - How would you handle low-confidence outputs?
+- How would you defend the design if traffic or data volume increased ten times?
 
 ## Mini Exercise
 
@@ -924,13 +1566,13 @@ paragraph explaining the biggest tradeoff.
 
 ```mermaid
 flowchart LR
-    A[Product goal] --> B[Data and feedback]
+    A[User workflow] --> B[Data and context]
     B --> C[Baseline]
-    B --> D[Advanced ML system]
-    C --> E[Evaluation]
+    B --> D[Advanced design]
+    C --> E[Evaluation and guardrails]
     D --> E
-    E --> F[Serving path]
-    F --> G[Monitoring and rollback]
+    E --> F[Serving layer]
+    F --> G[Logs, feedback, monitoring]
     G --> B
 ```
 """
@@ -1181,9 +1823,8 @@ def capstone_body(path: Path) -> str:
 
 ## Goal
 
-Build a focused {project_label} that demonstrates practical machine learning engineering: problem
-framing, data handling, a measurable baseline, an improved approach, evaluation, communication, and
-production thinking.
+Build a focused {project_label} with a clear problem statement, reproducible data path, measurable
+baseline, improved approach, evaluation report, and interview-ready explanation.
 
 ## Why This Project Matters
 
@@ -1223,6 +1864,12 @@ flowchart LR
     G --> H[Monitoring plan]
 ```
 
+## Architecture
+
+Keep the first implementation small. Use a data preparation layer, one baseline, one improved
+approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
+be reproduced later.
+
 ## Dataset Idea
 
 Use {dataset}. If a public dataset is not available, create a small synthetic dataset that preserves
@@ -1246,6 +1893,20 @@ cases.
 
 Use {metric}. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
 where the system succeeds, fails, and should defer to a human.
+
+## Evaluation Strategy
+
+- Compare the baseline and improved approach on the same split.
+- Include at least three representative success cases and three failure cases.
+- Report segment-level results, not only one aggregate metric.
+- Add a small regression set that protects the most important behavior.
+
+## Extensions
+
+- Add monitoring for data drift, latency, cost, and quality regressions.
+- Add a human review path for low-confidence or high-risk outputs.
+- Package the result as a CLI, notebook, small API, or dashboard.
+- Write a short model card or system card covering intended use and limits.
 
 ## Common Mistakes
 
@@ -1271,6 +1932,54 @@ biggest lesson from error analysis. End with what you would do next if the proje
 Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
 deployment path, simplify the project until you can.
 """
+
+def topic_intuition_body(path: Path) -> str:
+    title = title_from_filename(path)
+    folder = path.parent.name
+    focus = FOLDER_INTUITION.get(
+        folder,
+        "connect the concept to a concrete decision, measurable evidence, and a failure mode",
+    )
+    return f"""## Beginner-Friendly Intuition
+
+{title} is best learned as a practical lever, not as an isolated definition. In this part of the
+curriculum, the goal is to {focus}. Start by asking what input changes, what output or decision
+improves, and what mistake becomes easier to catch.
+
+For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
+baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
+a place to attach.
+"""
+
+def replace_section(text: str, heading: str, replacement: str, next_heading: str) -> str:
+    start = text.find(heading)
+    if start == -1:
+        return text
+    end = text.find(next_heading, start + len(heading))
+    if end == -1:
+        return text
+    return text[:start].rstrip() + "\n\n" + replacement.rstrip() + "\n\n" + text[end:].lstrip()
+
+def apply_topic_intuition_refresh() -> None:
+    for folder in FOLDER_INTUITION:
+        for path in learning_markdown_files(folder):
+            text = read(path)
+            if "recurring goal" not in text and "plain workflow" not in text:
+                continue
+            updated = replace_section(
+                text,
+                "## Beginner-Friendly Intuition",
+                topic_intuition_body(path),
+                "## Formal Explanation",
+            )
+            write(path, updated)
+
+def apply_root_learning_docs() -> None:
+    write(ROOT / "ROADMAP.md", roadmap_doc())
+    write(ROOT / "STUDY_PLAN.md", study_plan_doc())
+    write(ROOT / "INTERVIEW_GUIDE.md", interview_guide_doc())
+    write(ROOT / "PROJECTS.md", projects_doc())
+    write(ROOT / "GLOSSARY.md", glossary_doc())
 
 def apply_folder_readmes() -> None:
     for folder in MAJOR_FOLDERS:
@@ -1308,18 +2017,10 @@ def apply_case_studies_and_mocks() -> None:
         if marker in text:
             existing_nav = text[text.rfind(marker) + 1 :]
         write(path, case_study_body(path) + "\n\n" + existing_nav)
-    for path in learning_markdown_files("mocks"):
-        existing_nav = navigation_block(path, ROOT / "README.md", ROOT / "README.md")
-        text = read(path)
-        marker = "\n---\n## Navigation\n"
-        if marker in text:
-            existing_nav = text[text.rfind(marker) + 1 :]
-        write(path, mock_body(path) + "\n\n" + existing_nav)
 
 def apply_interview_prep_cheatsheets_and_capstones() -> None:
     body_functions = {
         "interview-prep": interview_prep_body,
-        "cheatsheets": cheatsheet_body,
         "capstone-projects": capstone_body,
     }
     for folder, body_function in body_functions.items():
@@ -1358,7 +2059,9 @@ def normalize_root_markdown_without_navigation() -> None:
 def main() -> int:
     apply_system_design_files()
     apply_root_readme()
+    apply_root_learning_docs()
     apply_folder_readmes()
+    apply_topic_intuition_refresh()
     apply_case_studies_and_mocks()
     apply_interview_prep_cheatsheets_and_capstones()
     apply_navigation()

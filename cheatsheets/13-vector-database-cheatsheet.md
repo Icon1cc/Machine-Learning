@@ -2,64 +2,86 @@
 
 ## Intuition
 
-Vector Database is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+A vector database stores embeddings and finds the nearest ones to a query fast. Exact nearest-neighbor
+search is too slow at scale, so these systems use approximate nearest neighbor (ANN) indexes that
+trade a little recall for a large speedup. The whole job is "given this vector, return the k closest
+ones, quickly, with filters".
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-Vector Database. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+Index families and their tradeoffs:
+
+- **Flat (brute force):** exact, accurate, slow. Fine under ~100k vectors.
+- **HNSW (graph):** builds a navigable small-world graph. Fast queries, high recall, higher memory,
+  slower to build. The common default.
+- **IVF (inverted file):** clusters vectors, searches only the nearest clusters (`nprobe` controls
+  recall vs speed).
+- **PQ (product quantization):** compresses vectors to cut memory, at some accuracy cost; often
+  combined as IVF-PQ.
+
+Distance metrics: **cosine** (direction, common for text embeddings), **dot product**, **Euclidean
+(L2)**. Match the metric to how the embedding model was trained.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. Vector Database is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+The index choice is a real engineering tradeoff between recall, latency, memory, and build time. Pick
+HNSW for quality on moderate scale; IVF-PQ when memory and billions of vectors dominate. Metadata
+filtering (only return docs this user can see) and freshness (handling updates and deletes) are where
+naive setups break.
+
+## Key Reference
+
+| Index | Strength | Cost |
+| --- | --- | --- |
+| Flat | Exact recall | Slow at scale |
+| HNSW | Fast, high recall | High memory, slow build |
+| IVF | Tunable speed/recall | Needs training, tuning nprobe |
+| PQ / IVF-PQ | Low memory, huge scale | Lower accuracy |
+
+| Knob | Effect |
+| --- | --- |
+| HNSW efSearch | Higher = better recall, slower |
+| IVF nprobe | Higher = better recall, slower |
+| Metric | Must match embedding training |
 
 ## Example
 
-If you are asked about Vector Database, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+A search system over 50M product embeddings runs out of RAM with HNSW. Switching to IVF-PQ cuts
+memory by roughly 8x and keeps p95 latency under target, with recall@10 dropping from 0.98 to 0.94,
+which is acceptable for the use case. The decision was driven by measured recall and memory, not
+defaults.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Expect "how does ANN work", "HNSW vs IVF", "what metric for text embeddings", "how do you filter by
+metadata", "how do you handle updates". Show you understand the recall-latency-memory triangle and
+that you would measure recall@k, not assume it.
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Using a distance metric that does not match the embedding model.
+- Assuming ANN returns exact neighbors (it does not).
+- Ignoring memory cost of HNSW at large scale.
+- No plan for deletes, updates, or re-embedding when the model changes.
+- Filtering after retrieval instead of using native metadata filters.
 
 ## Mini Exercise
 
-Explain Vector Database in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+You have 200M document vectors and a 50 ms latency budget. Choose an index, name the knob you would
+tune, the metric you would use, and how you would measure whether recall is good enough.
 
 ## Diagram
 
 ```mermaid
-flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+flowchart LR
+    A[Documents] --> B[Embed]
+    B --> C[Build index: HNSW / IVF-PQ]
+    C --> D[(Vector store)]
+    E[Query] --> F[Embed query]
+    F --> G[ANN top-k + metadata filter]
+    D --> G
+    G --> H[Nearest neighbors]
+    H --> I[Measure recall@k vs latency]
 ```
 
 ---

@@ -2,101 +2,81 @@
 
 ## Beginner-Friendly Intuition
 
-Answer Generation is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to ground generation in retrieved evidence. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
-
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+This is the stage where the model finally writes the answer, but the goal is the opposite of free
+creativity: the model should answer only from the retrieved context, cite where each claim came from,
+and say "I do not know" when the evidence is missing. Good generation is disciplined, not clever. The
+prompt is a contract that constrains the model to the evidence.
 
 ## Formal Explanation
 
-Answer Generation is a practical concept used to ground generation in retrieved evidence in a knowledge assistant. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+Answer generation conditions the model on the user query plus the retrieved (and possibly compressed)
+context, under an instruction contract: ground every claim in the provided passages, attach citations,
+abstain when unsupported, and handle conflicting sources explicitly. The system prompt defines this
+behavior; the retrieved text is treated as data to reason over, never as instructions to obey. Output
+can be plain prose with citations or a structured format with answer, sources, and a confidence or
+"not found" signal.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a knowledge assistant to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+The whole value of RAG is grounded, trustworthy answers. Without a strict generation contract, the model
+will smooth over gaps by inventing plausible text, which is worse than abstaining because it looks
+authoritative. Citations let users verify, and abstention prevents confident fabrication. This contract
+is also the main defense against a retrieved document that tries to hijack the model (prompt injection).
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Set the contract:** answer only from context, cite sources, abstain if unsupported.
+2. **Provide evidence:** insert the retrieved passages with their source identifiers.
+3. **Generate:** the model answers and attaches citations to claims.
+4. **Handle conflict and gaps:** surface disagreement, or say the answer was not found.
+5. **Validate:** check that citations exist and support the claims before returning.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+An HR assistant is asked about a benefit the corpus does not cover. With a strong contract, it replies "I
+could not find this in the current policy documents" instead of guessing a number. For a covered question,
+it answers "New hires receive 15 vacation days [HR-Policy-2024, p.3]". A user can click the citation and
+verify. If two policy versions conflict, a good system flags the conflict rather than silently picking one.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- No abstention path, so the model fabricates when evidence is missing.
+- Citations that do not actually support the sentence they are attached to.
+- Letting retrieved text override the system instructions (injection).
+- Allowing the model to blend its own memory with the retrieved facts.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** How do you stop a RAG system from hallucinating?
 
-**Question:** Explain Answer Generation, then describe how you would use it in a real system.
+**Strong answer:** A generation contract: answer only from retrieved evidence, cite sources, and abstain
+when unsupported. Validate that citations exist and support the claim, and treat retrieved text as data,
+not instructions, to resist injection.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "Use a better model," with no contract, citations, or abstention.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How do you verify a citation actually supports a claim?
+- What should happen when sources conflict?
+- How does the generation contract help against prompt injection?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Write a system-prompt contract for a RAG answerer in five rules. Include the abstention rule, the
+citation rule, and the conflict rule, then describe one validation check you would run on the output.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[Answer Generation]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+flowchart TD
+    A[Query + retrieved context] --> B[Generation contract]
+    B --> C{Evidence supports an answer?}
+    C -- No --> D[Abstain: not found]
+    C -- Yes --> E[Answer grounded in context]
+    E --> F[Attach citations]
+    F --> G[Validate citations support claims]
+    G --> H[Return answer + sources]
 ```
 
 ---

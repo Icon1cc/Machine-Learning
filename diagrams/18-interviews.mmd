@@ -1,5 +1,13 @@
-flowchart LR
-    A[Interviews inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+flowchart TD
+    A[Question] --> B[Clarify: user, decision, constraints]
+    B --> C[State assumptions]
+    C --> D[Propose baseline first]
+    D --> E[Choose primary metric + guardrails]
+    E --> F[Design: data, model, serving]
+    F --> G[Discuss tradeoffs]
+    G --> H[Name failure modes]
+    H --> I[Monitoring + rollback plan]
+    I --> J[Summarize decision]
+    J --> K{Follow-up?}
+    K -- Yes --> B
+    K -- No --> L[Strong signal sent]

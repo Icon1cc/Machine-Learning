@@ -2,101 +2,83 @@
 
 ## Beginner-Friendly Intuition
 
-RAG vs Fine Tuning is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to ground generation in retrieved evidence. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
-
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+RAG and fine-tuning solve different problems, and the most common mistake is using one for the other's
+job. RAG changes what the model knows at answer time by handing it documents. Fine-tuning changes how
+the model behaves by adjusting its weights on examples. A simple test: if the knowledge changes often
+or must be cited, reach for RAG; if the format, tone, or task pattern needs to be reliable, reach for
+fine-tuning.
 
 ## Formal Explanation
 
-RAG vs Fine Tuning is a practical concept used to ground generation in retrieved evidence in a knowledge assistant. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+RAG injects external context into the prompt at inference; the model weights are unchanged, so updating
+knowledge is as easy as updating the corpus. Fine-tuning continues training the model on task-specific
+input-output pairs, shifting its parameters so it internalizes a style or skill. They are not rivals;
+production systems often use both: fine-tune for the response format and tool-use behavior, and use RAG
+for the live facts and citations.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a knowledge assistant to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Choosing wrong is expensive. Fine-tuning a model to memorize a product catalog means re-training every
+time prices change, and the model will still hallucinate confidently between updates. Conversely,
+stuffing thousands of style examples into a RAG prompt wastes context and money when a small fine-tune
+would bake the behavior in. Interviewers probe this because it reveals whether you reach for the
+narrowest effective tool.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Name the failure.** Is the model missing facts, or producing the wrong format and behavior?
+2. **If facts or freshness:** build RAG; the fix is retrieval, not weights.
+3. **If style, format, or a narrow skill:** collect input-output pairs and fine-tune.
+4. **If both:** fine-tune the behavior, then ground facts with RAG at inference.
+5. **Measure:** prove the chosen approach fixed the specific failure before adding the other.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A legal assistant must answer using current case documents and always respond in a fixed clause-by-clause
+format. Facts change as cases are added, so RAG retrieves the relevant filings and cites them.
+Fine-tuning is not used for the facts; instead a light fine-tune (or strong few-shot prompt) enforces the
+output format. Knowledge updates flow through the corpus, behavior stays stable, and answers carry
+citations.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Fine-tuning to memorize facts that change, then re-training endlessly.
+- Using RAG to fix a formatting or behavior problem that needs examples.
+- Assuming fine-tuning removes hallucination (it does not add live knowledge).
+- Treating them as either-or when production often needs both.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** A model gives outdated answers about our products. RAG or fine-tuning?
 
-**Question:** Explain RAG vs Fine Tuning, then describe how you would use it in a real system.
+**Strong answer:** RAG, because the knowledge changes and must be cited; fine-tuning would memorize a
+snapshot and still hallucinate between updates. I would only fine-tune if the response format or task
+behavior were the problem.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "Fine-tune it on our data," with no distinction between knowledge and behavior.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- When would you use both together?
+- How do you keep RAG knowledge fresh versus a fine-tuned snapshot?
+- What does fine-tuning give you that prompting cannot?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+List three problems with an LLM feature (one factual, one stylistic, one behavioral). For each, decide
+RAG, fine-tuning, or both, and write one sentence justifying the choice and how you would measure it.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[RAG vs Fine Tuning]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+flowchart TD
+    A[What is failing?] --> B{Missing or stale facts?}
+    B -- Yes --> C[RAG: retrieve + cite]
+    B -- No --> D{Wrong format or behavior?}
+    D -- Yes --> E[Fine-tune on examples]
+    D -- Both --> F[Fine-tune behavior + RAG facts]
+    C --> G[Update corpus to refresh knowledge]
+    E --> H[Retrain only when behavior changes]
 ```
 
 ---

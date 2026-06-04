@@ -2,108 +2,86 @@
 
 ## Beginner-Friendly Intuition
 
-LLM interviews test whether you can use language models as system components rather than magic
-answer boxes. A strong answer names the user task, the context available to the model, the output
-contract, the evaluation method, and the controls that prevent unsupported or unsafe behavior.
-
-The recurring pattern is to compare prompting, retrieval, fine-tuning, tools, and smaller models
-against a baseline. You should be able to say what each option improves, what it costs, and what new
-failure mode it introduces.
+LLM interviews reward one instinct above all: pick the narrowest tool for the measured problem. Whatever the
+prompt, you score by clarifying the task, shipping a prompt baseline, choosing prompt vs RAG vs fine-tuning
+vs tools based on the actual failure, defining evaluation, and covering cost, latency, and safety. Candidates
+who default to "use the biggest model and fine-tune it" lose points.
 
 ## Formal Explanation
 
-An LLM system answer should specify:
+The recurring frame for any LLM prompt:
 
-- **Task contract:** input, output, allowed actions, refusal behavior, and quality bar.
-- **Context strategy:** prompt instructions, examples, retrieved evidence, conversation state, tool
-  results, and token budget.
-- **Model strategy:** baseline model, larger model, smaller model, fine-tuned model, or routed model
-  mix.
-- **Evaluation:** golden sets, rubric checks, pairwise comparisons, human review, automated judges,
-  hard examples, and regression tests.
-- **Production controls:** latency, cost, rate limits, caching, prompt injection defense, privacy,
-  logging, fallback, and monitoring.
+- **Clarify:** the user, the output contract, constraints (latency, cost, privacy), and the cost of errors.
+- **Baseline:** a clear prompt with a defined output format, so you have a measurable reference.
+- **Diagnose and choose:** missing facts -> RAG; wrong behavior/format -> fine-tuning; needs action ->
+  tools; cost/latency -> routing, caching, streaming.
+- **Evaluate:** task metric, eval set, regression suite, calibrated judge.
+- **Operate:** guardrails, fallbacks, monitoring, and human-in-the-loop for high stakes.
 
 ## Why It Matters in Real Jobs
 
-LLM products often fail at boundaries: the model lacks evidence, follows malicious instructions,
-uses stale context, calls the wrong tool, produces an unverifiable answer, or costs too much at
-scale. The engineering work is to make those boundaries explicit.
-
-Interviewers want to see that you can reason about quality and safety while still building something
-useful. They expect you to know when a prompt is enough, when RAG is needed, when fine-tuning helps,
-when a tool should be constrained, and when a human should approve the result.
+These patterns are how real LLM systems are built and debugged. The engineer who asks "what is actually
+failing?" before reaching for fine-tuning fixes problems faster and cheaper. The interview is a proxy for
+that judgment: can you reason from a measured failure to the smallest effective fix, and can you make the
+system safe and affordable?
 
 ## How It Works Step by Step
 
-1. **Clarify the product action.** Is the model drafting, answering, classifying, planning, or
-   changing state through a tool?
-2. **Define the output contract.** Specify format, citations, uncertainty, refusals, and escalation.
-3. **Build a baseline.** Start with a prompt, template, rules, or retrieval-only search experience.
-4. **Choose the improvement path.** Add RAG for external knowledge, fine-tuning for style or stable
-   behavior, tools for actions, routing for cost, or guardrails for policy.
-5. **Evaluate with hard cases.** Include ambiguity, missing evidence, adversarial prompts, stale
-   data, long context, and high-risk user segments.
-6. **Operate the system.** Monitor quality, latency, cost, refusal rate, tool errors, citation
-   faithfulness, and user feedback.
+1. **Restate and clarify** the task, contract, and constraints.
+2. **Propose the prompt baseline** and the evaluation metric.
+3. **Diagnose the failure** and pick the matching intervention.
+4. **Justify** why that is narrower and better than a bigger model.
+5. **Close with operations:** guardrails, cost, latency, monitoring, and human gates.
 
 ## Real-World Example
 
-For a customer-support drafting assistant, the baseline could retrieve relevant help-center articles
-and generate a draft response with citations. The output contract should require source links,
-uncertainty markers, and escalation when account-specific action is needed. Fine-tuning might help
-tone, but it should not replace retrieval for changing policies. Tool calls for refunds or account
-changes need permission checks and human approval.
-
-The evaluation should include answer faithfulness, policy compliance, resolution rate, edit rate,
-latency, cost, and high-risk examples where the correct behavior is refusal or escalation.
+Asked to "improve our LLM feature that gives wrong answers", a strong candidate clarifies whether the
+problem is facts or behavior, finds it is stale facts, adds RAG with cite-or-abstain rather than fine-tuning,
+defines a faithfulness metric and regression suite, and adds caching and monitoring. A weak candidate
+immediately proposes fine-tuning on company data and stalls on "but the facts change weekly".
 
 ## Common Mistakes
 
-- Treating model choice as the whole system design.
-- Using fine-tuning to memorize knowledge that changes often.
-- Adding RAG without measuring retrieval recall and citation faithfulness.
-- Letting the model call tools without schemas, permissions, and approval rules.
-- Reporting average helpfulness without hard examples or safety cases.
-- Logging sensitive prompts or documents without a privacy plan.
-- Ignoring latency and cost until after the product design is fixed.
+- Reaching for the biggest model or fine-tuning by default.
+- Conflating knowledge problems (RAG) with behavior problems (fine-tuning).
+- No evaluation plan, so improvements are unproven.
+- Ignoring cost, latency, and safety.
 
 ## Interview Angle
 
-Interviewers use LLM prompts to test system judgment under uncertainty.
+**Question:** The interviewer says "the answers are wrong, fix it". What is your move?
 
-**Question:** How would you improve an LLM assistant that gives plausible but unsupported answers?
+**Strong answer:** Diagnose first: are the facts wrong (add RAG) or is the format/behavior wrong (fine-tune)?
+Ship a prompt baseline, choose the narrowest fix for the measured failure, and prove it with a faithfulness
+metric and regression suite.
 
-**Strong answer:** Define unsupported answer rate, add retrieval with source constraints if the
-answer depends on external knowledge, evaluate retrieval recall and citation faithfulness, require
-the model to abstain when evidence is missing, add hard examples, and monitor user feedback and
-regressions.
-
-**Weak answer:** Use a larger model and hope hallucinations decrease.
+**Weak answer:** "Fine-tune the model," with no diagnosis or evaluation.
 
 **Follow-up questions:**
 
-- When would you choose RAG over fine-tuning?
-- What should happen when retrieved evidence conflicts?
-- How would you evaluate an LLM-as-judge?
-- How would you reduce cost without reducing quality?
+- How do you decide prompt vs RAG vs fine-tuning?
+- How do you evaluate the fix?
+- How do you control cost and latency?
 
 ## Mini Exercise
 
-Pick an LLM feature from this repository. Write the task contract, context strategy, baseline,
-primary metric, two hard examples, one security risk, and one fallback. Then decide whether the next
-improvement should be prompt changes, retrieval, fine-tuning, tools, routing, or evaluation.
+Take one mock prompt (for example "design an LLM assistant for X"). Write a twelve-line answer using the
+clarify, baseline, diagnose-and-choose, evaluate, operate frame, naming one cost and one safety control.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[User task] --> B[Output contract]
-    B --> C[Prompt and context]
-    C --> D[Model or route]
-    D --> E[Evaluation]
-    E --> F[Controls and monitoring]
-    F --> C
+flowchart TD
+    A[Clarify task + contract + constraints] --> B[Prompt baseline + metric]
+    B --> C{What is failing?}
+    C -- Facts --> D[RAG]
+    C -- Behavior --> E[Fine-tune]
+    C -- Action --> F[Tools]
+    C -- Cost/latency --> G[Routing, caching, streaming]
+    D --> H[Evaluate + operate: guardrails, monitoring, human gate]
+    E --> H
+    F --> H
+    G --> H
 ```
 
 ---

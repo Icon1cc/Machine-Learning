@@ -1,5 +1,15 @@
-flowchart LR
-    A[Model Evaluation inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+flowchart TD
+    A[Trained model] --> B{Task}
+    B -- Classification --> C[Confusion matrix]
+    C --> D[Precision, recall, F1, ROC-AUC, PR-AUC]
+    B -- Regression --> E[RMSE, MAE, R2]
+    B -- Ranking --> F[NDCG, MAP, recall@k]
+    B -- Generation --> G[Human eval, BLEU, faithfulness]
+    D --> H[Slice by segment]
+    E --> H
+    F --> H
+    G --> H
+    H --> I{Hidden failure in a slice?}
+    I -- Yes --> J[Fix data or model]
+    I -- No --> K[Offline gate passed]
+    K --> L[Online A/B test on real metric]

@@ -1,5 +1,12 @@
 flowchart LR
-    A[Llms inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Prompt text] --> B[Tokenize]
+    B --> C[Token + positional embeddings]
+    C --> D[Transformer block x N]
+    D --> E["Self-attention: softmax(QK^T / sqrt d) V"]
+    E --> F[Feed-forward + residual + norm]
+    F --> D
+    D --> G[Final logits over vocab]
+    G --> H[Decode: greedy / top-p / temperature]
+    H --> I[Next token]
+    I -->|append, repeat| A
+    D -.cache.-> J[KV cache for fast decoding]

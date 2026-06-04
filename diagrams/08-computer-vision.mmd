@@ -1,5 +1,14 @@
 flowchart LR
-    A[Computer Vision inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Image tensor H x W x C] --> B[Conv + ReLU]
+    B --> C[Pooling / downsample]
+    C --> D[Stacked conv blocks]
+    D --> E[Feature maps]
+    E --> F{Task}
+    F -- Classification --> G[Global pool + softmax]
+    F -- Detection --> H[Region proposals + boxes]
+    F -- Segmentation --> I[Per-pixel mask]
+    F -- Modern --> J[Patch embed -> ViT]
+    G --> K[Evaluate: accuracy / mAP / IoU]
+    H --> K
+    I --> K
+    J --> G

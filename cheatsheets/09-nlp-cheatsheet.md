@@ -2,64 +2,78 @@
 
 ## Intuition
 
-NLP is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+NLP turns text into numbers a model can use, then maps those numbers to a task: classify, tag,
+extract, retrieve, or generate. The history is a steady move from counting words, to learned word
+vectors, to contextual transformer representations.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-NLP. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+The representation ladder:
+
+- **Bag-of-words / TF-IDF:** count term frequency, downweight common words. Strong, fast baseline.
+- **Word embeddings (word2vec, GloVe):** dense vectors where similar words are close, but one vector
+  per word regardless of context.
+- **Contextual embeddings (BERT and friends):** the vector for "bank" differs in "river bank" vs
+  "bank account".
+- **Tokenization:** subword methods (BPE, WordPiece, SentencePiece) handle rare words by splitting
+  them into pieces, so vocabulary stays bounded.
+
+Core tasks: text classification, named-entity recognition (NER), sequence labeling, question
+answering, summarization, translation, and retrieval.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. NLP is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+Most "LLM" products are still NLP pipelines underneath: clean text, tokenize, embed, retrieve,
+classify, or generate, then evaluate. Knowing the classical ladder helps you pick a cheap baseline
+(TF-IDF + logistic regression) before reaching for a large model.
+
+## Key Reference
+
+| Need | Approach | Metric |
+| --- | --- | --- |
+| Topic/intent classification | TF-IDF + linear, or fine-tuned encoder | F1, accuracy |
+| Entity extraction | Sequence labeling (BIO tags) | Entity-level F1 |
+| Semantic search | Sentence embeddings + ANN | Recall@k, MRR |
+| Summarization | Seq2seq / decoder LLM | ROUGE + human |
+| Translation | Encoder-decoder | BLEU + human |
 
 ## Example
 
-If you are asked about NLP, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+For support-ticket routing, a TF-IDF plus logistic-regression model reaches 0.88 macro-F1 in minutes
+and is trivial to explain. A fine-tuned transformer pushes it to 0.92 but costs more to serve. The
+right interview answer ships the baseline first and justifies the upgrade with the measured gain.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Expect "TF-IDF vs embeddings", "why subword tokenization", "how would you build text classification",
+"contextual vs static embeddings". Show that you start with a cheap baseline and that you understand
+why subwords solve the out-of-vocabulary problem.
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Reaching for a large model when TF-IDF would answer the question.
+- Ignoring tokenization details (it affects cost and rare-word handling).
+- Using BLEU/ROUGE as the only judge of generation quality.
+- Forgetting class imbalance in classification metrics.
+- Evaluating retrieval with accuracy instead of recall@k or MRR.
 
 ## Mini Exercise
 
-Explain NLP in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+You must classify 50k support emails into 12 categories. Write your baseline, the metric (and why
+macro vs micro F1), one tokenization concern, and what evidence would justify moving to a transformer.
 
 ## Diagram
 
 ```mermaid
-flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+flowchart LR
+    A[Raw text] --> B[Clean + tokenize subwords]
+    B --> C{Representation}
+    C -- Baseline --> D[TF-IDF + linear]
+    C -- Modern --> E[Contextual embeddings]
+    D --> F[Task head]
+    E --> F
+    F --> G[Classify / tag / retrieve / generate]
+    G --> H[Evaluate: F1 / recall@k / ROUGE]
 ```
 
 ---

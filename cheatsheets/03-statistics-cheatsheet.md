@@ -2,64 +2,79 @@
 
 ## Intuition
 
-Statistics is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+Statistics is how you reason from a sample to a conclusion while being honest about uncertainty. You
+never see the full population, so you estimate, attach an interval, and ask whether an observed
+difference is real or could be noise. Most data-science interviews live here.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-Statistics. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+- **Estimate plus uncertainty:** a point estimate (mean, proportion) is incomplete without a standard
+  error and a confidence interval.
+- **Hypothesis test:** assume the null (no effect), compute a test statistic, get a p-value (the
+  probability of data this extreme if the null were true), and compare to alpha.
+- **p-value is not** the probability the null is true, and it is not the effect size.
+- **Type I error:** false positive (reject a true null), rate alpha. **Type II:** false negative,
+  rate beta. **Power** = 1 - beta.
+- **CLT:** sample means are approximately normal for large n, which is why so many tests use the
+  normal or t distribution.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. Statistics is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+A/B tests, metric movements, and "is this model actually better" questions all hinge on
+distinguishing signal from noise. Reading a result without a confidence interval or peeking at a test
+early is how teams ship changes that do nothing or hurt.
+
+## Key Formulas
+
+| Concept | Formula or rule |
+| --- | --- |
+| Standard error of mean | s / sqrt(n) |
+| 95 percent CI | estimate +/- 1.96 * SE |
+| z statistic | (estimate - null) / SE |
+| Bayes | P(H given D) = P(D given H) P(H) / P(D) |
+| Power drivers | larger effect, larger n, lower variance, higher alpha |
 
 ## Example
 
-If you are asked about Statistics, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+An A/B test shows the variant has 12.0 percent conversion versus 11.5 percent for control. Is it
+real? You compute the difference, its standard error from both sample sizes, and a confidence
+interval. If the 95 percent CI for the lift includes 0, you cannot claim an effect yet. If you also
+peeked daily and stopped when it looked good, your false-positive rate is far above 5 percent.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Common prompts: "explain a p-value to a non-technical PM", "what is the difference between Type I and
+Type II error", "how would you size an A/B test", "correlation vs causation". Always pair the
+definition with the decision it informs.
+
+**Strong answer to p-value:** "If there were truly no effect, the p-value is how often we would see a
+result at least this extreme by chance. A small p-value means the data is surprising under the null."
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Saying the p-value is the probability the hypothesis is true.
+- Peeking and stopping A/B tests early without correction.
+- Ignoring effect size; statistical significance is not practical significance.
+- Confusing correlation with causation when confounders exist.
+- Forgetting multiple-comparison inflation when testing many metrics.
 
 ## Mini Exercise
 
-Explain Statistics in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+Design an A/B test for a checkout button change. State the metric, the null and alternative, the
+minimum detectable effect, the required sample size drivers, and one guardrail metric. Then explain
+how you would avoid peeking bias.
 
 ## Diagram
 
 ```mermaid
 flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+    A[Sample data] --> B[Estimate + standard error]
+    B --> C[Confidence interval]
+    A --> D[State H0 / H1]
+    D --> E[Test statistic + p-value]
+    E --> F{p < alpha?}
+    F -- Yes --> G[Reject H0, check effect size]
+    F -- No --> H[Insufficient evidence]
 ```
 
 ---

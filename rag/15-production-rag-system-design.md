@@ -2,101 +2,84 @@
 
 ## Beginner-Friendly Intuition
 
-Production RAG System Design is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to ground generation in retrieved evidence. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
-
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+A production RAG system is a pipeline, not a prompt. It has an offline path (ingest, chunk, embed, index)
+that runs as documents change, and an online path (rewrite, retrieve, rerank, compress, generate, log)
+that runs per request under a latency budget. Designing it well means deciding each stage's component, the
+freshness strategy, the evaluation gates, and the operational controls, all together.
 
 ## Formal Explanation
 
-Production RAG System Design is a practical concept used to ground generation in retrieved evidence in a knowledge assistant. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+The reference architecture has two planes. Offline: a sync job parses sources, attaches metadata and ACLs,
+chunks, embeds, and writes to a versioned vector index, handling adds, updates, and deletes. Online: the
+query is rewritten, retrieved via hybrid search with permission filters, reranked, compressed, and passed
+to a generator under a cite-or-abstain contract, with every stage logged. Around both sit evaluation gates
+(component metrics before deploy), monitoring (drift, abstention, latency, cost), and security (ACLs,
+injection defenses, audit). Caching and model routing manage cost and latency.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a knowledge assistant to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+This is the canonical AI-engineer system design interview, and the canonical real build. The hard parts
+are not the happy path; they are freshness (deleted docs must stop answering), permissions (per-user
+filtering before ranking), evaluation (catching regressions before users do), and cost at scale. A
+candidate who only describes "embed and retrieve" has not designed a system.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Offline:** ingest with metadata and ACLs, chunk, embed, index, handle updates and deletes.
+2. **Online retrieve:** rewrite query, hybrid search with permission filter, rerank, compress.
+3. **Online generate:** cite-or-abstain contract, validate citations, return sources.
+4. **Operate:** log every stage, monitor drift and abstention, alert an owner.
+5. **Control cost and latency:** cache common answers, route easy queries to smaller models.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+An enterprise assistant serves 5,000 employees over 2M documents with per-team permissions. Offline syncs
+re-index changed pages nightly and tombstone deletes within minutes for compliance. Online, each query is
+permission-filtered before ranking, reranked to 4 passages, and answered with citations or an abstention.
+Dashboards track abstention rate and p95 latency; a drift alert triggered a re-ingest when one space went
+stale. Caching common HR questions cut cost by a third.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Designing only the online path and ignoring ingestion, freshness, and deletes.
+- Filtering permissions after retrieval, risking leaks.
+- No evaluation gate, so regressions reach users.
+- No caching or routing, so cost scales linearly with traffic.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Design a production RAG assistant over internal docs with permissions.
 
-**Question:** Explain Production RAG System Design, then describe how you would use it in a real system.
+**Strong answer:** Separate offline (ingest, chunk, embed, index, handle deletes) from online (rewrite,
+permission-filtered hybrid retrieve, rerank, compress, cite-or-abstain generate). Add component-level
+evaluation gates, monitoring, security, and cost controls.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "Embed the docs and call the LLM with the top results."
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How do you keep the index fresh and handle deletes?
+- Where do permissions get enforced?
+- How do you control cost and latency at scale?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Draw the offline and online planes for a RAG assistant. Mark where permissions are enforced, where the
+evaluation gate sits, and one cost-control mechanism on the online path.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[Production RAG System Design]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+flowchart TD
+    A[Sources] --> B[Ingest + ACL + metadata]
+    B --> C[Chunk + embed]
+    C --> D[(Versioned index, handle deletes)]
+    E[Query] --> F[Rewrite]
+    F --> G[Permission-filtered hybrid retrieve]
+    D --> G
+    G --> H[Rerank + compress]
+    H --> I[Cite-or-abstain generate]
+    I --> J[Log + monitor + alert]
 ```
 
 ---

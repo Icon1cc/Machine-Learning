@@ -1,5 +1,14 @@
 flowchart LR
-    A[Nlp inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Raw text] --> B[Normalize and clean]
+    B --> C[Tokenize: BPE / WordPiece]
+    C --> D[Token IDs]
+    D --> E[Embeddings]
+    E --> F{Model era}
+    F -- Classical --> G[TF-IDF + linear model]
+    F -- Neural --> H[RNN / LSTM]
+    F -- Modern --> I[Transformer encoder/decoder]
+    G --> J[Task head]
+    H --> J
+    I --> J
+    J --> K[Classification / NER / generation]
+    K --> L[Evaluate: F1 / BLEU / perplexity]

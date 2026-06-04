@@ -1,5 +1,14 @@
-flowchart LR
-    A[Tool Use inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+flowchart TD
+    A[User request] --> B[LLM reasons over tool schemas]
+    B --> C{Tool needed?}
+    C -- No --> D[Answer directly]
+    C -- Yes --> E[Emit structured tool call: name + JSON args]
+    E --> F[Validate args against schema]
+    F --> G{Valid?}
+    G -- No --> H[Return error to model, retry]
+    H --> B
+    G -- Yes --> I[Execute tool / API]
+    I --> J[Return result to model]
+    J --> K{More tools?}
+    K -- Yes --> B
+    K -- No --> L[Final response grounded in results]

@@ -1,5 +1,18 @@
 flowchart LR
-    A[Math inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    subgraph Linear Algebra
+        A[Vectors and matrices] --> B[Dot products and norms]
+        B --> C[Matrix multiply = layer]
+    end
+    subgraph Calculus
+        D[Loss function] --> E[Partial derivatives]
+        E --> F[Gradient]
+    end
+    subgraph Probability
+        G[Distributions] --> H[Expectation and variance]
+    end
+    C --> I[Model output]
+    F --> J[Gradient descent update]
+    H --> K[Loss as negative log-likelihood]
+    I --> J
+    K --> J
+    J --> L[Lower loss next step]

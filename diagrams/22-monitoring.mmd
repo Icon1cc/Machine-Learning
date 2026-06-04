@@ -1,5 +1,16 @@
 flowchart LR
-    A[Monitoring inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Live predictions + inputs] --> B[Log features, outputs, latency]
+    B --> C[Operational: latency, errors, cost]
+    B --> D[Data drift: input distribution shift]
+    B --> E[Concept drift: label relationship shift]
+    B --> F[Quality: accuracy when labels arrive]
+    C --> G{Threshold breached?}
+    D --> G
+    E --> G
+    F --> G
+    G -- Yes --> H[Alert on-call]
+    H --> I[Investigate root cause]
+    I --> J{Action}
+    J -- Retrain --> K[Trigger pipeline]
+    J -- Rollback --> L[Previous model version]
+    G -- No --> A

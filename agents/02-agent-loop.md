@@ -2,101 +2,81 @@
 
 ## Beginner-Friendly Intuition
 
-Agent Loop is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to coordinate model decisions, tool calls, observations, and stopping rules. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
-
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+The agent loop is the heartbeat of every agent: think, act, observe, repeat. The model looks at where
+things stand, picks an action, the system runs it, and the result feeds back into the next think step. The
+loop continues until the goal is done or a limit stops it. Get this loop and its stop conditions right and
+most of agent engineering falls into place.
 
 ## Formal Explanation
 
-Agent Loop is a practical concept used to coordinate model decisions, tool calls, observations, and stopping rules in a tool-using workflow. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+The canonical loop is ReAct (reason and act): the model produces a thought, then an action (a tool call),
+the system executes it and returns an observation, and the cycle repeats. Variants include plan-and-execute
+(plan all steps first, then run them) and reflection loops (critique the result and retry). Each iteration
+appends thought, action, and observation to the context, which is both the agent's working memory and its
+growing cost. Stop conditions, goal reached, max steps, budget exhausted, or low confidence, bound the
+loop.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a tool-using workflow to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+The loop is where agents both shine and fail. Without explicit stop conditions, an agent can loop forever,
+burning tokens and money. As the context grows each step, cost and latency climb and the model can lose
+track. The most important production controls, step caps, cost budgets, and progress checks, all live in
+how you implement the loop.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Think:** the model reasons about the goal and current state.
+2. **Act:** it emits an action, usually a structured tool call.
+3. **Observe:** the system runs the action and returns the result.
+4. **Update:** append the thought, action, and observation to context.
+5. **Check stop conditions:** goal met, max steps, budget, or low confidence; else loop.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A research agent answering "what changed in our pricing this year" thinks it needs the current and prior
+price lists, calls a search tool, observes results, reasons that it still needs the prior version,
+searches again, then composes the answer. A step cap of 8 and a token budget prevent it from spiraling if a
+search keeps returning irrelevant pages. The loop made multi-step research possible; the caps made it safe.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- No stop conditions, so the loop never terminates.
+- Letting context grow unbounded, inflating cost and confusing the model.
+- No progress check, so the agent repeats the same failing action.
+- Hiding tool errors from the model instead of feeding them back for correction.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** How do you stop an agent from looping forever?
 
-**Question:** Explain Agent Loop, then describe how you would use it in a real system.
+**Strong answer:** Explicit stop conditions in the loop: a max-step cap, a token or cost budget, a
+progress check that detects repeated actions, and a low-confidence escalation. The loop must be bounded by
+design.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "The model will know when to stop," with no enforced limits.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- ReAct vs plan-and-execute, when to use each?
+- How does context growth affect cost and quality?
+- How do you detect that the agent is stuck?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Write the loop for an agent that books a meeting: list the think-act-observe steps for a typical run, and
+specify three stop conditions with concrete values.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[Agent Loop]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+flowchart TD
+    A[Goal] --> B[Think: reason about state]
+    B --> C[Act: tool call]
+    C --> D[Observe: result]
+    D --> E[Append to context]
+    E --> F{Stop condition?}
+    F -- Goal met / max steps / budget --> G[Finish]
+    F -- No --> B
 ```
 
 ---

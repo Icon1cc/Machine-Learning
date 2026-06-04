@@ -1,5 +1,13 @@
 flowchart LR
-    A[Mlops inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Raw data] --> B[Data versioning: DVC]
+    B --> C[Feature store]
+    C --> D[Training pipeline]
+    D --> E[Experiment tracking: MLflow]
+    E --> F[Model registry]
+    F --> G[CI/CD: test, validate, package]
+    G --> H[Serving: batch or online]
+    H --> I[Monitoring: latency, drift, quality]
+    I --> J{Drift or decay?}
+    J -- Yes --> K[Trigger retrain]
+    K --> D
+    J -- No --> H

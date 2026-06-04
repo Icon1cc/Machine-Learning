@@ -2,64 +2,75 @@
 
 ## Intuition
 
-Feature Engineering is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+Features are how you encode domain knowledge so the model does not have to rediscover it. On tabular
+problems, good features usually beat a fancier model. The discipline is turning raw fields into
+signals while never leaking information the model would not have at prediction time.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-Feature Engineering. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+- **Numeric:** scale (standardize or min-max) for distance and linear models; log-transform skewed
+  values; bin when the relationship is nonlinear.
+- **Categorical:** one-hot for low cardinality; target or frequency encoding for high cardinality
+  (fit on train folds only to avoid leakage); embeddings for very high cardinality.
+- **Missing values:** impute (median, model-based) and add a "was missing" indicator.
+- **Dates:** extract day-of-week, month, hour, holidays, and time since last event.
+- **Aggregates:** counts, means, and recency per entity (user, item) computed over a past window.
+- **Interactions:** ratios and products that encode known relationships.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. Feature Engineering is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+The single most common production bug in ML is **leakage**: a feature that secretly contains the
+label or future information. It inflates offline scores and then the model fails live. Fitting
+scalers or target encoders on the full dataset before splitting is leakage too.
+
+## Key Rules
+
+| Rule | Why |
+| --- | --- |
+| Fit transforms on train only | Prevents leakage into val/test |
+| Use past windows for aggregates | No future data at prediction time |
+| Add missingness indicators | Missing is often informative |
+| Target-encode inside CV folds | Avoids label leakage |
+| Match train and serve features | Training/serving skew kills models |
 
 ## Example
 
-If you are asked about Feature Engineering, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+A churn model includes "number of support tickets in the last 90 days". If you accidentally include
+tickets filed after the churn date, the model "predicts" churn from a consequence of churn. Offline
+AUC is 0.98, production AUC is 0.6. The fix is a strict time cutoff: only features known at the
+prediction timestamp.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Expect "how do you handle high-cardinality categoricals", "what is data leakage and how do you
+prevent it", "how do you encode dates". Show that you reason about what is known at prediction time.
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Fitting scalers or encoders before the train/test split.
+- Target encoding on the full dataset (label leakage).
+- Aggregates that include future events.
+- Dropping rows with missing values instead of modeling missingness.
+- Training/serving skew: features computed differently online and offline.
 
 ## Mini Exercise
 
-Explain Feature Engineering in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+For a model that predicts next-week purchases, list five features, mark each as known or unknown at
+prediction time, and flag any leakage. Then describe how you would compute one aggregate feature with
+a correct time window.
 
 ## Diagram
 
 ```mermaid
-flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+flowchart LR
+    A[Raw fields] --> B[Impute + missingness flag]
+    B --> C[Encode categoricals]
+    C --> D[Scale / transform numerics]
+    D --> E[Aggregates over PAST window]
+    E --> F[Fit transforms on TRAIN only]
+    F --> G{Leakage check}
+    G -- Future info --> H[Remove feature]
+    G -- Clean --> I[Feature set]
 ```
 
 ---

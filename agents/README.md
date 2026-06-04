@@ -4,14 +4,29 @@
 
 Agent loops, tool use, planning, memory, multi-agent design, evaluation, observability, and risk controls.
 
+## Beginner Intuition
+
+An agent is an LLM placed in a loop with tools and memory. Instead of answering once, it observes
+state, decides an action, calls a tool, observes the result, and repeats until the goal is met or a
+stop condition fires. The power comes from acting in the world; the danger comes from the same thing.
+
+## Why It Matters
+
+Agents unlock multi-step automation, but they fail in ways single calls do not: they loop, pick the
+wrong tool, compound errors, and can take irreversible real-world actions. Guardrails, budgets,
+permissioned tools, and human approval are not optional. Evaluating a trajectory is harder than
+grading one answer.
+
 ## Who Should Read This Section
 
-Read this section if you are studying the related topic, preparing interview answers, building a
-project, or reviewing production tradeoffs connected to this part of the curriculum.
+Read this if you build autonomous or tool-using systems, or interview for agent-focused AI roles. It
+builds on the LLM, RAG, and tool-use material and connects to production-AI and ethics-safety.
 
 ## Recommended Reading Order
 
-Read the numbered Markdown files in ascending order. They are arranged from foundation to application.
+Read in order: what an agent is, the agent loop, tools and function calling, planning, memory, single
+vs multi-agent, agentic RAG, workflow agents, autonomous risks, evaluation, observability, then system
+design and interview patterns.
 
 ## Table of Contents
 
@@ -31,19 +46,48 @@ Read the numbered Markdown files in ascending order. They are arranged from foun
 | 12 | [Agent System Design](12-agent-system-design.md) |
 | 13 | [Agent Interview Patterns](13-agent-interview-patterns.md) |
 
+## Real-World Examples
+
+- An IT-support agent that reads tickets, searches a knowledge base, and resets passwords with
+  approval.
+- A coding agent that plans, edits files, runs tests, and reads failures.
+- A research agent that searches, reads, and composes a cited report.
+- A workflow agent that fills forms and routes approvals across systems.
+
+## Pattern Recognition
+
+- "One LLM call cannot do it; it needs steps and tools" points to an agent.
+- "It loops forever" points to missing stop conditions and budgets.
+- "It took an irreversible action wrongly" points to missing human approval gates.
+- "It works in demos but not at scale" points to missing trajectory evaluation and observability.
+
+## Common Mistakes
+
+- Building a multi-agent system when one call or a fixed workflow would do.
+- No step, time, or cost budget, so the agent loops.
+- Tools without schemas, permissions, or audit logs.
+- Evaluating only the final answer, ignoring the trajectory and cost.
+
+## Interview Notes
+
+Expect "when do you need an agent vs a single call", "how do you stop infinite loops", "single vs
+multi-agent", "how do you evaluate an agent". The strongest answer resists agents until simpler
+options are proven insufficient.
+
 ## What You Should Know After Finishing
 
-- The core vocabulary and mental models for this section.
-- The practical workflow and evaluation questions connected to the topic.
-- Common mistakes and tradeoffs that appear in interviews and real projects.
-- How this section connects to the surrounding curriculum.
+- The agent loop and the role of planning, tools, and memory.
+- How to gate irreversible actions and set budgets and stop conditions.
+- When a single agent beats a multi-agent design.
+- How to evaluate trajectories, not just final answers.
 
 ## Suggested Exercises
 
-- Summarize each file in five bullets.
-- Write one interview question and one strong answer after each lesson.
-- Connect the section to one case study or project.
-- Revisit the related quiz or cheatsheet after a short break.
+- Design a meeting-booking agent: tools, stop conditions, the action that needs approval, three
+  guardrails.
+- Decide single vs multi-agent for a research task and justify it.
+- List four production metrics for an agent and why each matters.
+- Describe how you would detect and stop an agent stuck in a loop.
 
 ## Navigation
 

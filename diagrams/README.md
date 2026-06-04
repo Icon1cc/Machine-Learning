@@ -2,16 +2,31 @@
 
 ## Folder Purpose
 
-Reusable Mermaid diagram source files for learning paths and architecture sketches.
+Reusable Mermaid diagram source files that sketch the real flow of each major topic, from fundamentals
+to deployment.
+
+## Beginner Intuition
+
+A good diagram compresses a whole topic into a flow you can redraw from memory. Each file here is a
+small Mermaid source you can paste into any Markdown viewer to see the moving parts: how data flows,
+where decisions branch, and where feedback loops close. They are study aids and interview
+whiteboarding templates, not decoration.
+
+## Why It Matters
+
+In system-design interviews you will draw, not just talk. Being able to sketch the RAG pipeline, the
+agent loop, or the MLOps lifecycle quickly signals real understanding. These diagrams give you a
+correct mental template to reproduce under pressure.
 
 ## Who Should Read This Section
 
-Read this section if you are studying the related topic, preparing interview answers, building a
-project, or reviewing production tradeoffs connected to this part of the curriculum.
+Use these whenever a lesson, case study, or interview needs a picture. They map one-to-one to the
+topic folders, so reach for the matching diagram while studying that section.
 
 ## Recommended Reading Order
 
-Use the files as reference material when they support the current lesson or project.
+There is no fixed order. Open the diagram that matches the topic you are studying. Try to redraw it
+from memory, then compare against the source.
 
 ## Table of Contents
 
@@ -43,19 +58,30 @@ Use the files as reference material when they support the current lesson or proj
 | 24 | [24-tool-use.mmd](24-tool-use.mmd) |
 | 25 | [25-deployment.mmd](25-deployment.mmd) |
 
+## Real-World Examples
+
+- The RAG diagram mirrors how a production assistant retrieves, reranks, and grounds an answer.
+- The agents diagram is the loop you would whiteboard for an agent design interview.
+- The MLOps diagram is the lifecycle you would defend when asked "how do you keep a model healthy".
+
+## Pattern Recognition
+
+- Branches (decision diamonds) mark where most real-world failures happen.
+- Feedback arrows mark where monitoring or retraining closes the loop.
+- Two-stage flows (retrieve then rank, candidate then ranking) recur across retrieval and
+  recommenders.
+
 ## What You Should Know After Finishing
 
-- The core vocabulary and mental models for this section.
-- The practical workflow and evaluation questions connected to the topic.
-- Common mistakes and tradeoffs that appear in interviews and real projects.
-- How this section connects to the surrounding curriculum.
+- The canonical flow of each major topic, drawable from memory.
+- Where the key decision points and feedback loops sit in each system.
+- How the diagrams map onto the matching topic folders.
 
 ## Suggested Exercises
 
-- Summarize each file in five bullets.
-- Write one interview question and one strong answer after each lesson.
-- Connect the section to one case study or project.
-- Revisit the related quiz or cheatsheet after a short break.
+- Redraw the RAG and agent diagrams from memory, then check against the source.
+- Annotate one diagram with the metric you would monitor at each stage.
+- Extend the MLOps diagram with a rollback path and explain it out loud.
 
 ## Navigation
 

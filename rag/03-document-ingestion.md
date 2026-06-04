@@ -2,101 +2,79 @@
 
 ## Beginner-Friendly Intuition
 
-Document Ingestion is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to ground generation in retrieved evidence. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
-
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+Ingestion is the unglamorous first stage of RAG that decides everything downstream. You take raw
+sources (PDFs, HTML, wikis, tickets), pull out clean text, and attach metadata about where each piece
+came from. If ingestion is sloppy (broken tables, lost headings, no source URL), no clever retrieval or
+prompting will recover. Garbage in, ungrounded answers out.
 
 ## Formal Explanation
 
-Document Ingestion is a practical concept used to ground generation in retrieved evidence in a knowledge assistant. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+Ingestion is an extract-transform-load pipeline for unstructured content. For each document you parse the
+format, normalize the text, preserve structure (headings, tables, lists), and record metadata: source
+URL, author, department, permission/ACL, version, and timestamp. The output is a clean, attributed text
+representation ready to be chunked and embedded. Crucially, ingestion must handle change: new documents,
+updates, and deletes, so the index reflects reality.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a knowledge assistant to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+The two failure modes that ingestion prevents are wrong citations and stale or leaked content. If you do
+not capture source metadata, you cannot cite or enforce permissions. If you do not handle deletes, a
+document removed for legal reasons keeps answering questions. Most "the RAG system gave a wrong answer"
+incidents trace back to ingestion losing structure or missing an update.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Parse** each format (PDF, HTML, DOCX) into text, keeping headings and tables intact.
+2. **Clean** boilerplate (nav bars, footers) and fix encoding issues.
+3. **Attach metadata:** source, owner, permissions, version, date, and a stable document ID.
+4. **Detect changes:** add new docs, re-index updates, and tombstone deletes.
+5. **Hand off** clean, attributed text to the chunking stage.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A company ingests its Confluence wiki. The parser keeps page headings so chunks stay coherent, records
+each page's space and permission group, and stores the last-edited timestamp. When a page is deleted, a
+nightly sync removes its chunks from the index. Later, when an employee asks a question, the answer cites
+the exact page and never surfaces content from a space they cannot access, because the permission
+metadata rode along from ingestion.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Flattening PDFs so tables and headings turn into unusable text soup.
+- Dropping source metadata, making citations and permissions impossible.
+- Ingesting once and never handling updates or deletes.
+- Indexing duplicate or near-duplicate documents that crowd out the best source.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Where do most RAG quality problems actually originate?
 
-**Question:** Explain Document Ingestion, then describe how you would use it in a real system.
+**Strong answer:** Often in ingestion. If parsing loses structure or metadata, retrieval and citations
+degrade no matter how good the model is. I would preserve headings, attach source and permission
+metadata, and handle updates and deletes.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Jumping straight to embeddings without mentioning parsing, metadata, or freshness.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How do you handle a document that gets deleted?
+- How do you keep citations accurate?
+- What metadata is essential and why?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick a real document type (a PDF report or a wiki page). List the metadata fields you would capture, one
+parsing pitfall for that format, and how you would propagate a deletion to the index.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[Document Ingestion]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+    A[Raw sources: PDF/HTML/wiki] --> B[Parse, keep structure]
+    B --> C[Clean text]
+    C --> D[Attach metadata: source, ACL, version, date]
+    D --> E[Change detection: add/update/delete]
+    E --> F[Clean attributed text -> chunking]
 ```
 
 ---

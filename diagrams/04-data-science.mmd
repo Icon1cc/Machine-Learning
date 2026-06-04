@@ -1,5 +1,12 @@
 flowchart LR
-    A[Data Science inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Business question] --> B[Acquire data]
+    B --> C[Clean: missing, outliers, types]
+    C --> D[Exploratory data analysis]
+    D --> E[Feature engineering]
+    E --> F[Model or statistical test]
+    F --> G[Evaluate against metric]
+    G --> H{Answers the question?}
+    H -- No --> D
+    H -- Yes --> I[Communicate: viz and narrative]
+    I --> J[Decision or A/B test]
+    J -- new questions --> A

@@ -4,14 +4,29 @@
 
 Ten-question review sets with answer keys and explanations for retrieval practice.
 
+## Beginner Intuition
+
+A quiz is not a test you pass once; it is a way to find the gaps in what you think you know. Active
+recall (answering before you check) and spaced repetition (returning after a delay) move knowledge into
+long-term memory far better than rereading. Each quiz here pairs questions with explained answers so
+you learn from misses.
+
+## Why It Matters
+
+Reading feels like learning but is mostly recognition. Interviews demand recall under pressure.
+Quizzing yourself is the cheapest way to convert "I have seen this" into "I can explain this" before a
+real interview makes the difference expensive.
+
 ## Who Should Read This Section
 
-Read this section if you are studying the related topic, preparing interview answers, building a
-project, or reviewing production tradeoffs connected to this part of the curriculum.
+Use this section after studying a topic folder, and again a few days later. It is for anyone preparing
+for interviews or wanting to verify a section actually stuck.
 
 ## Recommended Reading Order
 
-Read the numbered Markdown files in ascending order. They are arranged from foundation to application.
+Take each quiz after finishing the matching topic folder, not before. Answer every question first,
+then read the answer key and revisit any lesson you missed. End with the final review quiz before an
+interview.
 
 ## Table of Contents
 
@@ -38,19 +53,42 @@ Read the numbered Markdown files in ascending order. They are arranged from foun
 | 19 | [Production AI Quiz](19-production-ai-quiz.md) |
 | 20 | [Final Review Quiz](20-final-review-quiz.md) |
 
+## Real-World Examples
+
+- Quizzing yourself on bias-variance the day after reading it exposes whether you truly understood it.
+- A missed transformers question sends you back to the attention lesson with a specific gap in mind.
+- The final review quiz simulates the breadth of a real screening round.
+
+## Pattern Recognition
+
+- Consistently missing one topic means that folder needs a reread, not more quizzing.
+- Getting the answer but not the explanation means you memorized, not understood.
+- Fast correct recall across a folder means you are ready to move on.
+
+## Common Mistakes
+
+- Reading the answer before genuinely attempting the question.
+- Quizzing once and never returning (no spaced repetition).
+- Treating a correct guess as mastery.
+- Skipping the explanation after a correct answer.
+
+## Interview Notes
+
+Many screening rounds are rapid-fire concept checks. Practicing recall under a self-imposed timer here
+is the closest low-stakes simulation. Speak answers out loud to mimic the real format.
+
 ## What You Should Know After Finishing
 
-- The core vocabulary and mental models for this section.
-- The practical workflow and evaluation questions connected to the topic.
-- Common mistakes and tradeoffs that appear in interviews and real projects.
-- How this section connects to the surrounding curriculum.
+- Where your real knowledge gaps are, by topic.
+- The high-frequency facts and definitions for each area.
+- How to explain, not just recognize, each core concept.
 
 ## Suggested Exercises
 
-- Summarize each file in five bullets.
-- Write one interview question and one strong answer after each lesson.
-- Connect the section to one case study or project.
-- Revisit the related quiz or cheatsheet after a short break.
+- Take a quiz cold, then re-take it after three days and compare.
+- For every miss, write a one-line explanation in your own words.
+- Time the final review quiz and treat it like a screening round.
+- Turn three missed questions into flashcards.
 
 ## Navigation
 

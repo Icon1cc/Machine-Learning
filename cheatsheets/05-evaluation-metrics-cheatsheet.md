@@ -2,64 +2,80 @@
 
 ## Intuition
 
-Evaluation Metrics is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+The metric is the contract between your model and the business. Pick the wrong one and you optimize
+the wrong thing while every dashboard looks green. The right metric reflects the cost of each error
+type for this specific decision.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-Evaluation Metrics. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+Classification, from the confusion matrix (TP, FP, TN, FN):
+
+- **Precision** = TP / (TP + FP): of the things you flagged, how many were right. Use when false
+  positives are costly (spam moving real mail to junk).
+- **Recall** = TP / (TP + FN): of the real positives, how many you caught. Use when misses are costly
+  (cancer screening, fraud).
+- **F1** = harmonic mean of precision and recall: when you need balance.
+- **ROC-AUC:** ranking quality across all thresholds; can look optimistic on heavy imbalance.
+- **PR-AUC:** better than ROC-AUC when positives are rare.
+
+Regression: **RMSE** (penalizes large errors), **MAE** (robust to outliers), **R2** (variance
+explained). Ranking: **NDCG**, **MAP**, **recall@k**. Generation: human preference, faithfulness,
+**BLEU/ROUGE** as proxies, perplexity for language modeling.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. Evaluation Metrics is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+A 99 percent-accurate model on a 1 percent-positive problem can have near-zero recall. Calibration
+matters too: if you act on probabilities (expected value, thresholds), a miscalibrated 0.9 that is
+really 0.6 leads to bad decisions.
+
+## Key Reference
+
+| Situation | Metric |
+| --- | --- |
+| Rare positives, misses costly | Recall, PR-AUC |
+| False alarms costly | Precision |
+| Need a single balance number | F1 |
+| Compare rankers | ROC-AUC, NDCG |
+| Probabilities feed a decision | Calibration (reliability curve, Brier) |
+| Regression with outliers | MAE over RMSE |
 
 ## Example
 
-If you are asked about Evaluation Metrics, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+A loan-default model outputs probabilities used to set interest rates. ROC-AUC is 0.85, but the
+probabilities are overconfident. After isotonic calibration, AUC is unchanged but the predicted
+default rates match reality, so pricing decisions stop losing money. The lesson: ranking metrics and
+calibration measure different things.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Expect "precision vs recall and when to favor each", "why ROC-AUC can mislead", "what is
+calibration". Always anchor to the cost of FP versus FN for the given product.
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Reporting accuracy on imbalanced data.
+- Using ROC-AUC when positives are very rare instead of PR-AUC.
+- Optimizing a single aggregate without slicing by segment.
+- Ignoring calibration when probabilities drive decisions.
+- Comparing models at different thresholds.
 
 ## Mini Exercise
 
-Explain Evaluation Metrics in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+For a fraud system that auto-blocks transactions, state which metric is primary, which is a guardrail,
+what threshold logic you would use, and one segment you would always check for hidden failure.
 
 ## Diagram
 
 ```mermaid
 flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+    A[Predictions vs truth] --> B[Confusion matrix]
+    B --> C[Precision / Recall / F1]
+    B --> D[ROC-AUC vs PR-AUC]
+    C --> E[Slice by segment]
+    D --> E
+    E --> F{Probabilities used for decisions?}
+    F -- Yes --> G[Check calibration]
+    F -- No --> H[Pick threshold for the cost of errors]
 ```
 
 ---

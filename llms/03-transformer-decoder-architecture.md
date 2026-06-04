@@ -2,101 +2,83 @@
 
 ## Beginner-Friendly Intuition
 
-Transformer Decoder Architecture is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to use transformer language models as reasoning, generation, and interface components. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
-
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+Modern LLMs are decoder-only transformers. "Decoder-only" means the model reads text left to right and
+predicts the next token, never peeking at future tokens. It stacks the same building block many times: each
+block lets every token attend to the tokens before it (attention) and then transforms the result (a small
+neural network). Stack dozens of these and you get a system that models language deeply.
 
 ## Formal Explanation
 
-Transformer Decoder Architecture is a practical concept used to use transformer language models as reasoning, generation, and interface components in an LLM application. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+A decoder block has two sublayers: masked multi-head self-attention and a position-wise feed-forward
+network, each wrapped with a residual connection and layer normalization. The mask is causal: token i can
+attend only to tokens 1..i, which enforces left-to-right generation. Attention computes
+`softmax(QK^T / sqrt(d_k)) V`, mixing information across positions; the feed-forward layer transforms each
+position independently. Positional information is injected (learned or rotary embeddings) because attention
+is order-agnostic. The final layer projects to logits over the vocabulary for next-token prediction.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect an LLM application to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+The architecture explains the system's behavior and costs. Causal attention is why generation is sequential
+(one token at a time) and why the KV cache exists to make it efficient. The quadratic cost of attention in
+sequence length is why long context is expensive and why serving systems care about cache memory.
+Understanding the blocks lets you reason about latency, context limits, and why certain optimizations
+(flash attention, KV cache) matter.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Embed** tokens and add positional information.
+2. **Masked self-attention:** each token attends only to earlier tokens via `softmax(QK^T/sqrt(d_k))V`.
+3. **Feed-forward:** transform each position independently, with residual and norm.
+4. **Repeat** the block N times to build deep representations.
+5. **Project to logits** over the vocabulary and predict the next token.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+During chat generation, the model produces one token, appends it, and predicts the next. Recomputing
+attention over the entire growing prefix every step would be wasteful, so the serving system keeps a KV
+cache of past keys and values; each new token only attends against the cache. This single architectural
+consequence, born from causal attention, is why production LLM inference is engineered around cache memory
+and batch scheduling.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Confusing decoder-only (GPT-style, generation) with encoder-only (BERT-style, embeddings).
+- Forgetting the causal mask is what enforces left-to-right generation.
+- Saying transformers have built-in order (they need positional embeddings).
+- Ignoring the quadratic attention cost when reasoning about long context.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Describe the decoder block of an LLM.
 
-**Question:** Explain Transformer Decoder Architecture, then describe how you would use it in a real system.
+**Strong answer:** Masked multi-head self-attention plus a feed-forward network, each with residual and
+layer norm, stacked N times. The causal mask enforces left-to-right prediction; positional embeddings add
+order; attention is `softmax(QK^T/sqrt(d_k))V`, which costs quadratically in length, hence the KV cache.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "It is a transformer that generates text," with no blocks or masking.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- Why is the attention mask causal?
+- What is the KV cache and why does it exist?
+- Why are positional embeddings needed?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Sketch one decoder block listing its two sublayers and the residual and norm placement. Then explain in two
+sentences why the causal mask forces sequential generation.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[Transformer Decoder Architecture]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+flowchart TD
+    A[Token + positional embeddings] --> B[Masked multi-head self-attention]
+    B --> C[Add + LayerNorm]
+    C --> D[Feed-forward network]
+    D --> E[Add + LayerNorm]
+    E --> F[Repeat block x N]
+    F --> G[Logits over vocabulary]
+    G --> H[Next token]
 ```
 
 ---

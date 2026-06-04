@@ -1,5 +1,13 @@
 flowchart LR
-    A[Rag inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[User question] --> B[Embed query]
+    B --> C[Vector search top-k]
+    C --> D[Hybrid: + keyword BM25]
+    D --> E[Rerank cross-encoder]
+    E --> F[Assemble context + citations]
+    F --> G[Prompt LLM]
+    G --> H[Grounded answer]
+    H --> I{Evidence sufficient?}
+    I -- No --> J[Refuse or ask / escalate]
+    I -- Yes --> K[Return answer + sources]
+    K --> L[Log feedback]
+    L -.improve retrieval.-> C

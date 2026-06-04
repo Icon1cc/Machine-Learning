@@ -1,55 +1,86 @@
 # Agent System Design Mock
 
+## Scenario
+
+You are interviewing for an agent-focused AI role. The prompt: "Design an agent that triages incoming
+IT support tickets and resolves the easy ones automatically. It can read the ticket, search the
+knowledge base, reset passwords, create accounts, and open tickets with other teams. Anything it
+cannot resolve should go to a human."
+
 ## Round Format
 
-This mock is a 60-minute interview round: 5 minutes for problem clarification, 15 minutes for
-fundamentals, 20 minutes for design or modeling depth, 10 minutes for tradeoffs and failure modes,
-and 10 minutes for self-review.
+A 60-minute round: 5 minutes clarifying autonomy and risk, 15 minutes on the agent loop and tools, 20
+minutes on guardrails and human handoff, 10 minutes on evaluation, and 10 minutes on failure modes.
 
 ## Interviewer Prompt
 
-Design or analyze a realistic system for the topic named in this mock. Explain the user problem,
-baseline, data, model or architecture, evaluation, production risks, and improvement plan.
+This is an agent design with real, partly irreversible actions. Cover the loop, the tools and their
+permissions, how you stop runaway behavior, when a human must approve, and how you evaluate an agent
+rather than a single answer.
 
 ## Expected Clarification Questions
 
-- Who is the user and what decision does the system support?
-- What data is available at training time and serving time?
-- What are the latency, cost, privacy, and reliability constraints?
-- What mistakes are most expensive?
-- How will success be measured online and offline?
+- Which actions are reversible (search) and which are not (create account, reset password)?
+- What is the cost of a wrong automated action versus escalating to a human?
+- Is there a budget per ticket (steps, time, tool calls, money)?
+- Do we have historical tickets with resolutions to evaluate against?
+- What fraction of tickets is the agent expected to resolve versus route?
 
 ## Expected Answer or Design
 
-A strong answer starts with the product goal, defines the data and output, proposes a simple
-baseline, chooses metrics tied to user impact, and then adds complexity only where justified. It also
-covers error analysis, monitoring, rollback, human escalation, and tradeoffs.
+A strong candidate starts by resisting full autonomy. Map tools by risk: read-only tools (search,
+read ticket) run freely; state-changing tools (reset password, create account) require validation and,
+for the riskiest, human approval. The agent loop: read the ticket, plan, gather context from the
+knowledge base, decide an action, call a validated tool, observe, and repeat until resolved or a stop
+condition fires. Stop conditions are explicit: max steps, time and token budget, low confidence, or
+any high-risk action, all of which trigger escalation with the full trajectory attached.
+
+Guardrails: every tool call validated against a schema, permissioned by ticket type and user, and
+logged for audit. The agent never invents a resolution; if the knowledge base lacks an answer it
+routes to a human. Evaluation is trajectory-level, not just final answer: task success rate (resolved
+correctly), false-resolution rate (closed wrong), steps and cost per ticket, tool-error rate, and
+escalation precision. Roll out by starting with read-only triage and routing, then enabling
+reversible actions, then carefully gating irreversible ones behind approval.
+
+## Worked Strong Answer Outline
+
+1. Classify tools by reversibility and risk; gate the irreversible ones.
+2. Explicit stop conditions: budget, low confidence, high-risk action.
+3. Schema-validated, permissioned, audited tool calls.
+4. Evaluate the trajectory and false-resolution rate, not just the answer.
+5. Stage rollout: triage, then reversible actions, then approved irreversible ones.
 
 ## Scoring Rubric
 
 | Area | Strong Signal | Weak Signal |
 | --- | --- | --- |
-| Problem framing | Clear user, decision, constraints, and metric | Starts with a model name |
-| Data reasoning | Mentions labels, splits, leakage, bias, and drift | Assumes data is clean |
-| Modeling or design | Baseline first, complexity justified | Adds complexity without evidence |
-| Evaluation | Uses task metrics and guardrails | Reports one generic score |
-| Production | Covers monitoring, security, rollback, and ownership | Stops at notebook results |
+| Autonomy | Gates irreversible actions, escalates | Full autonomy from day one |
+| Loop and tools | Clear loop, schema-validated permissioned tools | Unbounded free-form tool use |
+| Guardrails | Budgets, stop conditions, audit log | No limits, no logging |
+| Evaluation | Trajectory metrics, false-resolution rate | Only final answer correctness |
+| Rollout | Staged by risk | Turns everything on at once |
 
 ## Red Flags
 
-- No baseline.
-- No leakage discussion.
-- No primary metric or guardrail metric.
-- No plan for low-confidence or unsafe outputs.
-- No monitoring or rollback path.
+- Allowing irreversible actions with no human approval.
+- No step, time, or cost budget, so the agent can loop.
+- Tools without schemas, permissions, or audit logs.
+- Evaluating only the final message, ignoring wrong closures and cost.
+- No escalation path for low-confidence or unknown tickets.
+
+## Follow-Up Questions
+
+- The agent reset the wrong user's password. How do you prevent and detect this?
+- It loops between search and plan for 30 steps. What stops it and what do you log?
+- How do you measure whether escalations are happening at the right time?
 
 ## Self-Review Checklist
 
-- Did I clarify the user and decision?
-- Did I define data, labels, and constraints?
-- Did I propose a baseline before an advanced approach?
-- Did I explain metrics and failure modes?
-- Did I include production operations and tradeoffs?
+- Did I classify tools by risk and gate irreversible actions?
+- Did I define explicit stop conditions and budgets?
+- Did I make tool calls validated, permissioned, and audited?
+- Did I evaluate the trajectory and false-resolution rate?
+- Did I propose a staged rollout by risk level?
 
 ---
 ## Navigation

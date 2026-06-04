@@ -2,109 +2,83 @@
 
 ## Beginner-Friendly Intuition
 
-Agent interviews test whether you can design a model-controlled workflow without letting the model
-do unsafe or undefined work. An agent is not just an LLM with tools. It is a loop with state,
-planning, tool contracts, observations, stopping rules, permissions, evaluation, and escalation.
-
-The most important pattern is to constrain agency. Start with a deterministic workflow, add model
-decisions only where they help, validate every tool call, and require human approval for risky state
-changes.
+Agent interview questions reward restraint and rigor. The candidates who do well do not reach for maximum
+autonomy; they pick the least autonomy that solves the problem, then make the controls explicit: tool
+permissions, budgets, stop conditions, human gates, and trajectory evaluation. Whatever the prompt, the
+winning move is to show you design for failure, not just for the happy path.
 
 ## Formal Explanation
 
-An agent design answer should define:
+The recurring frame for any agent prompt:
 
-- **Task boundary:** what the agent may do, what it may never do, and when it must escalate.
-- **State model:** user goal, intermediate plan, tool results, memory, permissions, and audit trace.
-- **Tool contract:** schema, preconditions, authorization, idempotency, side effects, timeouts, and
-  error handling.
-- **Control loop:** plan, act, observe, validate, revise, stop, or ask for help.
-- **Evaluation:** task success, unsafe action rate, unnecessary tool calls, intervention rate,
-  latency, cost, and auditability.
-- **Operations:** sandboxing, secrets handling, prompt injection defense, replay, monitoring, and
-  rollback.
+- **Clarify:** the goal, which actions are reversible, the cost of a wrong action, and the budget.
+- **Choose autonomy:** workflow if the path is fixed, single agent if bounded reasoning is needed,
+  multi-agent only when work is separable.
+- **Tools and permissions:** least privilege, schemas, validation, and approval gates for risky actions.
+- **Bound the loop:** stop conditions, step and cost budgets, progress checks.
+- **Evaluate and operate:** trajectory metrics, observability, injection defenses, and staged rollout.
 
 ## Why It Matters in Real Jobs
 
-Agents can create value when tasks require multiple steps, tools, and changing state. They can also
-create severe risk by taking the wrong action confidently. The problem is rarely "make the model
-smarter." The problem is deciding which actions should be automated, which require confirmation, and
-which should remain outside the agent boundary.
-
-Interviewers expect you to reason about permissions and failure recovery. An agent that can send
-emails, update records, issue refunds, or deploy code must be designed as a controlled system.
+These patterns mirror how safe agents are actually built. An engineer whose instinct is "does this even
+need an agent, and how do I bound it" ships reliable systems; one who reaches for autonomous multi-agent
+frameworks ships incidents. The interview is screening for that production instinct under a realistic
+prompt.
 
 ## How It Works Step by Step
 
-1. **Scope the workflow.** Define the goal, success criteria, allowed tools, forbidden actions, and
-   escalation conditions.
-2. **Build the deterministic baseline.** Use forms, rules, scripts, retrieval, and human approval
-   before adding autonomous planning.
-3. **Specify tools.** Give each tool a schema, validation rule, permission check, timeout, and
-   observable result.
-4. **Add planning carefully.** Limit steps, require intermediate checks, and prevent hidden state
-   changes.
-5. **Evaluate traces.** Review actions, not just final answers. Score success, safety, cost, and
-   unnecessary work.
-6. **Operate with controls.** Log audit traces, redact secrets, detect prompt injection, and monitor
-   unsafe-action attempts.
+1. **Restate and clarify** the goal, action risks, and constraints.
+2. **Justify the autonomy level** explicitly.
+3. **Design tools with permissions** and name the approval gates.
+4. **Bound the loop** with concrete budgets and stop conditions.
+5. **Close with evaluation, observability, security, and a staged rollout.**
 
 ## Real-World Example
 
-For a customer-support refund agent, the baseline is a policy lookup plus a draft response for a
-human agent. The next step might allow the model to classify refund eligibility and prepare a tool
-call. The tool should validate account status, order amount, policy constraints, and approval
-requirements before any refund is issued.
-
-The highest-risk failure is not a bad sentence. It is issuing an unauthorized refund, exposing
-private account data, or promising a policy exception. Those risks require permissions, approval
-thresholds, audit logs, and rollback procedures.
+Asked to "build an agent that manages calendar invites", a strong candidate notes most of it is a fixed
+workflow, uses a single bounded agent only for the ambiguous scheduling, gives the send-invite tool an
+approval gate, caps the loop, and finishes with trajectory evaluation and audit logging. A weak candidate
+proposes several autonomous agents chatting, then stalls on "what stops it from emailing the wrong person".
 
 ## Common Mistakes
 
-- Calling a chatbot an agent without defining tools, state, or stopping rules.
-- Giving tools broad permissions instead of least-privilege scopes.
-- Evaluating only final task success and ignoring unsafe near misses.
-- Allowing write actions without validation or human approval.
-- Treating memory as always useful without privacy, freshness, and deletion rules.
-- Hiding tool errors from the user or the monitoring system.
-- Letting retrieved or user-provided text change tool policy.
+- Defaulting to autonomous or multi-agent designs.
+- Forgetting tool permissions, budgets, and human gates.
+- Evaluating only the final outcome, not the trajectory.
+- Ignoring prompt injection and irreversible-action risk.
 
 ## Interview Angle
 
-Interviewers use agent prompts to test safety and systems thinking.
+**Question:** The interviewer asks "does this need an agent at all?"
 
-**Question:** Design an agent that schedules meetings across calendars and sends follow-up emails.
+**Strong answer:** Often no. If the path is fixed, a workflow is more reliable and cheaper. I use an agent
+only when the task needs adaptive multi-step reasoning, and then I bound it with budgets, permissions, and
+human gates.
 
-**Strong answer:** Start with a deterministic scheduling assistant, define calendar and email tool
-schemas, require permission for external emails, validate recipients and times, log all actions,
-handle conflicts, escalate ambiguous requests, and evaluate task success plus unsafe send rate.
-
-**Weak answer:** Let an LLM read calendars and send emails whenever it thinks the plan is good.
+**Weak answer:** Assuming an agent is required and maximizing autonomy.
 
 **Follow-up questions:**
 
-- What tools should be read-only at first?
-- How do you handle a tool timeout after partial progress?
-- What actions require human confirmation?
-- How would you test the agent before real users?
+- When is a workflow better than an agent?
+- How do you bound cost and loops?
+- Which actions require human approval and why?
 
 ## Mini Exercise
 
-Pick one workflow: expense approval, meeting scheduling, support refunds, code review, or research
-summaries. Write allowed actions, forbidden actions, tool schemas, approval rules, evaluation
-metrics, and one audit-log entry for a failed attempt.
+Take a mock prompt (for example "design an agent to triage and resolve support tickets"). Write a
+twelve-line answer using the clarify, choose-autonomy, tools-and-permissions, bound-the-loop,
+evaluate-and-operate frame, including one approval gate.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[User goal] --> B[State and policy]
-    B --> C[Plan]
-    C --> D[Validate tool call]
-    D --> E[Act and observe]
-    E --> F[Stop or escalate]
-    F --> G[Trace evaluation]
+flowchart TD
+    A[Clarify goal + action risks] --> B[Choose least autonomy that works]
+    B --> C[Tools + least-privilege permissions]
+    C --> D[Bound loop: budgets + stop conditions]
+    D --> E[Human gates for risky actions]
+    E --> F[Evaluate trajectory + observe + secure]
+    F --> G[Strong signal]
 ```
 
 ---

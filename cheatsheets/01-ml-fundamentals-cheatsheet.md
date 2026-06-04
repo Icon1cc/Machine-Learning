@@ -2,64 +2,85 @@
 
 ## Intuition
 
-ML Fundamentals is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+Machine learning fits a function from data instead of hand-coding rules. You give the model examples,
+it finds patterns that minimize a loss, and you hope those patterns generalize to new data. Every
+fundamentals question reduces to four things: the data, the objective, how you measure success, and
+whether the result holds outside the training set.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-ML Fundamentals. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+The core vocabulary you must be able to define cold:
+
+- **Supervised:** learn a mapping from inputs to known labels (regression, classification).
+- **Unsupervised:** find structure without labels (clustering, dimensionality reduction).
+- **Self-supervised:** create labels from the data itself (next-token prediction, masked tokens).
+- **Reinforcement:** learn a policy from reward signals.
+- **Parameters:** values learned during training (weights). **Hyperparameters:** values you set
+  before training (learning rate, depth, regularization strength).
+- **Bias-variance:** high bias = underfit (too simple); high variance = overfit (memorizes noise).
+- **Generalization gap:** train score minus validation score. Large gap means overfitting.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. ML Fundamentals is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+Most real failures are not exotic. They are leakage, a bad train/test split, a metric that does not
+match the business goal, or a model that overfits and looks great offline then collapses in
+production. Fundamentals are the checklist that catches these before they ship.
+
+## Key Formulas And Rules
+
+| Idea | Formula or rule |
+| --- | --- |
+| MSE loss | mean of (y - y_hat)^2 |
+| Log loss | -[y log p + (1-y) log(1-p)] |
+| Bias-variance | total error = bias^2 + variance + irreducible noise |
+| Train/val/test | fit on train, tune on val, report once on test |
+| Overfit signal | train error low, val error high and rising |
+| Regularization | L1 drives weights to zero (sparsity), L2 shrinks them |
 
 ## Example
 
-If you are asked about ML Fundamentals, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+You build a churn model with 95 percent accuracy and celebrate. But only 5 percent of users churn,
+so predicting "no churn" for everyone also scores 95 percent. The accuracy was meaningless. The fix
+is a metric tied to the decision (recall on churners, or precision at the contact budget) and a
+baseline (majority class) to compare against.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Answer shape: define the task, name a baseline, pick a metric that matches the goal, state how you
+split data to avoid leakage, then describe the bias-variance tradeoff you expect and how you would
+detect overfitting.
+
+**Strong answer:** "I start with the simplest baseline, hold out a clean test set, and pick a metric
+that matches the cost of errors before I touch model choice."
+
+**Weak answer:** "I would try a neural network and check the accuracy."
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Tuning on the test set, so the reported score is optimistic.
+- Leakage: a feature that encodes the label or future information.
+- Using accuracy on imbalanced data.
+- Comparing models without a baseline.
+- Confusing parameters with hyperparameters in interviews.
 
 ## Mini Exercise
 
-Explain ML Fundamentals in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+Take any dataset. Write its task type, a one-line baseline, the metric you would optimize, the metric
+you would guardrail, and one leakage risk. Then state whether you expect bias or variance to dominate
+and why.
 
 ## Diagram
 
 ```mermaid
 flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+    A[Data] --> B[Train/val/test split]
+    B --> C[Baseline]
+    C --> D{Train low, val high?}
+    D -- Yes, overfit --> E[Regularize or more data]
+    D -- Both high, underfit --> F[More capacity or features]
+    E --> C
+    F --> C
+    D -- Good fit --> G[Test once, then deploy]
 ```
 
 ---

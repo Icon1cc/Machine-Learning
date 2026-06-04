@@ -1,5 +1,12 @@
 flowchart LR
-    A[Feature Engineering inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Raw fields] --> B[Handle missing values]
+    B --> C[Encode categoricals: one-hot / target]
+    C --> D[Scale numerics: standardize / log]
+    D --> E[Derive features: ratios, dates, aggregates]
+    E --> F[Interactions and binning]
+    F --> G[Fit transforms on TRAIN only]
+    G --> H[Apply same transforms to val/test]
+    H --> I{Leakage check}
+    I -- Future info present --> J[Remove leaking feature]
+    J --> E
+    I -- Clean --> K[Feature set for model]

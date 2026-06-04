@@ -1,5 +1,15 @@
-flowchart LR
-    A[Classical Ml inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+flowchart TD
+    A[Labeled tabular data] --> B{Task type}
+    B -- Regression --> C[Linear / Ridge / Lasso]
+    B -- Classification --> D[Logistic, SVM, Naive Bayes]
+    B -- Nonlinear + tabular --> E[Trees -> Random Forest -> Gradient Boosting]
+    B -- No labels --> F[K-Means, DBSCAN, PCA]
+    C --> G[Cross-validation]
+    D --> G
+    E --> G
+    G --> H[Tune hyperparameters]
+    H --> I[Evaluate: RMSE / AUC / F1]
+    I --> J{Good enough?}
+    J -- No --> K[Feature engineering or new model]
+    K --> G
+    J -- Yes --> L[Interpret: SHAP / coefficients]

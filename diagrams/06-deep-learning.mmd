@@ -1,5 +1,13 @@
 flowchart LR
-    A[Deep Learning inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Input batch x] --> B[Forward pass through layers]
+    B --> C[Predictions y_hat]
+    C --> D["Loss L(y, y_hat)"]
+    D --> E[Backpropagation: dL/dW]
+    E --> F[Optimizer step: Adam / SGD]
+    F --> G[Updated weights]
+    G --> B
+    B -. regularize .-> H[Dropout, weight decay]
+    B -. stabilize .-> I[BatchNorm / LayerNorm]
+    D --> J{Val loss rising?}
+    J -- Yes --> K[Early stop / reduce LR]
+    J -- No --> F

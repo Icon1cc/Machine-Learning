@@ -2,101 +2,81 @@
 
 ## Beginner-Friendly Intuition
 
-Query Rewriting is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to ground generation in retrieved evidence. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
-
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+Users ask messy, short, or context-dependent questions, and raw queries often retrieve poorly. Query
+rewriting reshapes the user's question into one or more better search queries before retrieval. It fixes
+problems like "it" referring to something said three messages ago, vague phrasing, or a single query that
+really contains two questions.
 
 ## Formal Explanation
 
-Query Rewriting is a practical concept used to ground generation in retrieved evidence in a knowledge assistant. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+Query rewriting is a pre-retrieval transformation. Common techniques: resolving coreference and
+conversation context into a standalone query; expanding with synonyms or related terms; decomposing a
+multi-part question into sub-queries retrieved separately; and HyDE, where the model drafts a hypothetical
+answer and you embed that to retrieve real passages similar to it. Each technique aims to make the
+retrieval query better match how the answer is actually phrased in the corpus.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a knowledge assistant to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+In chat, follow-up questions like "what about for contractors?" are meaningless to a retriever without the
+prior turn folded in. Rewriting that into "what is the vacation policy for contractors?" is the difference
+between retrieving the right chunk and retrieving nothing. For complex questions, decomposition retrieves
+evidence for each part, which a single blended query would miss.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Add conversation context:** rewrite follow-ups into standalone queries.
+2. **Expand or normalize:** add synonyms or domain terms when queries are terse.
+3. **Decompose:** split multi-part questions into sub-queries and retrieve each.
+4. **Optionally use HyDE:** draft a hypothetical answer and embed it to retrieve.
+5. **Retrieve and merge** results, then continue to reranking and generation.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A user asks "How much is it?" right after discussing the enterprise plan. The retriever alone has no idea
+what "it" is. A rewriting step uses the conversation to produce "How much does the enterprise plan cost?",
+which retrieves the pricing chunk directly. For "compare the refund and cancellation policies", the system
+decomposes into two sub-queries, retrieves both policies, and the answer can actually compare them.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Sending raw follow-up questions to the retriever with no context resolution.
+- Over-expanding queries until they retrieve unrelated content.
+- Rewriting so aggressively that the user's real intent is changed.
+- Adding rewriting latency without checking it actually improves recall.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** A multi-turn chat RAG retrieves badly on follow-up questions. Why and what do you do?
 
-**Question:** Explain Query Rewriting, then describe how you would use it in a real system.
+**Strong answer:** Follow-ups depend on prior turns, so the retriever sees an ambiguous query. I would
+add a query-rewriting step that resolves context into a standalone query, and decompose multi-part
+questions into sub-queries.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Blaming the embedding model without addressing the ambiguous query.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What is query decomposition and when does it help?
+- What is HyDE and what problem does it solve?
+- How would you measure whether rewriting helped?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Write a two-turn conversation where the second question is meaningless to a retriever alone. Then write
+the rewritten standalone query, and one multi-part question you would decompose into two sub-queries.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[Query Rewriting]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+flowchart TD
+    A[User query + history] --> B{Ambiguous or multi-part?}
+    B -- Context-dependent --> C[Resolve into standalone query]
+    B -- Multi-part --> D[Decompose into sub-queries]
+    B -- Terse --> E[Expand with terms / HyDE]
+    C --> F[Retrieve]
+    D --> F
+    E --> F
+    F --> G[Merge -> rerank -> generate]
 ```
 
 ---

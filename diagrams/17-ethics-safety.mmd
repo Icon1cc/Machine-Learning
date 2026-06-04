@@ -1,5 +1,13 @@
-flowchart LR
-    A[Ethics Safety inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+flowchart TD
+    A[Data collection] --> B{Bias and consent check}
+    B -- Issue --> C[Rebalance, document, get consent]
+    B -- Ok --> D[Model training]
+    D --> E[Fairness eval across groups]
+    E --> F{Disparate impact?}
+    F -- Yes --> G[Mitigate: reweight, constraints]
+    G --> D
+    F -- No --> H[Privacy: PII, retention, DP]
+    H --> I[Security: misuse, jailbreaks, abuse]
+    I --> J[Human oversight + governance]
+    J --> K[Deploy with monitoring + audit log]
+    K --> L[Incident response and review]

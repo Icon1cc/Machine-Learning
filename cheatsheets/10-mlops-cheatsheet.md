@@ -2,64 +2,80 @@
 
 ## Intuition
 
-MLOps is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+MLOps is what keeps a model useful after the notebook. A model is not done when it trains well; it is
+done when it can be reproduced, deployed, monitored, and retrained safely. The recurring theme is
+versioning everything (data, features, code, model) so any prediction can be traced and any
+regression can be rolled back.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-MLOps. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+The lifecycle and its tools:
+
+- **Data versioning (DVC, lakeFS):** snapshot the exact data a model saw.
+- **Experiment tracking (MLflow, Weights and Biases):** log params, metrics, and artifacts.
+- **Feature store:** serve the same feature logic offline (training) and online (serving) to kill
+  training/serving skew.
+- **Model registry:** versioned, stage-gated models (staging, production, archived).
+- **CI/CD for ML:** automated tests, data validation, training, and deployment.
+- **Serving:** batch (scheduled scoring), online (low-latency endpoint), or streaming.
+- **Monitoring:** operational health, data drift, concept drift, and quality when labels arrive.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. MLOps is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+Models decay. The world shifts, inputs change, and yesterday's accuracy is no guarantee. Without
+drift monitoring and a retraining trigger, you find out from angry users, not dashboards. Without
+versioning, you cannot reproduce or roll back. These gaps are where real systems fail.
+
+## Key Reference
+
+| Need | Tool/pattern |
+| --- | --- |
+| Reproduce a run | Pin data + code + config versions |
+| Same features online/offline | Feature store |
+| Track experiments | MLflow / W&B |
+| Promote a model | Model registry with stages |
+| Catch input shift | Data drift monitor (PSI, KS test) |
+| Catch quality drop | Delayed-label evaluation |
+| Recover from a bad model | Versioned rollback / canary |
 
 ## Example
 
-If you are asked about MLOps, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+A demand-forecasting model degrades after a holiday season. Input distributions shifted (data drift)
+and the relationship between features and demand changed (concept drift). Because features came from a
+feature store and the model was in a registry, the team caught the PSI alert, rolled back to the prior
+version, and triggered a retrain on recent data, all without a code change.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Expect "how do you monitor a model in production", "data drift vs concept drift", "batch vs online
+inference", "what is a feature store and why". Strong answers name the failure mode and the specific
+control that catches it.
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Treating deployment as the finish line, with no monitoring.
+- No data or model versioning, so nothing is reproducible.
+- Training/serving skew from features computed differently in two places.
+- Retraining on a schedule with no trigger or validation gate.
+- No rollback plan when a new model underperforms.
 
 ## Mini Exercise
 
-Explain MLOps in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+For a recommendation model retrained weekly, design the pipeline: what you version, what you monitor,
+what alert triggers a retrain, what gate must pass before promotion, and how you roll back.
 
 ## Diagram
 
 ```mermaid
-flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+flowchart LR
+    A[Versioned data] --> B[Train + track]
+    B --> C[Model registry]
+    C --> D[CI/CD validate]
+    D --> E[Serve: batch/online]
+    E --> F[Monitor: drift + quality]
+    F --> G{Drift or decay?}
+    G -- Yes --> H[Trigger retrain / rollback]
+    H --> B
 ```
 
 ---

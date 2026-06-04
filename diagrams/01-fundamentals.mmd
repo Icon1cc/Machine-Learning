@@ -1,5 +1,13 @@
-flowchart LR
-    A[Fundamentals inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+flowchart TD
+    A[Problem and target metric] --> B[Collect data]
+    B --> C[Train / validation / test split]
+    C --> D[Baseline model]
+    D --> E[Evaluate on validation set]
+    E --> F{Bias vs variance?}
+    F -- Underfit / high bias --> G[Add capacity or features]
+    F -- Overfit / high variance --> H[Regularize or add data]
+    G --> D
+    H --> D
+    F -- Good fit --> I[Final check on held-out test set]
+    I --> J[Deploy and monitor]
+    J -- Distribution shift --> B

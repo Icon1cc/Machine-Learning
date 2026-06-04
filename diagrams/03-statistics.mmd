@@ -1,5 +1,14 @@
-flowchart LR
-    A[Statistics inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+flowchart TD
+    A[Population] -->|random sample| B[Sample data]
+    B --> C[Point estimate: mean, proportion]
+    C --> D[Standard error]
+    D --> E[Confidence interval]
+    B --> F[State H0 and H1]
+    F --> G[Test statistic]
+    G --> H[p-value]
+    H --> I{"p < alpha?"}
+    I -- Yes --> J[Reject H0]
+    I -- No --> K[Fail to reject H0]
+    J --> L[Check effect size and power]
+    K --> L
+    L --> M[Decision under uncertainty]

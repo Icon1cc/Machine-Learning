@@ -1,5 +1,12 @@
 flowchart LR
-    A[Vector Databases inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Documents] --> B[Chunk]
+    B --> C[Embedding model]
+    C --> D[Vectors + metadata]
+    D --> E[Build index: HNSW / IVF / PQ]
+    E --> F[(Vector store)]
+    G[Query text] --> H[Embed query]
+    H --> I[ANN search: top-k by cosine/dot]
+    F --> I
+    I --> J[Metadata filter]
+    J --> K[Ranked neighbors]
+    K --> L[Use in RAG / search / dedup]

@@ -1,5 +1,12 @@
 flowchart LR
-    A[Deployment inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Validated model in registry] --> B[Package: container + deps]
+    B --> C[Choose pattern]
+    C -- Real-time --> D[REST/gRPC endpoint + autoscale]
+    C -- Batch --> E[Scheduled scoring job]
+    C -- Streaming --> F[Event consumer]
+    C -- Edge --> G[On-device runtime]
+    D --> H[Canary / shadow traffic]
+    H --> I{Metrics healthy?}
+    I -- No --> J[Rollback to previous version]
+    I -- Yes --> K[Ramp to 100 percent]
+    K --> L[Monitor + alert + retrain loop]

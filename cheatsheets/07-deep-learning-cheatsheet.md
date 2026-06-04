@@ -2,64 +2,77 @@
 
 ## Intuition
 
-Deep Learning is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+A neural network is a stack of differentiable layers trained by gradient descent. Forward pass makes
+a prediction, the loss measures error, backpropagation computes gradients, and the optimizer nudges
+weights. Most of deep learning practice is making that loop train stably and generalize.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-Deep Learning. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+- **Activations:** ReLU is the default (cheap, avoids saturation); sigmoid/tanh saturate and cause
+  vanishing gradients; softmax for class probabilities.
+- **Optimizers:** SGD with momentum generalizes well; Adam adapts per-parameter learning rates and is
+  the safe default.
+- **Normalization:** BatchNorm stabilizes training (depends on batch stats); LayerNorm is standard in
+  transformers and works per-sample.
+- **Regularization:** dropout, weight decay (L2), early stopping, data augmentation.
+- **Architectures:** CNNs for images (local weight sharing), RNN/LSTM for sequences (now largely
+  replaced), transformers for sequences via attention.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. Deep Learning is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+Training failures have a small set of causes: learning rate too high (loss diverges) or too low (no
+progress), vanishing/exploding gradients, bad initialization, no normalization, or a data bug.
+Knowing the symptom-to-cause map is what separates someone who can debug a model from someone who
+only runs notebooks.
+
+## Key Reference
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| Loss is NaN | LR too high, bad data | Lower LR, clip gradients, check inputs |
+| Loss flat | LR too low, dead ReLUs | Raise LR, check init, use LeakyReLU |
+| Train good, val bad | Overfitting | Dropout, weight decay, more data, augment |
+| Deep net will not learn | Vanishing gradients | Residual connections, normalization |
+| Unstable across batches | Internal covariate shift | BatchNorm / LayerNorm |
 
 ## Example
 
-If you are asked about Deep Learning, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+A 20-layer network barely trains: validation loss stays flat. Adding residual connections and
+LayerNorm lets gradients flow through the depth, and the model starts learning. The cause was
+vanishing gradients, and the fix came from architecture, not more epochs.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Expect "why ReLU over sigmoid", "Adam vs SGD", "what does BatchNorm do", "how do residual
+connections help", "why does dropout reduce overfitting". Pair each with the gradient-flow or
+regularization reason.
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Forgetting to scale or normalize inputs.
+- Using a learning rate that is orders of magnitude off.
+- Leaving BatchNorm in train mode during inference.
+- Applying dropout at test time.
+- Blaming the model when the data pipeline has a bug.
 
 ## Mini Exercise
 
-Explain Deep Learning in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+You train a CNN and the loss goes to NaN on step 50. List three plausible causes and the check or fix
+for each. Then explain how you would tell overfitting apart from underfitting from the loss curves.
 
 ## Diagram
 
 ```mermaid
-flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+flowchart LR
+    A[Input batch] --> B[Forward pass]
+    B --> C[Loss]
+    C --> D[Backprop dL/dW]
+    D --> E[Optimizer step Adam/SGD]
+    E --> B
+    B -. dropout, weight decay .-> F[Regularize]
+    B -. BatchNorm/LayerNorm .-> G[Stabilize]
+    C --> H{Val loss rising?}
+    H -- Yes --> I[Early stop / reduce LR]
 ```
 
 ---

@@ -1,5 +1,13 @@
 flowchart LR
-    A[Retrieval inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[Query] --> B[Lexical: BM25 / inverted index]
+    A --> C[Semantic: dense embeddings ANN]
+    B --> D[Fuse scores: RRF / weighted]
+    C --> D
+    D --> E[Top-k candidates]
+    E --> F[Rerank: cross-encoder]
+    F --> G[Final ranked results]
+    G --> H[Evaluate: recall@k, MRR, nDCG]
+    H --> I{Recall too low?}
+    I -- Yes --> J[Better chunks / embeddings / hybrid weights]
+    J --> A
+    I -- No --> K[Serve results]

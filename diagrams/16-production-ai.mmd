@@ -1,5 +1,13 @@
 flowchart LR
-    A[Production Ai inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[User request] --> B[API gateway + auth]
+    B --> C[Input validation + safety filter]
+    C --> D[Cache check]
+    D -- hit --> E[Return cached response]
+    D -- miss --> F[Router: pick model by cost/quality]
+    F --> G[Model call with timeout]
+    G --> H{Success?}
+    H -- No --> I[Retry / fallback model]
+    I --> G
+    H -- Yes --> J[Output validation + guardrails]
+    J --> K[Response + log]
+    K --> L[Monitor: latency, cost, quality, drift]

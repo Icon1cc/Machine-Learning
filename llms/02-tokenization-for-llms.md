@@ -2,101 +2,83 @@
 
 ## Beginner-Friendly Intuition
 
-Tokenization for LLMs is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to use transformer language models as reasoning, generation, and interface components. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
-
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+LLMs do not read characters or whole words; they read tokens, which are pieces of words. "Tokenization" is
+the step that chops text into these pieces and maps them to numbers the model can process. Common words
+become single tokens, rare words split into several. This is why "the" is one token but a long technical
+term might be four, and why your bill is measured in tokens, not words.
 
 ## Formal Explanation
 
-Tokenization for LLMs is a practical concept used to use transformer language models as reasoning, generation, and interface components in an LLM application. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+Tokenization converts text into a sequence of integer token IDs from a fixed vocabulary, usually built by a
+subword algorithm like Byte-Pair Encoding (BPE), WordPiece, or SentencePiece. Subword tokenization balances
+two extremes: character-level (tiny vocabulary, very long sequences) and word-level (huge vocabulary, fails
+on unseen words). By merging frequent character sequences into tokens, it keeps the vocabulary bounded
+(often tens of thousands of tokens) while still representing any word by composing pieces. The model embeds
+each token ID into a vector before processing.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect an LLM application to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Tokens are the unit of cost, context, and speed. Context windows are measured in tokens, API pricing is per
+token, and latency grows with token count. Tokenization quirks have real effects: numbers and code can
+tokenize inefficiently, non-English text often uses more tokens per word (a cost and fairness issue), and a
+prompt that looks short in characters may be long in tokens. Understanding this helps you estimate cost and
+debug context-limit errors.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Build a vocabulary** of subword tokens from a large corpus (for example via BPE merges).
+2. **Encode** input text into token IDs by greedily matching the longest known pieces.
+3. **Embed** each token ID into a vector for the model.
+4. **Generate** token IDs at the output, then decode them back into text.
+5. **Count tokens** to manage context limits and cost.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A developer is surprised their RAG prompt hits the context limit even though it "looks short". Inspection
+shows the documents contain long code identifiers and JSON, which tokenize into many pieces, so 2,000
+characters became 1,500 tokens instead of the expected 500. Knowing tokenization, they trim and compress
+the context. Separately, they notice their non-English support traffic costs more per message because those
+languages use more tokens per word.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Confusing tokens with words or characters when estimating cost and context.
+- Forgetting that code, numbers, and non-English text tokenize inefficiently.
+- Ignoring tokenization when a prompt unexpectedly exceeds the context window.
+- Assuming token counts are the same across different models (vocabularies differ).
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Why do LLMs use subword tokenization instead of words or characters?
 
-**Question:** Explain Tokenization for LLMs, then describe how you would use it in a real system.
+**Strong answer:** Subwords keep the vocabulary bounded while still representing any word, including unseen
+ones, by composing pieces. Word-level fails on out-of-vocabulary terms; character-level makes sequences too
+long. Tokens are also the unit of cost and context.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "It splits text into words for the model."
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How does subword tokenization handle a word it never saw?
+- Why might non-English text cost more?
+- How does tokenization relate to the context window?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Estimate how a sentence with a long technical term and a number would tokenize (roughly how many tokens),
+and explain one reason your estimate in tokens differs from the word count.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[Tokenization for LLMs]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+    A[Text] --> B[Subword tokenizer: BPE/WordPiece]
+    B --> C[Token IDs]
+    C --> D[Embeddings]
+    D --> E[Model]
+    E --> F[Output token IDs]
+    F --> G[Decode to text]
+    C -. count .-> H[Context + cost budget]
 ```
 
 ---

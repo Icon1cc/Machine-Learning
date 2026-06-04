@@ -2,64 +2,75 @@
 
 ## Intuition
 
-Math For ML is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+Three branches carry almost all of ML. Linear algebra moves and combines data (a layer is a matrix
+multiply). Calculus tells you which direction reduces error (the gradient). Probability lets you
+reason about uncertainty and write loss functions as likelihoods. You do not need every proof, but
+you should know what each tool computes and why.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-Math For ML. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+- **Vectors and matrices:** data is rows of feature vectors; a linear layer is `y = Wx + b`.
+- **Dot product:** measures alignment; cosine similarity normalizes it by length.
+- **Norms:** L2 is Euclidean length, L1 is sum of absolute values (used in regularization).
+- **Gradient:** vector of partial derivatives; points uphill, so we step against it.
+- **Chain rule:** the engine of backpropagation; gradients multiply through layers.
+- **Eigenvectors:** directions a matrix only scales; PCA keeps the top-variance ones.
+- **Probability:** expectation is a weighted average; variance measures spread; Bayes flips
+  conditionals.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. Math For ML is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+When training diverges, vanishes, or explodes, the cause is usually mathematical: a learning rate
+that overshoots the curvature, gradients that shrink through many layers, or a loss that is not what
+you think it is. Reading these symptoms requires the math, not just the library call.
+
+## Key Formulas
+
+| Concept | Formula |
+| --- | --- |
+| Gradient descent | w := w - lr * dL/dw |
+| Cosine similarity | (a . b) / (norm(a) * norm(b)) |
+| Cross-entropy | -sum over classes of y_c * log(p_c) |
+| Bayes | P(A given B) = P(B given A) * P(A) / P(B) |
+| Variance | E[x^2] - (E[x])^2 |
+| Softmax | exp(z_i) / sum_j exp(z_j) |
 
 ## Example
 
-If you are asked about Math For ML, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+A model's loss explodes after a few steps. You suspect the learning rate. The update is
+`w := w - lr * grad`. If `lr` is too large relative to the loss curvature, each step overshoots the
+minimum and the loss grows. You lower `lr` by 10x or add gradient clipping, and training stabilizes.
+The fix came directly from reading the update rule.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Expect "explain backprop", "why does softmax use exp", "what is the gradient of MSE", or "what does
+PCA optimize". Answer with the formula plus one sentence of meaning. For backprop: forward pass
+computes outputs, the loss measures error, and the chain rule propagates `dL/dw` backward so each
+weight knows how to change.
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Confusing the gradient direction (it points uphill; descent subtracts it).
+- Forgetting softmax is shift-invariant, so subtract the max for numerical stability.
+- Treating correlation as the dot product without normalizing.
+- Saying PCA "removes noise" instead of "keeps maximum-variance directions".
 
 ## Mini Exercise
 
-Explain Math For ML in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+Derive the gradient of MSE `L = (y - wx)^2` with respect to `w` by hand. Then write one sentence on
+how that gradient drives the weight update, and what happens if the learning rate is too high.
 
 ## Diagram
 
 ```mermaid
-flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+flowchart LR
+    A[Linear algebra: Wx+b] --> D[Model output]
+    B[Calculus: dL/dw] --> E[Gradient step]
+    C[Probability: likelihood] --> F[Loss function]
+    D --> F
+    F --> B
+    E --> A
 ```
 
 ---

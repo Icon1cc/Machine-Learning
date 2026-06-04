@@ -2,101 +2,84 @@
 
 ## Beginner-Friendly Intuition
 
-Agent System Design is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to coordinate model decisions, tool calls, observations, and stopping rules. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
-
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+Designing an agent system means deciding the loop, the tools and their permissions, the memory, the
+guardrails, and how a human stays in control, all before you worry about the model. The biggest design
+choice is how much autonomy to grant: a fixed workflow, a single bounded agent, or a multi-agent system.
+The right answer is usually the least autonomy that does the job.
 
 ## Formal Explanation
 
-Agent System Design is a practical concept used to coordinate model decisions, tool calls, observations, and stopping rules in a tool-using workflow. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+An agent system design specifies: the autonomy level (workflow vs single agent vs multi-agent), the tool
+set with per-tool permissions and validation, the memory strategy (short-term context management plus
+long-term store), the control loop with stop conditions and budgets, human-in-the-loop gates for risky
+actions, observability and evaluation, and security against injection and misuse. The design must make the
+cost of a wrong action explicit and ensure the system fails safely.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a tool-using workflow to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Agent system design is a rising interview format and a hard real build, because the happy path is the easy
+part. The judgment is in the controls: which tools, which permissions, where humans approve, how loops are
+bounded, and how you evaluate a trajectory. A candidate who jumps to "a multi-agent framework" without
+these has not designed a safe system.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Choose autonomy:** workflow if the path is fixed, single agent if bounded reasoning is needed,
+   multi-agent only for genuinely separable work.
+2. **Define tools and permissions:** least privilege, schemas, validation, approval gates.
+3. **Design memory:** context management and a long-term store if needed.
+4. **Bound the loop:** stop conditions, step and cost budgets, progress checks.
+5. **Add controls:** human gates, observability, evaluation, and injection defenses.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+Designing an IT-support agent: read-only tools (search, read ticket) run freely; state-changing tools
+(reset password) validate and log; irreversible ones (delete account) require human approval. The single-
+agent loop caps at 8 steps with a token budget and escalates on low confidence. Every step is traced,
+trajectories are evaluated for false resolutions, and rollout is staged from triage-only to gated actions.
+The design centers on safety, not raw capability.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Choosing multi-agent or full autonomy by default.
+- Tools without least-privilege permissions or validation.
+- No budgets or stop conditions on the loop.
+- No human gate for irreversible actions and no trajectory evaluation.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Design an agent that resolves a class of support tickets.
 
-**Question:** Explain Agent System Design, then describe how you would use it in a real system.
+**Strong answer:** Pick the least autonomy that works, classify tools by risk with least privilege and
+approval gates, bound the loop with budgets and stop conditions, add memory, observability, trajectory
+evaluation, and injection defenses, and stage the rollout by risk.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "Use an autonomous multi-agent framework with these tools," skipping permissions, budgets,
+and human gates.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How do you decide the autonomy level?
+- Which actions need human approval?
+- How do you bound and evaluate the agent?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Design an agent for a task you know. Specify autonomy level, three tools with permissions, two stop
+conditions, one human-approval gate, and one trajectory metric you would track.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[Agent System Design]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+flowchart TD
+    A[Goal + risk analysis] --> B{Autonomy level}
+    B -- Fixed path --> C[Workflow]
+    B -- Bounded reasoning --> D[Single agent]
+    B -- Separable work --> E[Multi-agent]
+    D --> F[Tools + least-privilege permissions]
+    F --> G[Loop: budgets + stop conditions]
+    G --> H[Human gates for risky actions]
+    H --> I[Observability + trajectory evaluation]
 ```
 
 ---

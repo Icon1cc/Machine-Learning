@@ -2,64 +2,82 @@
 
 ## Intuition
 
-Agents is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+An agent is an LLM placed in a loop with tools and memory. Instead of answering in one shot, it
+observes state, decides an action, calls a tool, observes the result, and repeats until the goal is
+met or a stop condition fires. The power comes from acting in the world; the risk comes from the same
+thing.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-Agents. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+The agent loop and its parts:
+
+- **Plan:** decompose the goal (ReAct interleaves reasoning and acting; plan-and-execute plans first).
+- **Tools / function calling:** the model emits a structured call (name + JSON args) validated against
+  a schema, the system runs it, the result returns to the model.
+- **Memory:** short-term (the context window / scratchpad) and long-term (vector store or database of
+  past facts).
+- **Stop conditions:** goal reached, max steps, budget exhausted, or low confidence to escalate.
+- **Single vs multi-agent:** one agent is simpler and easier to debug; multi-agent (planner, workers,
+  critic) helps only when roles are genuinely separable.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. Agents is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+Agents fail in ways single calls do not: they loop, they pick the wrong tool, errors compound across
+steps, and an action can change real state (send email, spend money). So guardrails, step and cost
+budgets, permissioned tools, and human approval for high-risk actions are not optional. Evaluation is
+also harder because you must judge the trajectory, not just the final answer.
+
+## Key Reference
+
+| Concern | Control |
+| --- | --- |
+| Infinite loops | Max-step and budget limits |
+| Wrong tool / bad args | Schema validation, clear tool descriptions |
+| Compounding errors | Reflection / critic step, checkpoints |
+| High-risk actions | Human-in-the-loop approval |
+| Cost / latency | Cap tool calls, cache, route to smaller models |
+| Evaluation | Trajectory + outcome metrics, not just final text |
 
 ## Example
 
-If you are asked about Agents, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
-
-## High-Yield Checklist
-
-| Question | What a strong answer includes |
-| --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+A research agent must answer a question using web search and a calculator. It plans subqueries,
+searches, reads results into memory, computes, and composes an answer with citations. Guardrails cap
+it at 10 steps and a token budget; if evidence is missing it says so rather than fabricating. You
+evaluate task success rate, steps per task, tool-error rate, and cost per task.
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Expect "when do you need an agent vs a single LLM call", "how do you stop infinite loops", "single vs
+multi-agent", "how do you evaluate an agent". The strongest answer resists agents until a single call
+or a fixed workflow is proven insufficient, because agents add cost and failure modes.
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Building a multi-agent system when one call or a fixed workflow would do.
+- No step, cost, or time budget, so the agent loops.
+- Tools without schemas, permissions, or validation.
+- Auto-executing irreversible actions with no human approval.
+- Evaluating only the final answer, ignoring the trajectory and cost.
 
 ## Mini Exercise
 
-Explain Agents in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+Design an agent that books meetings. List its tools (with one risky one), the stop conditions, which
+action needs human approval, three guardrails, and the four metrics you would track in production.
 
 ## Diagram
 
 ```mermaid
 flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+    A[Goal] --> B[Plan]
+    B --> C[Observe state + memory]
+    C --> D{Need a tool?}
+    D -- Yes --> E[Validated tool call]
+    E --> F[Observe result]
+    F --> C
+    D -- No --> G{Goal met or budget hit?}
+    G -- No --> C
+    G -- Yes --> H[Final answer]
+    C -.guardrails.-> I[Max steps, budget, approval]
 ```
 
 ---

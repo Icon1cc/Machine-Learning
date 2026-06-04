@@ -2,108 +2,84 @@
 
 ## Beginner-Friendly Intuition
 
-RAG interviews test whether you can ground model answers in the right evidence. The model is only the
-last step. The quality depends on document ingestion, permissions, chunking, embeddings, lexical
-retrieval, reranking, prompt construction, answer generation, citations, evaluation, and monitoring.
-
-The main pattern is to separate retrieval quality from generation quality. If retrieval misses the
-right evidence, the generator cannot reliably recover. If generation ignores or distorts retrieved
-evidence, better retrieval will not fix the answer.
+RAG interview questions almost always reward one habit: separate retrieval from generation, and reason
+about each. Whatever the prompt, you score points by clarifying the corpus and users, proposing a simple
+baseline, naming component-level metrics, and addressing the unglamorous parts (permissions, freshness,
+prompt injection) that weaker candidates skip.
 
 ## Formal Explanation
 
-A RAG interview answer should define:
+The recurring interview frame for any RAG prompt:
 
-- **Knowledge scope:** document types, freshness, source authority, permissions, and retention.
-- **Ingestion pipeline:** parsing, cleaning, chunking, metadata, embedding, indexing, and versioning.
-- **Retrieval path:** query rewriting, filters, lexical search, vector search, hybrid search,
-  reranking, and context compression.
-- **Generation contract:** citations, uncertainty, refusal when evidence is missing, and tone.
-- **Evaluation:** retrieval recall, context precision, answer faithfulness, citation accuracy,
-  latency, cost, and user resolution.
-- **Security and operations:** access control, prompt injection, document poisoning, monitoring,
-  feedback, and rollback.
+- **Clarify:** who asks, what corpus, how it changes, permissions, latency, and the cost of a wrong answer.
+- **Baseline:** BM25 plus a simple cite-or-abstain prompt, so you have a measurable reference.
+- **Improve where measured:** chunking, hybrid search, reranking, query rewriting, compression, each
+  justified by a failure you observed.
+- **Evaluate:** retrieval (recall@k, context precision) and generation (faithfulness, citations)
+  separately, with a hard-example suite.
+- **Operate:** monitoring, security (ACLs, injection), freshness, cost, and rollback.
 
 ## Why It Matters in Real Jobs
 
-Most production RAG failures are not vague hallucination problems. They are specific evidence
-problems: stale documents, missing permissions, bad chunk boundaries, weak metadata filters, poor
-recall for long-tail queries, or generated answers that cite sources without actually using them.
-
-Interviewers want to see that you can debug the pipeline. A strong answer can say whether the issue
-is ingestion, retrieval, reranking, generation, evaluation, or governance.
+These patterns are not interview tricks; they are how real RAG systems are debugged and run. An engineer
+who instinctively asks "is the right passage even retrieved?" before editing a prompt will fix problems
+faster than one who keeps tuning the generator. The interview is testing for exactly that production
+instinct.
 
 ## How It Works Step by Step
 
-1. **Clarify the corpus and users.** Define who can ask questions, what sources matter, and what
-   permissions apply.
-2. **Build an ingestion baseline.** Parse documents, store metadata, chunk predictably, and keep
-   source identifiers.
-3. **Start with search.** Use BM25 or keyword search before dense retrieval so you have a simple
-   reference point.
-4. **Add hybrid retrieval and reranking.** Improve recall and ordering only after measuring misses.
-5. **Constrain generation.** Require evidence-backed answers, citations, and abstention when context
-   is insufficient.
-6. **Evaluate end to end and by component.** Measure retrieval separately from answer quality.
-7. **Monitor production.** Track no-answer rate, citation issues, latency, cost, stale sources, and
-   user feedback.
+1. **Restate the problem** and clarify corpus, users, freshness, permissions, and constraints.
+2. **Propose the baseline** and the two metric families.
+3. **Walk the pipeline** stage by stage, naming the failure each improvement addresses.
+4. **Cover the hard parts:** permissions before ranking, injection defenses, deletes, cost.
+5. **Close with operations:** monitoring, evaluation gates, and rollback.
 
 ## Real-World Example
 
-For an enterprise policy assistant, the baseline could be permission-filtered keyword search with
-snippets. The first RAG version should ingest policy documents with owner, date, department,
-permission, and version metadata. Retrieval should combine lexical and vector search, filter by
-permissions, rerank the top passages, and instruct the model to cite only retrieved policy sections.
-
-The highest-risk failure is leaking restricted policy or inventing an answer when policy is absent.
-That means access control and refusal behavior are product requirements, not optional guardrails.
+Asked to "design a docs assistant", a strong candidate clarifies that docs change weekly and have team
+permissions, proposes BM25 plus cite-or-abstain as the baseline, adds hybrid retrieval and reranking after
+noting recall and precision gaps, enforces ACLs before ranking, defends against injected pages, and
+finishes with abstention-rate and latency monitoring. A weak candidate jumps to "embed everything and call
+the LLM" and stalls on the follow-up about permissions.
 
 ## Common Mistakes
 
-- Treating RAG as "put documents in a vector database" and stopping there.
-- Skipping lexical search and metadata filters.
-- Evaluating only final answers without retrieval recall.
-- Ignoring document freshness, deletion, and permission changes.
-- Chunking by arbitrary length without checking answer boundaries.
-- Letting retrieved prompt-injection text override system instructions.
-- Citing sources that do not support the generated claim.
+- Jumping to architecture before clarifying corpus, users, and constraints.
+- Conflating retrieval and generation failures.
+- Forgetting permissions, freshness, and prompt injection.
+- Measuring only final answer quality.
 
 ## Interview Angle
 
-Interviewers often ask RAG questions to test pipeline debugging.
+**Question:** The interviewer says "answers are sometimes wrong". What is your first move?
 
-**Question:** Users say the RAG assistant often answers with irrelevant sources. What do you do?
+**Strong answer:** Determine whether retrieval found the evidence. Measure recall@k; if the passage is
+missing, fix retrieval (chunking, hybrid, rerank). If present, fix the generation contract. I would not
+change both at once.
 
-**Strong answer:** Separate retrieval and generation evaluation, inspect query-document pairs,
-measure recall at k and context precision, check chunking and metadata filters, compare BM25, dense,
-and hybrid retrieval, add reranking if recall is acceptable but order is poor, and require citations
-that support the answer.
-
-**Weak answer:** Increase top-k or switch embedding models without measuring the failure.
+**Weak answer:** Immediately rewriting the prompt or swapping the model.
 
 **Follow-up questions:**
 
-- How would you evaluate retrieval when no labels exist?
-- What metadata must be stored with each chunk?
-- How do you handle stale or conflicting documents?
-- How do you defend against prompt injection in retrieved text?
+- How do you keep the corpus fresh?
+- Where do you enforce permissions and why?
+- How do you evaluate before shipping a change?
 
 ## Mini Exercise
 
-Choose a RAG product such as policy support, developer docs search, or customer support. Write the
-corpus scope, chunking rule, metadata fields, baseline search method, retrieval metric, answer
-metric, and highest-risk security failure.
+Take one mock prompt (for example "design a customer-support RAG assistant"). Write a twelve-line answer
+following the clarify, baseline, improve, evaluate, operate frame, and include one permission and one
+injection consideration.
 
 ## Diagram
 
 ```mermaid
-flowchart LR
-    A[Documents and permissions] --> B[Ingestion and chunks]
-    B --> C[Index and metadata]
-    C --> D[Retrieve and rerank]
-    D --> E[Generate with citations]
-    E --> F[Evaluate and monitor]
-    F --> B
+flowchart TD
+    A[Clarify: corpus, users, freshness, permissions] --> B[Baseline: BM25 + cite-or-abstain]
+    B --> C[Improve where measured]
+    C --> D[Evaluate retrieval + generation separately]
+    D --> E[Operate: monitor, secure, refresh, rollback]
+    E --> F[Strong signal]
 ```
 
 ---

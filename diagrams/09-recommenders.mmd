@@ -1,5 +1,13 @@
 flowchart LR
-    A[Recommenders inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+    A[User and item signals] --> B[Candidate generation]
+    B --> C[Collaborative filtering / embeddings]
+    B --> D[Content-based features]
+    C --> E[Hundreds of candidates]
+    D --> E
+    E --> F[Ranking model: GBDT / DNN]
+    F --> G[Re-rank: diversity, freshness, business rules]
+    G --> H[Top-N recommendations]
+    H --> I[Log clicks and conversions]
+    I -->|feedback| A
+    I --> J[Offline: NDCG, recall@k]
+    I --> K[Online: CTR, retention A/B test]

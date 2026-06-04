@@ -1,5 +1,13 @@
-flowchart LR
-    A[Agents inputs] --> B[Core concepts]
-    B --> C[Practice]
-    C --> D[Evaluation]
-    D --> E[Production or interview readiness]
+flowchart TD
+    A[Goal / user task] --> B[Plan: decompose into steps]
+    B --> C[Observe state + memory]
+    C --> D[Decide next action]
+    D --> E{Need a tool?}
+    E -- Yes --> F[Call tool / API / retrieval]
+    F --> G[Observe result]
+    G --> C
+    E -- No --> H{Goal met or stop condition?}
+    H -- No --> C
+    H -- Yes --> I[Final answer]
+    C -.guardrails.-> J[Budget, max steps, safety checks]
+    C -.persist.-> K[Memory: short and long term]

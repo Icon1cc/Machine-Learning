@@ -2,100 +2,109 @@
 
 ## Beginner-Friendly Intuition
 
-Statistics for Interviews is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to reason clearly when data is noisy and incomplete. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
+Statistics interviews test whether you can reason under uncertainty. The interviewer is usually not
+looking for a memorized formula first. They want to know whether you can identify the population,
+sample, metric, variation, assumption, and decision.
 
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+The practical pattern is: define what is being estimated, ask how the data was generated, quantify
+uncertainty, check bias, and explain what decision can or cannot be made from the evidence.
 
 ## Formal Explanation
 
-Statistics for Interviews is a practical concept used to reason clearly when data is noisy and incomplete in an experiment, metric, or uncertainty question. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+A statistics interview answer should connect:
 
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+- **Estimand:** the quantity or effect you want to know.
+- **Data-generating process:** sampling method, assignment mechanism, missingness, measurement error,
+  and dependence.
+- **Estimator:** sample mean, proportion, regression coefficient, experiment lift, likelihood-based
+  estimate, or other statistic.
+- **Uncertainty:** standard error, confidence interval, posterior interval, p-value, power, or
+  simulation.
+- **Decision rule:** practical significance, guardrail metrics, business cost, and what evidence
+  would change the decision.
+- **Validity threats:** confounding, selection bias, leakage, multiple testing, peeking, non-stationary
+  traffic, and Simpson's paradox.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect an experiment, metric, or uncertainty question to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
+ML systems are measured with noisy data. Product launches, A/B tests, offline evaluations, model
+comparisons, retention metrics, fairness checks, and monitoring alerts all require statistical
+judgment. A confident but statistically weak conclusion can ship a worse product or hide harm to a
+small segment.
 
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Interviewers ask statistics questions because they reveal whether you understand evidence quality.
+The strongest answers separate "the metric moved" from "the product improved because of our
+change."
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Clarify the question.** Estimate a mean, compare groups, test a change, predict uncertainty, or
+   infer cause.
+2. **Describe the data.** Explain how observations were sampled, assigned, logged, and filtered.
+3. **Choose the method.** Use confidence intervals, hypothesis tests, regression, bootstrap,
+   Bayesian reasoning, or experiment design based on the question.
+4. **Check assumptions.** Independence, randomization, distribution shape, sample size, stationarity,
+   and missingness matter.
+5. **Interpret practically.** Discuss effect size, uncertainty, power, guardrails, and whether the
+   result changes a decision.
+6. **Name risks.** Confounding, selection bias, leakage, multiple comparisons, and delayed outcomes
+   should be explicit.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A product team runs an A/B test for a new recommendation ranking model. Click-through rate improves
+by two percent, but session length drops and new-user retention is flat. A strong statistical answer
+checks randomization, sample size, confidence interval, novelty effects, guardrail metrics, segment
+effects, and whether the observed lift is practically meaningful.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+The decision might be to continue the test, ship to a subset, or roll back despite a statistically
+significant click lift if guardrails show worse long-term user value.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Treating p-value as the probability the hypothesis is true.
+- Ignoring effect size and practical significance.
+- Claiming causality from observational data without addressing confounding.
+- Peeking at experiments repeatedly without adjustment.
+- Averaging over segments where treatment effects differ.
+- Forgetting sample ratio mismatch, logging bugs, and missing data.
+- Using offline model metrics as if they prove online product impact.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+Interviewers use statistics prompts to test rigor and communication.
 
-**Question:** Explain Statistics for Interviews, then describe how you would use it in a real system.
+**Question:** An experiment shows a statistically significant improvement in conversion. Do you
+launch?
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
+**Strong answer:** Check experiment validity, sample ratio, guardrail metrics, confidence interval,
+effect size, segment results, novelty effects, and business cost. Launch only if the effect is
+credible, meaningful, and not offset by guardrail regressions.
 
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Launch because p is less than 0.05.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What is the difference between confidence and prediction intervals?
+- How would you explain power to a product manager?
+- What would make an A/B test invalid?
+- How do you reason about causality without randomization?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick one metric from a case study: fraud loss, churn, click-through rate, answer faithfulness, or
+unsafe action rate. Define the estimand, sampling process, estimator, uncertainty measure, validity
+threat, and launch decision rule.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Statistics for Interviews]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    A[Question] --> B[Data-generating process]
+    B --> C[Estimator]
+    C --> D[Uncertainty]
+    D --> E[Validity checks]
+    E --> F[Decision]
 ```
 
 ---

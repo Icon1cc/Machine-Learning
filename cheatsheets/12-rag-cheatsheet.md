@@ -2,64 +2,80 @@
 
 ## Intuition
 
-RAG is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
-what data or signal it needs, how it is evaluated, and what can fail in production.
+RAG grounds generated answers in retrieved evidence. The key interview move is to debug retrieval
+and generation separately. If the right passage is missing, generation cannot reliably fix it. If the
+right passage is present but the answer is wrong, the generation contract or evaluation is weak.
 
 ## Explanation
 
-Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
-RAG. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
-to example, then from example to interview-ready reasoning.
+A RAG system has five main stages:
+
+1. **Ingest:** parse documents, clean text, preserve source metadata, and handle updates or deletes.
+2. **Chunk:** split content so each chunk can answer a useful question without losing context.
+3. **Retrieve:** use lexical, vector, hybrid search, metadata filters, and reranking.
+4. **Generate:** answer only from retrieved evidence, cite sources, and abstain when evidence is
+   missing.
+5. **Evaluate and monitor:** measure retrieval, answer quality, safety, cost, and latency.
 
 ## Why It Matters
 
-Interviewers and real teams both look for the same signal: can you connect a technical idea to a
-measurable decision, defend a baseline, and explain tradeoffs clearly. RAG is useful only when it
-helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+RAG is often chosen because the knowledge is private, large, or changing. The system must therefore
+handle freshness, permissions, source authority, prompt injection, and citation quality. A vector
+database alone is not a RAG system.
 
 ## Example
 
-If you are asked about RAG, start with a concrete workflow such as search, recommendations,
-fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
-baseline, metric, and one failure mode before adding detail.
+For an internal policy assistant, store chunk text with document owner, department, permission,
+version, date, heading, and source URL. Use permission-aware hybrid retrieval, rerank passages, and
+instruct the model to answer with citations or say that the policy was not found.
 
 ## High-Yield Checklist
 
-| Question | What a strong answer includes |
+| Area | Strong answer includes |
 | --- | --- |
-| What problem is being solved? | User, decision, input, output, and constraints |
-| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
-| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
-| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
-| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+| Corpus | Scope, source authority, freshness, permissions, and deletion rules |
+| Chunking | Size, overlap, semantic boundaries, metadata, and parent document links |
+| Retrieval | BM25 baseline, dense retrieval, filters, hybrid search, and reranking |
+| Generation | Evidence-only answers, citations, abstention, and conflict handling |
+| Evaluation | Recall at k, context precision, faithfulness, citation accuracy, and latency |
+| Security | Access control, prompt injection defense, document poisoning, and audit logs |
 
 ## Interview Angle
 
-Use this answer shape: define the concept, give a small example, identify the baseline, choose the
-metric, name the failure mode, and explain what you would monitor after launch.
+Use this answer shape: define the corpus and user, design ingestion, choose baseline search, add
+hybrid retrieval or reranking based on measured misses, constrain generation, evaluate components,
+and monitor production failures.
+
+**Strong answer pattern:** "I would first check whether retrieval contains the answer. If not, I
+would inspect chunking, filters, lexical search, embeddings, and reranking before changing the
+generator."
 
 ## Common Mistakes
 
-- Reciting definitions without a concrete user decision.
-- Skipping the baseline and starting with a complex model.
-- Reporting one metric without segment or failure analysis.
-- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
-- Treating a polished demo as proof of production readiness.
+- Starting with embeddings before defining corpus and permissions.
+- Skipping BM25 or exact keyword baselines.
+- Increasing top-k without measuring context precision or token cost.
+- Measuring final answer quality only.
+- Ignoring stale documents and deletion.
+- Letting retrieved text override system instructions.
+- Citing evidence that does not support the answer.
 
 ## Mini Exercise
 
-Explain RAG in two minutes. Record the answer and check whether it included problem framing,
-baseline, metric, failure mode, and production plan.
+Design RAG for one corpus. Write metadata fields, chunking rule, retrieval baseline, reranking plan,
+answer contract, retrieval metric, answer metric, and one security test.
 
 ## Diagram
 
 ```mermaid
 flowchart TD
-    A[Frame problem] --> B[Choose baseline]
-    B --> C[Evaluate]
-    C --> D[Inspect failures]
-    D --> E[Improve or simplify]
-    E --> F[Monitor]
+    A[Documents] --> B[Parse and chunk]
+    B --> C[Metadata and embeddings]
+    C --> D[Retrieve]
+    D --> E[Rerank]
+    E --> F[Generate with citations]
+    F --> G[Evaluate]
+    G --> B
 ```
 
 ---

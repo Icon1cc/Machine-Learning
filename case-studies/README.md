@@ -2,16 +2,35 @@
 
 ## Folder Purpose
 
-Applied ML and AI system case studies with production tradeoffs and interview discussion points.
+Applied ML and AI system case studies with product framing, requirements, data design, baselines,
+advanced approaches, evaluation, scaling, reliability, security, observability, tradeoffs, and
+interview scripts. This folder is where concepts become production-shaped design practice.
 
 ## Who Should Read This Section
 
-Read this section if you are studying the related topic, preparing interview answers, building a
-project, or reviewing production tradeoffs connected to this part of the curriculum.
+Read this section when you need to practice the full reasoning loop rather than isolated concepts.
+The case studies are useful for ML system design interviews, applied scientist discussions, capstone
+planning, and senior-level review of tradeoffs.
+
+This folder is especially useful if you can explain algorithms but struggle to answer:
+
+- What exactly is the system deciding?
+- What data is available at decision time?
+- What baseline should ship first?
+- Which failure mode is most expensive?
+- How will the team know the system is getting worse?
+- Where do privacy, permission, and human review enter the design?
 
 ## Recommended Reading Order
 
-Read the numbered Markdown files in ascending order. They are arranged from foundation to application.
+Read the first six studies to build classical ML and ranking instincts, then move into LLM, RAG,
+vector search, monitoring, personalization, and agents. If you are preparing for interviews, do one
+case study per day under a timer:
+
+1. Spend five minutes clarifying requirements.
+2. Spend ten minutes sketching data flow and baseline.
+3. Spend ten minutes on evaluation, reliability, and risks.
+4. Spend five minutes giving the interview explanation script out loud.
 
 ## Table of Contents
 
@@ -40,17 +59,32 @@ Read the numbered Markdown files in ascending order. They are arranged from foun
 
 ## What You Should Know After Finishing
 
-- The core vocabulary and mental models for this section.
-- The practical workflow and evaluation questions connected to the topic.
-- Common mistakes and tradeoffs that appear in interviews and real projects.
-- How this section connects to the surrounding curriculum.
+- How to move from product problem to model decision without skipping requirements.
+- How to separate functional requirements from non-functional requirements.
+- How to choose a baseline that exposes data quality and evaluation problems early.
+- How to reason about offline metrics, online metrics, guardrails, and hard-example sets.
+- How to discuss scaling, reliability, security, observability, and human escalation in one coherent
+  design.
+
+## Case Study Review Checklist
+
+For each case study, produce these artifacts:
+
+- A one-paragraph product framing with user, decision, and consequence of a wrong answer.
+- A data contract listing inputs, labels, feedback, freshness, and permission requirements.
+- A baseline that could be implemented before advanced modeling.
+- An evaluation plan with primary metric, guardrails, slices, and failure analysis.
+- A production plan covering serving, monitoring, rollback, and ownership.
+- A two-minute interview script that a non-specialist could follow.
 
 ## Suggested Exercises
 
-- Summarize each file in five bullets.
-- Write one interview question and one strong answer after each lesson.
-- Connect the section to one case study or project.
-- Revisit the related quiz or cheatsheet after a short break.
+- Redesign one case study for a low-latency product surface and again for a batch analytics surface.
+- Add a failure-mode table to any study you find too optimistic.
+- Compare a classical ML study with an LLM or agent study and list what changes in evaluation.
+- Use one case study as the design basis for a capstone project and write the first project README.
+- Practice explaining one study to a product manager, one to an ML engineer, and one to a security
+  reviewer.
 
 ## Navigation
 

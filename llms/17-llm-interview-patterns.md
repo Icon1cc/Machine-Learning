@@ -2,101 +2,108 @@
 
 ## Beginner-Friendly Intuition
 
-LLM Interview Patterns is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to use transformer language models as reasoning, generation, and interface components. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
+LLM interviews test whether you can use language models as system components rather than magic
+answer boxes. A strong answer names the user task, the context available to the model, the output
+contract, the evaluation method, and the controls that prevent unsupported or unsafe behavior.
 
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+The recurring pattern is to compare prompting, retrieval, fine-tuning, tools, and smaller models
+against a baseline. You should be able to say what each option improves, what it costs, and what new
+failure mode it introduces.
 
 ## Formal Explanation
 
-LLM Interview Patterns is a practical concept used to use transformer language models as reasoning, generation, and interface components in an LLM application. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+An LLM system answer should specify:
 
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+- **Task contract:** input, output, allowed actions, refusal behavior, and quality bar.
+- **Context strategy:** prompt instructions, examples, retrieved evidence, conversation state, tool
+  results, and token budget.
+- **Model strategy:** baseline model, larger model, smaller model, fine-tuned model, or routed model
+  mix.
+- **Evaluation:** golden sets, rubric checks, pairwise comparisons, human review, automated judges,
+  hard examples, and regression tests.
+- **Production controls:** latency, cost, rate limits, caching, prompt injection defense, privacy,
+  logging, fallback, and monitoring.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect an LLM application to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
+LLM products often fail at boundaries: the model lacks evidence, follows malicious instructions,
+uses stale context, calls the wrong tool, produces an unverifiable answer, or costs too much at
+scale. The engineering work is to make those boundaries explicit.
 
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Interviewers want to see that you can reason about quality and safety while still building something
+useful. They expect you to know when a prompt is enough, when RAG is needed, when fine-tuning helps,
+when a tool should be constrained, and when a human should approve the result.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Clarify the product action.** Is the model drafting, answering, classifying, planning, or
+   changing state through a tool?
+2. **Define the output contract.** Specify format, citations, uncertainty, refusals, and escalation.
+3. **Build a baseline.** Start with a prompt, template, rules, or retrieval-only search experience.
+4. **Choose the improvement path.** Add RAG for external knowledge, fine-tuning for style or stable
+   behavior, tools for actions, routing for cost, or guardrails for policy.
+5. **Evaluate with hard cases.** Include ambiguity, missing evidence, adversarial prompts, stale
+   data, long context, and high-risk user segments.
+6. **Operate the system.** Monitor quality, latency, cost, refusal rate, tool errors, citation
+   faithfulness, and user feedback.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+For a customer-support drafting assistant, the baseline could retrieve relevant help-center articles
+and generate a draft response with citations. The output contract should require source links,
+uncertainty markers, and escalation when account-specific action is needed. Fine-tuning might help
+tone, but it should not replace retrieval for changing policies. Tool calls for refunds or account
+changes need permission checks and human approval.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+The evaluation should include answer faithfulness, policy compliance, resolution rate, edit rate,
+latency, cost, and high-risk examples where the correct behavior is refusal or escalation.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Treating model choice as the whole system design.
+- Using fine-tuning to memorize knowledge that changes often.
+- Adding RAG without measuring retrieval recall and citation faithfulness.
+- Letting the model call tools without schemas, permissions, and approval rules.
+- Reporting average helpfulness without hard examples or safety cases.
+- Logging sensitive prompts or documents without a privacy plan.
+- Ignoring latency and cost until after the product design is fixed.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+Interviewers use LLM prompts to test system judgment under uncertainty.
 
-**Question:** Explain LLM Interview Patterns, then describe how you would use it in a real system.
+**Question:** How would you improve an LLM assistant that gives plausible but unsupported answers?
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
+**Strong answer:** Define unsupported answer rate, add retrieval with source constraints if the
+answer depends on external knowledge, evaluate retrieval recall and citation faithfulness, require
+the model to abstain when evidence is missing, add hard examples, and monitor user feedback and
+regressions.
 
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Use a larger model and hope hallucinations decrease.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- When would you choose RAG over fine-tuning?
+- What should happen when retrieved evidence conflicts?
+- How would you evaluate an LLM-as-judge?
+- How would you reduce cost without reducing quality?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick an LLM feature from this repository. Write the task contract, context strategy, baseline,
+primary metric, two hard examples, one security risk, and one fallback. Then decide whether the next
+improvement should be prompt changes, retrieval, fine-tuning, tools, routing, or evaluation.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[LLM Interview Patterns]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+    A[User task] --> B[Output contract]
+    B --> C[Prompt and context]
+    C --> D[Model or route]
+    D --> E[Evaluation]
+    E --> F[Controls and monitoring]
+    F --> C
 ```
 
 ---

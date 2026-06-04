@@ -1,141 +1,192 @@
-# AI Agent For Workflows
+# AI Agent for Workflows
 
 ## Problem Statement
 
-Design a production-minded ai agent for workflows case study for workflow automation. The system should use user goal, available tools, permissions, task state, documents, and approval policy
-to produce completed task, plan, tool trace, or escalation request. The goal is to show how a practical ML or AI design moves from product framing
-to data, modeling, evaluation, serving, monitoring, and human review.
+Design an AI agent platform that helps users complete multi-step workflows such as support refunds,
+meeting scheduling, expense triage, CRM updates, document processing, or internal research. The
+system should translate a user goal into a plan, call approved tools, track state, validate results,
+ask for clarification when needed, and escalate risky actions to humans.
+
+The core design challenge is controlled autonomy: the agent should save time without silently taking
+unsafe, unauthorized, or irreversible actions.
 
 ## Domain Context
 
-In this domain, the model is part of an operational decision. A strong design makes the cost of a
-wrong output explicit, defines what data is available at decision time, and explains how the system
-will recover when confidence is low. The highest-risk failure to plan around is calling a tool that changes state without the required approval.
+Workflow agents combine language understanding, planning, tool use, memory, permissions, and audit
+traces. Their failures are operational, not just conversational. A wrong answer may be annoying, but
+a wrong tool call can send an email, issue a refund, modify a record, leak data, or create duplicate
+work.
+
+The highest-risk failure is calling a state-changing tool without required approval or with the wrong
+entity, user, or policy context.
 
 ## Functional Requirements
 
-- Ingest user goal, available tools, permissions, task state, documents, and approval policy.
-- Produce completed task, plan, tool trace, or escalation request.
-- Provide confidence, evidence, or explanation when the workflow needs it.
-- Support human review for low-confidence or high-risk outputs.
-- Capture feedback so the system can be evaluated and improved.
+- Accept a user goal, workflow type, available tools, task state, permissions, documents, and
+  approval policy.
+- Produce a plan, intermediate status, completed task, tool trace, clarification request, or
+  escalation request.
+- Validate tool calls against schemas, permissions, preconditions, and side-effect policies.
+- Support read-only tools, write tools, approval-gated tools, and forbidden tools.
+- Keep an auditable trace of plans, tool calls, observations, user confirmations, and final outcome.
+- Detect low confidence, conflicting evidence, missing permissions, and unsafe instructions.
+- Capture human feedback and corrections for evaluation and improvement.
 
 ## Non-Functional Requirements
 
-- Meet latency expectations for the product surface.
-- Keep data access, privacy, and retention rules explicit.
-- Provide reproducible training or evaluation runs.
-- Support monitoring, alerting, rollback, and ownership.
-- Degrade gracefully when dependencies or model outputs fail.
+- Enforce least-privilege access to tools and data.
+- Keep latency acceptable for interactive workflows and support asynchronous long-running tasks.
+- Make partial progress recoverable after timeouts or tool failures.
+- Protect secrets, private documents, and customer data.
+- Provide deterministic replay for incident review.
+- Support monitoring, alerting, rollback, and kill switches for risky tools.
 
 ## Assumptions
 
-- Historical examples or documents are available for baseline development.
-- Labels, outcomes, or human judgments can be collected for evaluation.
-- The first version should prioritize measurable reliability over model complexity.
-- Deployment traffic may differ from development data.
+- The first version will automate narrow workflows rather than arbitrary tasks.
+- Tool APIs already exist or can be wrapped with validation layers.
+- High-risk write actions require human approval until the system has strong evidence.
+- Evaluation can use historical workflow traces, simulated tasks, and human review.
+- The agent should not train on sensitive traces without explicit policy approval.
 
 ## Architecture Diagram
 
 ```mermaid
 flowchart LR
-    A[Data sources] --> B[Validation and cleaning]
-    B --> C[Feature or context pipeline]
-    C --> D[Baseline]
-    C --> E[Improved model or retrieval system]
-    D --> F[Evaluation]
-    E --> F
-    F --> G[Serving or workflow layer]
-    G --> H[Monitoring and feedback]
-    H --> B
+    A[User goal] --> B[Policy and permission check]
+    B --> C[Planner]
+    C --> D[Tool router]
+    D --> E[Tool execution sandbox]
+    E --> F[Observation and state store]
+    F --> C
+    C --> G[Approval or escalation]
+    G --> H[Audit trace and evaluation]
 ```
 
 ## Data Model or Data Design
 
-Track raw inputs, normalized features or chunks, labels or judgments, model outputs, confidence
-scores, timestamps, entity identifiers, and feedback events. Include version fields for features,
-models, prompts, retrieval indexes, and evaluation datasets so offline results can be compared with
-production behavior.
+Core entities:
+
+- **Task:** task id, user id, workflow type, goal, status, risk level, created time, and owner.
+- **State:** current plan, completed steps, pending approvals, memory references, and tool outputs.
+- **ToolCall:** tool name, schema version, arguments, permission check, approval id, result, error,
+  latency, and side-effect classification.
+- **Policy:** allowed actions, forbidden actions, approval thresholds, data scopes, and escalation
+  rules.
+- **Trace:** prompts, model decisions, observations, validations, user confirmations, and final
+  outcome.
+- **Feedback:** human rating, correction, unsafe-action label, resolution state, and notes.
+
+Keep state explicit. Hidden model memory is not a reliable source of truth for workflow execution.
 
 ## API Design
 
-A minimal production API should accept the domain input, return the output, confidence, model
-version, explanation or evidence when needed, and an audit identifier for tracing. Batch jobs should
-produce the same logical fields in a versioned artifact so results can be replayed and inspected.
+Minimal APIs:
+
+- `POST /tasks` creates a workflow task with user goal, workflow type, and context references.
+- `POST /tasks/{id}/step` advances one validated plan-act-observe step.
+- `POST /tasks/{id}/approve` records user or reviewer approval for a proposed action.
+- `GET /tasks/{id}` returns status, plan, pending approvals, and audit trace summary.
+- `POST /tools/{name}/validate` checks schema, permissions, and preconditions before execution.
+- `POST /feedback` records correction, rating, or unsafe-action report.
+
+State-changing tool APIs should be idempotent where possible and return audit identifiers.
 
 ## Baseline Approach
 
-Start with deterministic workflow with forms, rules, and manual approvals. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with deterministic workflow forms, rules, retrieval, and human approval. For example, a refund
+assistant can retrieve policy, prefill a recommendation, and ask a human to approve the final action.
+This baseline exposes tool contracts, policy ambiguity, and approval needs before autonomous planning.
 
 ## Advanced Approach
 
-After measuring the baseline, consider tool-using agent with planning limits, state tracking, validation, and human checkpoints. Add complexity only when it improves a named
-metric or reduces a known operational risk.
+Add an LLM planner with strict step limits, typed tool schemas, tool validation, memory scoped to the
+task, and approval checkpoints. Later, add workflow-specific fine-tuning or examples only after the
+trace evaluation shows repeated planning failures that prompting and rules do not solve.
 
 ## Evaluation Plan
 
-Evaluate with task success rate, intervention rate, unsafe action rate, latency, and auditability. Include slice analysis for important user, item, time, source, language, or
-risk segments. Keep a small set of hard examples for regression checks and review disagreements
-between model outputs and human judgment.
+Evaluate at the trace level:
+
+- Task success rate and completion time.
+- Unsafe action rate and unsafe near-miss rate.
+- Approval precision: how often requested approvals were actually needed.
+- Tool-call validity and tool error recovery.
+- Clarification quality and escalation accuracy.
+- Human intervention rate, latency, cost, and user satisfaction.
+- Auditability: whether a reviewer can reconstruct why an action happened.
+
+Use simulated adversarial tasks, permission-denied cases, ambiguous goals, stale documents, tool
+timeouts, and conflicting instructions as hard examples.
 
 ## Scaling Strategy
 
-Separate offline processing from online serving, cache stable computations, precompute embeddings or
-features where possible, and define data freshness requirements. Use batch, streaming, or online
-inference based on latency and consistency needs.
+Start with a few high-value workflows and shared platform primitives: tool registry, policy engine,
+state store, audit log, evaluation harness, and approval service. Scale by adding workflow templates,
+not by giving one general agent unlimited tools. Run long workflows asynchronously and notify users
+when approval or clarification is needed.
 
 ## Reliability Strategy
 
-Use validation checks, fallback responses, timeouts, retries with limits, canary releases, rollback
-plans, and human escalation for high-risk cases. Monitor both technical health and output quality.
+Use step limits, timeouts, retries with idempotency keys, circuit breakers for tools, partial-state
+recovery, and kill switches for write actions. If validation fails, the agent should stop or ask for
+help rather than invent a workaround. Canary new prompts, tools, or policies on low-risk workflows
+before broad rollout.
 
 ## Security Considerations
 
-Limit access to sensitive inputs, redact private fields where possible, enforce authorization before
-retrieval or prediction, log only what is necessary, and review prompt or tool injection risks for
-LLM workflows.
+Use least-privilege tool scopes, separate read and write permissions, redact secrets from prompts,
+and prevent user or retrieved text from overriding tool policy. Require approval for irreversible or
+external actions. Log enough for audits but avoid storing unnecessary sensitive content. Treat prompt
+injection as a workflow security issue because it can affect tool calls.
 
 ## Observability
 
-Capture input distributions, model version, prompt or retrieval version, latency, cost, errors,
-confidence, decision outcomes, and human feedback. Use dashboards and alerts tied to user impact.
+Monitor task volume, success rate, escalation rate, unsafe-action attempts, approval backlog, tool
+latency, tool errors, model cost, step count, retries, policy denials, and user corrections. Review
+complete traces for high-risk failures, not just final messages.
 
 ## Bottlenecks
 
-Common bottlenecks include slow feature generation, expensive model calls, poor retrieval recall,
-manual labeling throughput, delayed ground truth, and noisy feedback loops.
+Common bottlenecks include incomplete tool schemas, ambiguous policies, approval backlog, tool
+timeouts, poor entity resolution, hidden state bugs, insufficient audit traces, and evaluation sets
+that cover happy paths but not unsafe edge cases.
 
 ## Tradeoffs
 
-- Simplicity versus model quality.
-- Latency versus richer context or larger models.
-- Precision versus recall or relevance depth.
-- Automation versus human review.
-- Freshness versus reproducibility.
+- More autonomy reduces manual effort but increases safety and audit burden.
+- Strict approvals reduce risk but may erase productivity gains.
+- General agents are flexible but harder to evaluate than workflow-specific agents.
+- Detailed traces improve debugging but raise privacy and retention concerns.
+- Longer plans can solve richer tasks but increase latency, cost, and failure surface.
 
 ## Interview Explanation Script
 
-I would start by clarifying the decision this system supports, the available data, and the cost of
-calling a tool that changes state without the required approval. Then I would build deterministic workflow with forms, rules, and manual approvals, define metrics around task success rate, intervention rate, unsafe action rate, latency, and auditability, inspect errors by segment,
-and only then consider tool-using agent with planning limits, state tracking, validation, and human checkpoints. For production, I would add monitoring, fallback behavior, privacy
-review, and a feedback loop before increasing automation.
+I would design this as a controlled workflow automation platform rather than a fully autonomous
+assistant. The baseline is deterministic forms, retrieval, rules, and human approval. The first agent
+version adds an LLM planner, typed tools, explicit state, validation, and approval checkpoints. Every
+tool call is checked for schema, permission, preconditions, and side effects before execution. I
+would evaluate task success, unsafe action rate, intervention rate, tool validity, latency, cost, and
+auditability. The most important production controls are least privilege, approval for risky writes,
+trace review, rollback, and kill switches.
 
 ## Follow-Up Questions
 
-- What baseline would you build first?
-- How would you prevent leakage?
-- Which metric matters most and which metrics are guardrails?
-- What happens when confidence is low?
-- How would the design change at ten times the traffic?
+- Which tools should be read-only in the first release?
+- How do you recover from a timeout after partial progress?
+- What actions require human approval?
+- How would you evaluate unsafe near misses?
+- How do you prevent prompt injection from changing tool policy?
+- When would you choose a deterministic workflow over an agent?
 
 ## Common Mistakes
 
-- Starting with an advanced model before defining the decision and metric.
-- Ignoring delayed labels, missing data, or leakage.
-- Reporting one aggregate score without segment analysis.
-- Forgetting monitoring, rollback, security, and ownership.
-- Treating offline performance as proof of production reliability.
+- Describing an agent without tool schemas, permissions, or state.
+- Optimizing task success while ignoring unsafe actions.
+- Allowing state-changing tools without approval or rollback.
+- Hiding partial failures from users and operators.
+- Treating memory as a source of truth.
+- Building a general agent before proving a narrow workflow.
 
 ---
 ## Navigation

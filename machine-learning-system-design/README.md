@@ -2,16 +2,32 @@
 
 ## Folder Purpose
 
-System design practice for ML platforms, recommendation systems, search ranking, RAG, agents, evaluation, and real-time inference.
+System design practice for ML platforms, recommendation systems, search ranking, fraud detection,
+feature stores, RAG, agents, LLM evaluation, real-time inference, and AI copilots. This folder helps
+you design systems where models are only one part of a larger product and operations loop.
 
 ## Who Should Read This Section
 
-Read this section if you are studying the related topic, preparing interview answers, building a
-project, or reviewing production tradeoffs connected to this part of the curriculum.
+Use this section when a prompt requires architecture, data flow, evaluation, serving, reliability,
+and ownership. It is for learners who can describe a model but need practice turning that model into
+a production system with clear interfaces and tradeoffs.
+
+This folder is especially useful for ML Engineer, AI Engineer, LLM Engineer, and senior Data
+Scientist interviews where the interviewer expects both ML judgment and distributed-system judgment.
 
 ## Recommended Reading Order
 
-Read the numbered Markdown files in ascending order. They are arranged from foundation to application.
+Read 01 through 05 first to build classical ML system design instincts. Then read 06 through 08 for
+RAG, agents, and evaluation systems. Finish with 09 and 10 for latency-sensitive serving and
+assistant-style products.
+
+For interview practice, repeat this structure for every design:
+
+1. Clarify users, product goal, scale, latency, privacy, and failure cost.
+2. Define data sources, labels, feedback, freshness, and permissions.
+3. Propose a baseline and a more advanced path.
+4. Design offline training or indexing and online serving separately.
+5. Specify evaluation, monitoring, rollback, and human review.
 
 ## Table of Contents
 
@@ -30,17 +46,32 @@ Read the numbered Markdown files in ascending order. They are arranged from foun
 
 ## What You Should Know After Finishing
 
-- The core vocabulary and mental models for this section.
-- The practical workflow and evaluation questions connected to the topic.
-- Common mistakes and tradeoffs that appear in interviews and real projects.
-- How this section connects to the surrounding curriculum.
+- How to turn an ambiguous ML product prompt into requirements and constraints.
+- How to draw data flow from ingestion through features, training, evaluation, serving, and feedback.
+- How to choose between batch, streaming, online inference, retrieval, reranking, and human review.
+- How to connect offline metrics to online guardrails and operational alerts.
+- How to discuss scale, cost, latency, privacy, fairness, explainability, and rollback without losing
+  the main product goal.
+
+## Design Review Checklist
+
+Before calling an answer complete, verify that it includes:
+
+- Functional requirements and non-functional requirements.
+- Data contracts and label or feedback collection.
+- Baseline, advanced approach, and why complexity is justified.
+- API or serving contract with versioning and auditability.
+- Evaluation plan with slices, guardrails, and hard examples.
+- Monitoring, rollback, ownership, and incident response.
+- Security and privacy boundaries.
 
 ## Suggested Exercises
 
-- Summarize each file in five bullets.
-- Write one interview question and one strong answer after each lesson.
-- Connect the section to one case study or project.
-- Revisit the related quiz or cheatsheet after a short break.
+- Redesign one system for ten times the traffic and list what changes first.
+- For each file, write the offline path and online path as separate bullet lists.
+- Pair one design with a case study and one capstone project.
+- Practice a five-minute answer, then a thirty-minute answer, for the same prompt.
+- After every design, identify one decision you would validate with an experiment or prototype.
 
 ## Navigation
 

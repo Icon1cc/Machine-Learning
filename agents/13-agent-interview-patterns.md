@@ -2,101 +2,109 @@
 
 ## Beginner-Friendly Intuition
 
-Agent Interview Patterns is easiest to understand by asking what problem it helps you solve. In this part of machine
-learning, the recurring goal is to coordinate model decisions, tool calls, observations, and stopping rules. You do not need to memorize a buzzword first. Start with
-the plain workflow: collect relevant information, transform it into a useful representation, apply a
-method, measure the result, and learn from the errors.
+Agent interviews test whether you can design a model-controlled workflow without letting the model
+do unsafe or undefined work. An agent is not just an LLM with tools. It is a loop with state,
+planning, tool contracts, observations, stopping rules, permissions, evaluation, and escalation.
 
-A useful beginner test is whether you can explain the concept without formulas. If the explanation
-names the input, the output, the signal used for improvement, and the way success is measured, you
-understand the practical core.
+The most important pattern is to constrain agency. Start with a deterministic workflow, add model
+decisions only where they help, validate every tool call, and require human approval for risky state
+changes.
 
 ## Formal Explanation
 
-Agent Interview Patterns is a practical concept used to coordinate model decisions, tool calls, observations, and stopping rules in a tool-using workflow. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+An agent design answer should define:
 
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+- **Task boundary:** what the agent may do, what it may never do, and when it must escalate.
+- **State model:** user goal, intermediate plan, tool results, memory, permissions, and audit trace.
+- **Tool contract:** schema, preconditions, authorization, idempotency, side effects, timeouts, and
+  error handling.
+- **Control loop:** plan, act, observe, validate, revise, stop, or ask for help.
+- **Evaluation:** task success, unsafe action rate, unnecessary tool calls, intervention rate,
+  latency, cost, and auditability.
+- **Operations:** sandboxing, secrets handling, prompt injection defense, replay, monitoring, and
+  rollback.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a tool-using workflow to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
+Agents can create value when tasks require multiple steps, tools, and changing state. They can also
+create severe risk by taking the wrong action confidently. The problem is rarely "make the model
+smarter." The problem is deciding which actions should be automated, which require confirmation, and
+which should remain outside the agent boundary.
 
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Interviewers expect you to reason about permissions and failure recovery. An agent that can send
+emails, update records, issue refunds, or deploy code must be designed as a controlled system.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Scope the workflow.** Define the goal, success criteria, allowed tools, forbidden actions, and
+   escalation conditions.
+2. **Build the deterministic baseline.** Use forms, rules, scripts, retrieval, and human approval
+   before adding autonomous planning.
+3. **Specify tools.** Give each tool a schema, validation rule, permission check, timeout, and
+   observable result.
+4. **Add planning carefully.** Limit steps, require intermediate checks, and prevent hidden state
+   changes.
+5. **Evaluate traces.** Review actions, not just final answers. Score success, safety, cost, and
+   unnecessary work.
+6. **Operate with controls.** Log audit traces, redact secrets, detect prompt injection, and monitor
+   unsafe-action attempts.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+For a customer-support refund agent, the baseline is a policy lookup plus a draft response for a
+human agent. The next step might allow the model to classify refund eligibility and prepare a tool
+call. The tool should validate account status, order amount, policy constraints, and approval
+requirements before any refund is issued.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+The highest-risk failure is not a bad sentence. It is issuing an unauthorized refund, exposing
+private account data, or promising a policy exception. Those risks require permissions, approval
+thresholds, audit logs, and rollback procedures.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Calling a chatbot an agent without defining tools, state, or stopping rules.
+- Giving tools broad permissions instead of least-privilege scopes.
+- Evaluating only final task success and ignoring unsafe near misses.
+- Allowing write actions without validation or human approval.
+- Treating memory as always useful without privacy, freshness, and deletion rules.
+- Hiding tool errors from the user or the monitoring system.
+- Letting retrieved or user-provided text change tool policy.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+Interviewers use agent prompts to test safety and systems thinking.
 
-**Question:** Explain Agent Interview Patterns, then describe how you would use it in a real system.
+**Question:** Design an agent that schedules meetings across calendars and sends follow-up emails.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
+**Strong answer:** Start with a deterministic scheduling assistant, define calendar and email tool
+schemas, require permission for external emails, validate recipients and times, log all actions,
+handle conflicts, escalate ambiguous requests, and evaluate task success plus unsafe send rate.
 
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Let an LLM read calendars and send emails whenever it thinks the plan is good.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What tools should be read-only at first?
+- How do you handle a tool timeout after partial progress?
+- What actions require human confirmation?
+- How would you test the agent before real users?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick one workflow: expense approval, meeting scheduling, support refunds, code review, or research
+summaries. Write allowed actions, forbidden actions, tool schemas, approval rules, evaluation
+metrics, and one audit-log entry for a failed attempt.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[Agent Interview Patterns]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+    A[User goal] --> B[State and policy]
+    B --> C[Plan]
+    C --> D[Validate tool call]
+    D --> E[Act and observe]
+    E --> F[Stop or escalate]
+    F --> G[Trace evaluation]
 ```
 
 ---

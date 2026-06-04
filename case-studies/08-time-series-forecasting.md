@@ -2,15 +2,21 @@
 
 ## Problem Statement
 
-Design a production-minded time series forecasting system that turns raw data or documents into a useful
-decision, prediction, ranking, answer, or workflow action. The goal is to define a realistic system,
-not only a model experiment.
+Design a production-minded time series forecasting case study for demand, traffic, or resource planning. The system should use timestamped observations, calendar features, promotions, outages, and external drivers
+to produce forecast with prediction intervals and anomaly flags. The goal is to show how a practical ML or AI design moves from product framing
+to data, modeling, evaluation, serving, monitoring, and human review.
+
+## Domain Context
+
+In this domain, the model is part of an operational decision. A strong design makes the cost of a
+wrong output explicit, defines what data is available at decision time, and explains how the system
+will recover when confidence is low. The highest-risk failure to plan around is missing a demand spike that causes stockouts or capacity incidents.
 
 ## Functional Requirements
 
-- Accept the relevant user, item, event, document, or workflow input.
-- Produce a prediction, ranking, recommendation, answer, alert, or action.
-- Provide a confidence signal, explanation, or evidence when the workflow needs it.
+- Ingest timestamped observations, calendar features, promotions, outages, and external drivers.
+- Produce forecast with prediction intervals and anomaly flags.
+- Provide confidence, evidence, or explanation when the workflow needs it.
 - Support human review for low-confidence or high-risk outputs.
 - Capture feedback so the system can be evaluated and improved.
 
@@ -47,27 +53,31 @@ flowchart LR
 ## Data Model or Data Design
 
 Track raw inputs, normalized features or chunks, labels or judgments, model outputs, confidence
-scores, timestamps, user or entity identifiers, and feedback events. For RAG or search systems,
-store document identifiers, chunk boundaries, embedding versions, metadata filters, and retrieval
-traces.
+scores, timestamps, entity identifiers, and feedback events. Include version fields for features,
+models, prompts, retrieval indexes, and evaluation datasets so offline results can be compared with
+production behavior.
 
 ## API Design
 
-A minimal production API should expose a request endpoint, a response schema with output and
-confidence, an explanation or evidence field when needed, and an audit identifier for tracing. Batch
-jobs should produce the same logical fields in a versioned artifact.
+A minimal production API should accept the domain input, return the output, confidence, model
+version, explanation or evidence when needed, and an audit identifier for tracing. Batch jobs should
+produce the same logical fields in a versioned artifact so results can be replayed and inspected.
 
 ## Baseline Approach
 
-Start with a simple ruleset, majority-class predictor, lexical search, nearest-neighbor retrieval,
-linear model, or shallow tree model. The baseline should be easy to explain and should reveal data
-quality problems before advanced modeling begins.
+Start with seasonal naive forecasts, moving averages, and simple regression on calendar features. The baseline should be easy to explain, cheap to run, and strong enough to
+expose data quality problems before advanced modeling begins.
 
 ## Advanced Approach
 
-After measuring the baseline, consider gradient boosting, calibrated classifiers, two-stage ranking,
-deep models for unstructured data, hybrid retrieval with reranking, RAG, or constrained agent
-workflows. Add complexity only when it improves a named metric or reliability requirement.
+After measuring the baseline, consider gradient boosting, probabilistic forecasting, or sequence models with covariates. Add complexity only when it improves a named
+metric or reduces a known operational risk.
+
+## Evaluation Plan
+
+Evaluate with MAE, WAPE, interval coverage, bias by segment, and business planning error. Include slice analysis for important user, item, time, source, language, or
+risk segments. Keep a small set of hard examples for regression checks and review disagreements
+between model outputs and human judgment.
 
 ## Scaling Strategy
 
@@ -100,16 +110,16 @@ manual labeling throughput, delayed ground truth, and noisy feedback loops.
 
 - Simplicity versus model quality.
 - Latency versus richer context or larger models.
-- Precision versus recall.
+- Precision versus recall or relevance depth.
 - Automation versus human review.
 - Freshness versus reproducibility.
 
 ## Interview Explanation Script
 
-I would start by clarifying the decision this system supports and the cost of mistakes. Then I would
-build a baseline, choose a split that matches deployment, define a primary metric and guardrails, and
-inspect errors by segment. For production, I would add monitoring, fallback behavior, privacy review,
-and a feedback loop before increasing model complexity.
+I would start by clarifying the decision this system supports, the available data, and the cost of
+missing a demand spike that causes stockouts or capacity incidents. Then I would build seasonal naive forecasts, moving averages, and simple regression on calendar features, define metrics around MAE, WAPE, interval coverage, bias by segment, and business planning error, inspect errors by segment,
+and only then consider gradient boosting, probabilistic forecasting, or sequence models with covariates. For production, I would add monitoring, fallback behavior, privacy
+review, and a feedback loop before increasing automation.
 
 ## Follow-Up Questions
 

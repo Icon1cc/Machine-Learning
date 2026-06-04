@@ -87,7 +87,227 @@ SYSTEM_DESIGN_FILES = [
     "10-design-an-ai-copilot-platform.md",
 ]
 
+CASE_STUDY_DETAILS = {
+    "spam-classifier": {
+        "domain": "email and message moderation",
+        "inputs": "message body, subject, sender reputation, links, attachments, and user reports",
+        "output": "spam, likely spam, or clean with a calibrated confidence score",
+        "baseline": "keyword rules, deny lists, sender reputation checks, and a logistic regression model over TF-IDF features",
+        "advanced": "gradient boosting over engineered sender signals plus a transformer text classifier for hard examples",
+        "metric": "precision at high recall, false-positive rate on trusted senders, review volume, and complaint rate",
+        "failure": "blocking a legitimate account recovery or business email",
+    },
+    "fraud-detection": {
+        "domain": "payments and account risk",
+        "inputs": "transaction amount, merchant, device, account age, velocity features, location, and prior disputes",
+        "output": "approve, challenge, block, or route to review",
+        "baseline": "velocity rules, allow and deny lists, and a calibrated tree model on tabular features",
+        "advanced": "sequence features, graph signals across shared devices, and cost-sensitive gradient boosting",
+        "metric": "fraud loss prevented, false decline rate, review precision, chargeback rate, and latency",
+        "failure": "blocking a legitimate high-value payment during checkout",
+    },
+    "credit-risk-model": {
+        "domain": "loan underwriting",
+        "inputs": "application fields, credit history, income signals, debt ratios, and repayment outcomes",
+        "output": "risk tier, approval recommendation, limit, or pricing band",
+        "baseline": "scorecard rules and logistic regression with monotonic, explainable features",
+        "advanced": "calibrated gradient boosting with fairness, stability, and adverse-action explanation checks",
+        "metric": "default rate by risk band, approval rate, calibration, fairness gaps, and portfolio loss",
+        "failure": "creating an unfair or unstable decision rule across protected or thin-file segments",
+    },
+    "customer-churn-prediction": {
+        "domain": "subscription retention",
+        "inputs": "usage history, billing events, support tickets, plan changes, tenure, and engagement trends",
+        "output": "churn probability, risk segment, and suggested retention action",
+        "baseline": "recency and usage rules plus logistic regression on account-level features",
+        "advanced": "survival analysis or gradient boosting with time-windowed behavioral features",
+        "metric": "lift in contacted segments, calibration, retention impact, intervention cost, and customer experience guardrails",
+        "failure": "targeting users who would have stayed without intervention and wasting retention budget",
+    },
+    "recommendation-system": {
+        "domain": "personalized content or product discovery",
+        "inputs": "user events, item metadata, inventory state, impressions, clicks, purchases, and negative feedback",
+        "output": "ranked candidates with reasons and diversity controls",
+        "baseline": "popular items, recent items, collaborative filtering, and simple content similarity",
+        "advanced": "two-stage retrieval and ranking with embeddings, learning-to-rank features, and exploration",
+        "metric": "CTR, conversion, retention, diversity, freshness, coverage, and long-term satisfaction",
+        "failure": "over-personalizing into a narrow loop that hurts discovery and trust",
+    },
+    "search-ranking-system": {
+        "domain": "search relevance",
+        "inputs": "query text, document fields, click logs, freshness, permissions, and result feedback",
+        "output": "ranked search results with snippets and relevance scores",
+        "baseline": "BM25 with field boosts, filters, and query normalization",
+        "advanced": "hybrid lexical and vector retrieval followed by a learned reranker",
+        "metric": "NDCG, MRR, zero-result rate, latency, abandonment, and judged relevance",
+        "failure": "ranking inaccessible, stale, or wrong documents above the answer users need",
+    },
+    "ad-click-through-rate-prediction": {
+        "domain": "ads ranking",
+        "inputs": "ad features, user context, page context, bid, historical impressions, clicks, and conversions",
+        "output": "click probability used by ranking or auction logic",
+        "baseline": "regularized logistic regression over crossed categorical and numeric features",
+        "advanced": "wide-and-deep or gradient boosted models with calibration and delayed-feedback correction",
+        "metric": "log loss, calibration, revenue, user quality guardrails, and advertiser outcome metrics",
+        "failure": "optimizing clicks that reduce user trust or advertiser value",
+    },
+    "time-series-forecasting": {
+        "domain": "demand, traffic, or resource planning",
+        "inputs": "timestamped observations, calendar features, promotions, outages, and external drivers",
+        "output": "forecast with prediction intervals and anomaly flags",
+        "baseline": "seasonal naive forecasts, moving averages, and simple regression on calendar features",
+        "advanced": "gradient boosting, probabilistic forecasting, or sequence models with covariates",
+        "metric": "MAE, WAPE, interval coverage, bias by segment, and business planning error",
+        "failure": "missing a demand spike that causes stockouts or capacity incidents",
+    },
+    "document-classification": {
+        "domain": "document routing and compliance triage",
+        "inputs": "document text, layout metadata, source, language, and human labels",
+        "output": "document class, confidence, and fields required for downstream routing",
+        "baseline": "rules and TF-IDF linear models with human review for low confidence",
+        "advanced": "layout-aware or transformer classifiers with active learning for uncertain classes",
+        "metric": "macro F1, per-class recall, review load, routing latency, and audit error rate",
+        "failure": "misrouting a regulated document that requires special handling",
+    },
+    "semantic-search-engine": {
+        "domain": "meaning-based knowledge retrieval",
+        "inputs": "queries, documents, metadata, embeddings, permissions, and click or judgment feedback",
+        "output": "ranked passages or documents with matched evidence",
+        "baseline": "BM25 plus metadata filters and manually tuned synonyms",
+        "advanced": "dense retrieval, hybrid search, reranking, and query rewriting",
+        "metric": "recall at k, MRR, judged relevance, latency, and permission violation rate",
+        "failure": "retrieving semantically similar but factually wrong evidence",
+    },
+    "chatbot-with-rag": {
+        "domain": "grounded question answering",
+        "inputs": "user question, conversation state, retrieved passages, source metadata, and safety context",
+        "output": "answer with citations, uncertainty, and escalation when evidence is missing",
+        "baseline": "keyword retrieval plus extractive answer snippets",
+        "advanced": "hybrid retrieval, reranking, context compression, and answer grounding checks",
+        "metric": "answer faithfulness, citation precision, user resolution rate, latency, and refusal quality",
+        "failure": "presenting an unsupported answer as if it came from the source material",
+    },
+    "enterprise-knowledge-assistant": {
+        "domain": "internal company knowledge access",
+        "inputs": "documents, permissions, freshness metadata, employee query, and audit context",
+        "output": "permission-aware answer with source links and escalation options",
+        "baseline": "permission-filtered search with snippets and manual source review",
+        "advanced": "RAG with access-control filtering, reranking, answer validation, and feedback capture",
+        "metric": "resolution rate, citation accuracy, permission correctness, freshness, and support deflection",
+        "failure": "leaking restricted information across teams or roles",
+    },
+    "customer-support-agent": {
+        "domain": "support automation",
+        "inputs": "ticket text, account state, policy documents, prior cases, tools, and escalation rules",
+        "output": "draft response, next action, or routed ticket with confidence and evidence",
+        "baseline": "intent classifier, macro templates, and retrieval over support articles",
+        "advanced": "tool-using agent with constrained actions, policy checks, and human approval gates",
+        "metric": "first-contact resolution, escalation accuracy, handle time, CSAT, and safety incidents",
+        "failure": "taking an account action without enough evidence or authorization",
+    },
+    "code-assistant": {
+        "domain": "developer productivity",
+        "inputs": "code context, repository metadata, tests, user request, and tool outputs",
+        "output": "patch, explanation, test command, or code review finding",
+        "baseline": "retrieval over files plus static suggestions without write access",
+        "advanced": "agentic edit loop with test execution, diff review, and rollback-safe patching",
+        "metric": "accepted changes, build pass rate, defect rate, latency, and developer review effort",
+        "failure": "modifying unrelated code or introducing a hidden security regression",
+    },
+    "ai-meeting-summarizer": {
+        "domain": "meeting notes and action tracking",
+        "inputs": "transcript, speaker turns, calendar metadata, chat messages, and organization policy",
+        "output": "summary, decisions, action items, owners, deadlines, and uncertainty markers",
+        "baseline": "extractive notes using transcript sections and keyword action detection",
+        "advanced": "LLM summarization with entity resolution, action extraction, and human correction feedback",
+        "metric": "action-item precision, decision recall, edit distance from human notes, privacy compliance, and latency",
+        "failure": "assigning an action to the wrong person or exposing confidential content",
+    },
+    "llm-evaluation-platform": {
+        "domain": "LLM quality measurement",
+        "inputs": "test prompts, expected criteria, model outputs, judge rubrics, traces, and human ratings",
+        "output": "scorecards, regressions, failure clusters, and release recommendations",
+        "baseline": "golden test sets with deterministic string and rubric checks",
+        "advanced": "LLM-as-judge with calibration, pairwise comparison, and trace-level diagnostics",
+        "metric": "judge agreement, regression detection, coverage, false alarm rate, and evaluation cost",
+        "failure": "shipping a model change because the evaluation set missed a critical workflow",
+    },
+    "vector-search-at-scale": {
+        "domain": "large-scale approximate nearest neighbor retrieval",
+        "inputs": "embeddings, metadata, index versions, query vectors, filters, and relevance judgments",
+        "output": "nearest candidates with scores, filters, and index trace metadata",
+        "baseline": "exact search on a sample plus a simple HNSW index",
+        "advanced": "sharded HNSW or IVF-PQ with hybrid filtering, reranking, and versioned rollouts",
+        "metric": "recall at k, p95 latency, index build time, memory use, and freshness",
+        "failure": "reducing recall during an index migration without detection",
+    },
+    "ml-monitoring-platform": {
+        "domain": "model observability",
+        "inputs": "prediction logs, features, labels, metrics, model versions, alerts, and incidents",
+        "output": "dashboards, alerts, drift reports, and rollback recommendations",
+        "baseline": "batch metrics over prediction logs and simple threshold alerts",
+        "advanced": "segment-aware drift detection, delayed-label quality tracking, and incident workflows",
+        "metric": "time to detect, false alert rate, coverage by model, incident duration, and owner response",
+        "failure": "missing a silent quality regression because labels arrive late",
+    },
+    "personalization-engine": {
+        "domain": "personalized product experience",
+        "inputs": "user profile, behavior history, context, catalog metadata, constraints, and feedback",
+        "output": "personalized layout, ranking, message, or offer with guardrails",
+        "baseline": "rules, segments, popularity, and recency-based recommendations",
+        "advanced": "contextual ranking with exploration, diversity constraints, and causal measurement",
+        "metric": "engagement lift, conversion, retention, diversity, opt-out rate, and long-term value",
+        "failure": "optimizing short-term clicks while hurting long-term user satisfaction",
+    },
+    "ai-agent-for-workflows": {
+        "domain": "workflow automation",
+        "inputs": "user goal, available tools, permissions, task state, documents, and approval policy",
+        "output": "completed task, plan, tool trace, or escalation request",
+        "baseline": "deterministic workflow with forms, rules, and manual approvals",
+        "advanced": "tool-using agent with planning limits, state tracking, validation, and human checkpoints",
+        "metric": "task success rate, intervention rate, unsafe action rate, latency, and auditability",
+        "failure": "calling a tool that changes state without the required approval",
+    },
+}
+
+CAPSTONE_DETAILS = {
+    "end-to-end-classical-ml-project": ("tabular prediction", "structured rows with labels", "simple linear or tree baseline", "gradient boosting with error analysis", "F1, calibration, and segment performance"),
+    "house-price-prediction": ("real estate pricing", "property attributes, location, and sale price", "median-by-neighborhood baseline", "regularized regression or gradient boosting", "MAE and error by price band"),
+    "fraud-detection-system": ("transaction risk", "payments, account metadata, device signals, and labels", "rules plus logistic regression", "cost-sensitive gradient boosting", "fraud loss, false declines, and review precision"),
+    "customer-churn-prediction": ("subscription retention", "usage, billing, support, and churn labels", "recency and usage rules", "survival or gradient boosted model", "lift, calibration, and intervention cost"),
+    "recommendation-system": ("personalized discovery", "user events, item metadata, and feedback", "popular and recent items", "candidate retrieval plus ranking", "CTR, conversion, diversity, and retention"),
+    "search-ranking-system": ("search relevance", "queries, documents, clicks, and judgments", "BM25 with filters", "hybrid retrieval plus reranking", "NDCG, MRR, zero-result rate, and latency"),
+    "image-classifier": ("image classification", "labeled images and augmentation metadata", "simple CNN or transfer-learning baseline", "fine-tuned vision backbone", "accuracy, macro F1, and class-level recall"),
+    "nlp-text-classifier": ("text classification", "documents, labels, metadata, and language signals", "TF-IDF linear model", "fine-tuned transformer", "macro F1, calibration, and per-class recall"),
+    "semantic-search-engine": ("semantic retrieval", "documents, queries, embeddings, and relevance judgments", "BM25 search", "dense retrieval with reranking", "recall at k, MRR, and p95 latency"),
+    "rag-chatbot": ("grounded answering", "documents, chunks, queries, and feedback", "keyword retrieval with snippets", "RAG with hybrid retrieval and citations", "faithfulness, citation precision, and latency"),
+    "enterprise-rag-assistant": ("permission-aware knowledge access", "documents, ACLs, queries, and audit logs", "permission-filtered search", "RAG with reranking and source validation", "answer quality, access correctness, and freshness"),
+    "llm-evaluation-dashboard": ("LLM release evaluation", "prompts, outputs, rubrics, traces, and human scores", "golden test set checks", "judge-assisted scorecards with calibration", "judge agreement, regression detection, and cost"),
+    "agentic-research-assistant": ("research workflow support", "user goals, sources, notes, and tool traces", "retrieval plus structured notes", "bounded agent with citations and review steps", "task success, citation accuracy, and unsafe action rate"),
+    "ai-customer-support-agent": ("support automation", "tickets, policies, account context, tools, and outcomes", "intent routing and templates", "tool-using agent with approval gates", "resolution rate, escalation accuracy, and safety incidents"),
+    "production-ml-platform": ("shared ML infrastructure", "training jobs, features, models, metrics, and deployments", "scripts and manual deployment checklist", "tracked pipelines, registry, serving, and monitoring", "reproducibility, deployment frequency, and incident rate"),
+}
+
+INTERVIEW_PREP_DETAILS = {
+    "ai-engineer-roadmap": "AI product engineering, LLM application design, evaluation, safety, and production tradeoffs",
+    "ml-engineer-roadmap": "modeling, data pipelines, training-serving consistency, deployment, and monitoring",
+    "llm-engineer-roadmap": "prompting, RAG, fine-tuning choices, evaluation, serving cost, and guardrails",
+    "data-scientist-roadmap": "experimentation, statistics, business metrics, modeling, and communication",
+    "common-ml-interview-questions": "core ML reasoning across data, baselines, evaluation, and production failure modes",
+    "statistics-interview-questions": "probability, inference, A/B testing, uncertainty, leakage, and causal reasoning",
+    "classical-ml-interview-questions": "linear models, trees, ensembles, clustering, evaluation, and interpretability",
+    "deep-learning-interview-questions": "optimization, backpropagation, regularization, architectures, and debugging",
+    "llm-interview-questions": "tokenization, transformers, prompting, tool use, evaluation, and serving",
+    "rag-interview-questions": "ingestion, chunking, retrieval, reranking, grounding, evaluation, and security",
+    "agent-interview-questions": "agent loops, tools, planning, memory, observability, and approval boundaries",
+    "ml-system-design-interview-questions": "requirements, data flow, model architecture, serving, monitoring, and rollback",
+    "behavioral-ai-interviews": "project storytelling, ownership, ambiguity, tradeoff communication, and failure reflection",
+    "resume-project-strategy": "project selection, scope, metrics, impact framing, and interview-ready explanation",
+    "final-revision-checklist": "last-pass review across fundamentals, systems, projects, mocks, and weak spots",
+}
+
 ROOT_README_SECTIONS = [
+    "Purpose",
     "Start Here",
     "Beginner Path",
     "Deep Study Path",
@@ -159,7 +379,34 @@ def title_from_filename(path: Path) -> str:
                 "cd": "CD",
             }.get(part, part.capitalize())
         )
-    return " ".join(words)
+    return " ".join(words).replace("End To End", "End-to-End")
+
+def content_slug(path: Path) -> str:
+    return re.sub(r"^\d+-", "", path.stem)
+
+def sentence_label(title: str) -> str:
+    label = title.lower()
+    replacements = {
+        "end to end": "end-to-end",
+        " ai ": " AI ",
+        "ai ": "AI ",
+        " llm": " LLM",
+        " ml ": " ML ",
+        "ml ": "ML ",
+        " nlp ": " NLP ",
+        "nlp ": "NLP ",
+        " rag": " RAG",
+        "rag ": "RAG ",
+    }
+    for source, replacement in replacements.items():
+        label = label.replace(source, replacement)
+    return label
+
+def indefinite_article(label: str) -> str:
+    lower_label = label.lower()
+    if lower_label.startswith(("ai", "end-to-end", "image", "llm", "ml", "nlp")):
+        return "an"
+    return "a"
 
 def readable_folder_name(folder: str) -> str:
     return title_from_slug(folder)
@@ -245,6 +492,12 @@ def root_readme() -> str:
 This repository is a personal learning path for machine learning, AI engineering, LLM systems, RAG,
 agents, production AI, and interview preparation. It is designed as a practical engineering knowledge
 base with lessons, case studies, quizzes, cheatsheets, mocks, notebooks, and runnable examples.
+
+## Purpose
+
+The purpose of this repository is to make machine learning study concrete. It connects concepts to
+examples, interview prompts, diagrams, exercises, case studies, and portfolio projects so each topic
+can be reviewed, practiced, and explained clearly.
 
 ## Who This Repository Is For
 
@@ -433,19 +686,33 @@ def normalize_text(text: str) -> str:
 
 def case_study_body(path: Path) -> str:
     title = title_from_filename(path)
+    details = CASE_STUDY_DETAILS.get(content_slug(path), {})
+    domain = details.get("domain", title.lower())
+    inputs = details.get("inputs", "the most relevant user, item, event, document, and feedback signals")
+    output = details.get("output", "a decision, score, ranking, answer, or workflow action")
+    baseline = details.get("baseline", "a simple ruleset and a measurable model baseline")
+    advanced = details.get("advanced", "a more capable model or retrieval design with explicit guardrails")
+    metric = details.get("metric", "task quality, latency, cost, reliability, and user impact")
+    failure = details.get("failure", "making an incorrect decision in a high-impact segment")
     return f"""# {title}
 
 ## Problem Statement
 
-Design a production-minded {title.lower()} system that turns raw data or documents into a useful
-decision, prediction, ranking, answer, or workflow action. The goal is to define a realistic system,
-not only a model experiment.
+Design a production-minded {title.lower()} case study for {domain}. The system should use {inputs}
+to produce {output}. The goal is to show how a practical ML or AI design moves from product framing
+to data, modeling, evaluation, serving, monitoring, and human review.
+
+## Domain Context
+
+In this domain, the model is part of an operational decision. A strong design makes the cost of a
+wrong output explicit, defines what data is available at decision time, and explains how the system
+will recover when confidence is low. The highest-risk failure to plan around is {failure}.
 
 ## Functional Requirements
 
-- Accept the relevant user, item, event, document, or workflow input.
-- Produce a prediction, ranking, recommendation, answer, alert, or action.
-- Provide a confidence signal, explanation, or evidence when the workflow needs it.
+- Ingest {inputs}.
+- Produce {output}.
+- Provide confidence, evidence, or explanation when the workflow needs it.
 - Support human review for low-confidence or high-risk outputs.
 - Capture feedback so the system can be evaluated and improved.
 
@@ -482,27 +749,31 @@ flowchart LR
 ## Data Model or Data Design
 
 Track raw inputs, normalized features or chunks, labels or judgments, model outputs, confidence
-scores, timestamps, user or entity identifiers, and feedback events. For RAG or search systems,
-store document identifiers, chunk boundaries, embedding versions, metadata filters, and retrieval
-traces.
+scores, timestamps, entity identifiers, and feedback events. Include version fields for features,
+models, prompts, retrieval indexes, and evaluation datasets so offline results can be compared with
+production behavior.
 
 ## API Design
 
-A minimal production API should expose a request endpoint, a response schema with output and
-confidence, an explanation or evidence field when needed, and an audit identifier for tracing. Batch
-jobs should produce the same logical fields in a versioned artifact.
+A minimal production API should accept the domain input, return the output, confidence, model
+version, explanation or evidence when needed, and an audit identifier for tracing. Batch jobs should
+produce the same logical fields in a versioned artifact so results can be replayed and inspected.
 
 ## Baseline Approach
 
-Start with a simple ruleset, majority-class predictor, lexical search, nearest-neighbor retrieval,
-linear model, or shallow tree model. The baseline should be easy to explain and should reveal data
-quality problems before advanced modeling begins.
+Start with {baseline}. The baseline should be easy to explain, cheap to run, and strong enough to
+expose data quality problems before advanced modeling begins.
 
 ## Advanced Approach
 
-After measuring the baseline, consider gradient boosting, calibrated classifiers, two-stage ranking,
-deep models for unstructured data, hybrid retrieval with reranking, RAG, or constrained agent
-workflows. Add complexity only when it improves a named metric or reliability requirement.
+After measuring the baseline, consider {advanced}. Add complexity only when it improves a named
+metric or reduces a known operational risk.
+
+## Evaluation Plan
+
+Evaluate with {metric}. Include slice analysis for important user, item, time, source, language, or
+risk segments. Keep a small set of hard examples for regression checks and review disagreements
+between model outputs and human judgment.
 
 ## Scaling Strategy
 
@@ -535,16 +806,16 @@ manual labeling throughput, delayed ground truth, and noisy feedback loops.
 
 - Simplicity versus model quality.
 - Latency versus richer context or larger models.
-- Precision versus recall.
+- Precision versus recall or relevance depth.
 - Automation versus human review.
 - Freshness versus reproducibility.
 
 ## Interview Explanation Script
 
-I would start by clarifying the decision this system supports and the cost of mistakes. Then I would
-build a baseline, choose a split that matches deployment, define a primary metric and guardrails, and
-inspect errors by segment. For production, I would add monitoring, fallback behavior, privacy review,
-and a feedback loop before increasing model complexity.
+I would start by clarifying the decision this system supports, the available data, and the cost of
+{failure}. Then I would build {baseline}, define metrics around {metric}, inspect errors by segment,
+and only then consider {advanced}. For production, I would add monitoring, fallback behavior, privacy
+review, and a feedback loop before increasing automation.
 
 ## Follow-Up Questions
 
@@ -720,6 +991,287 @@ covers error analysis, monitoring, rollback, human escalation, and tradeoffs.
 - Did I include production operations and tradeoffs?
 """
 
+def interview_prep_body(path: Path) -> str:
+    title = title_from_filename(path)
+    focus = INTERVIEW_PREP_DETAILS.get(content_slug(path), title.lower())
+    return f"""# {title}
+
+## How to Use This File
+
+Use this page to practice structured interview answers for {focus}. Read each question, answer out
+loud, then compare your response with the strong and weak answer patterns. Keep answers concrete:
+name the user, data, baseline, metric, failure mode, and production plan.
+
+## Core Preparation Checklist
+
+- Clarify the role, user, decision, and constraints before naming a model.
+- State assumptions about data availability, labels, latency, privacy, and cost.
+- Start with a simple baseline and explain why added complexity is justified.
+- Choose metrics that match the product decision and the cost of mistakes.
+- Discuss leakage, drift, monitoring, rollback, and human review.
+- Communicate tradeoffs in plain language and connect them to user impact.
+
+## Interview Question Sections
+
+### Question 1: Problem Framing and Baseline
+
+**Question:** You are asked to design or analyze a solution involving {focus}. What would you clarify
+first, and what baseline would you build before using a more complex approach?
+
+**What the interviewer is testing:** Whether you can turn an ambiguous prompt into a measurable
+engineering problem without hiding behind model names.
+
+**Strong answer:** Clarify the user decision, available data, label or feedback source, constraints,
+and failure cost. Propose a baseline that can be evaluated quickly, then state what evidence would
+justify a more advanced model or architecture.
+
+**Weak answer:** Jump straight to a model, skip the baseline, ignore data quality, and never define
+how success will be measured.
+
+**Follow-up questions:**
+
+- What data would be available only after the decision is made?
+- Which simple baseline would be hardest to beat?
+- What metric would be misleading if used alone?
+
+**Common traps:** Optimizing the offline metric without understanding the product decision, assuming
+labels are clean, and ignoring high-risk segments.
+
+### Question 2: Evaluation and Failure Modes
+
+**Question:** How would you evaluate a system for {focus}, and how would you explain its most
+important failure modes?
+
+**What the interviewer is testing:** Whether you can connect metrics, error analysis, guardrails, and
+production risk.
+
+**Strong answer:** Define a primary metric, guardrail metrics, slice analysis, and a hard-example
+set. Explain false positives, false negatives, latency or cost failures, privacy risks, and what
+human review should handle.
+
+**Weak answer:** Report one aggregate score and treat it as proof that the system is ready.
+
+**Follow-up questions:**
+
+- How would you detect a regression after release?
+- Which segment would you inspect first?
+- What would make the evaluation set untrustworthy?
+
+**Common traps:** Confusing correlation with impact, overlooking delayed labels, and failing to
+calibrate confidence.
+
+### Question 3: Production Design and Communication
+
+**Question:** How would you move a solution for {focus} from prototype to production, and how would
+you explain the tradeoffs to a non-technical stakeholder?
+
+**What the interviewer is testing:** Whether you understand ownership after launch.
+
+**Strong answer:** Separate offline and online paths, version data and models, add monitoring and
+rollback, define escalation, and explain tradeoffs between quality, latency, cost, privacy, and user
+trust.
+
+**Weak answer:** Stop at a notebook result or architecture sketch without deployment, monitoring, or
+support plans.
+
+**Follow-up questions:**
+
+- What should be logged and what should not be logged?
+- What happens when confidence is low?
+- How would you roll back a bad release?
+
+**Common traps:** Forgetting operational ownership, treating model output as always safe, and
+communicating metrics without business context.
+
+## Mini Exercise
+
+Pick one project from this repository and give a five-minute answer using this structure: clarify,
+baseline, data, metric, failure modes, production plan, and tradeoff summary. Rewrite the weakest
+part until it is specific enough to defend.
+
+## Diagram
+
+```mermaid
+flowchart LR
+    A[Clarify] --> B[Baseline]
+    B --> C[Data and model]
+    C --> D[Evaluation]
+    D --> E[Production controls]
+    E --> F[Stakeholder explanation]
+```
+"""
+
+def cheatsheet_body(path: Path) -> str:
+    title = title_from_filename(path)
+    topic = title.replace(" Cheatsheet", "")
+    return f"""# {title}
+
+## Intuition
+
+{topic} is easiest to revise as a decision checklist. For any concept, ask what problem it solves,
+what data or signal it needs, how it is evaluated, and what can fail in production.
+
+## Explanation
+
+Use this page as a fast reference for the ideas, metrics, traps, and answer structures connected to
+{topic}. The goal is not to memorize isolated definitions. The goal is to move quickly from concept
+to example, then from example to interview-ready reasoning.
+
+## Why It Matters
+
+Interviewers and real teams both look for the same signal: can you connect a technical idea to a
+measurable decision, defend a baseline, and explain tradeoffs clearly. {topic} is useful only when it
+helps you reason about data quality, model behavior, evaluation, cost, latency, or user impact.
+
+## Example
+
+If you are asked about {topic}, start with a concrete workflow such as search, recommendations,
+fraud review, support routing, document retrieval, or model monitoring. Name the input, output,
+baseline, metric, and one failure mode before adding detail.
+
+## High-Yield Checklist
+
+| Question | What a strong answer includes |
+| --- | --- |
+| What problem is being solved? | User, decision, input, output, and constraints |
+| What is the baseline? | A simple measurable reference such as rules, majority class, linear model, lexical search, or retrieval |
+| What metric matters? | A primary metric tied to the decision plus guardrails for safety, latency, cost, or fairness |
+| What can go wrong? | Leakage, drift, bias, missing data, poor calibration, overfitting, or unsafe automation |
+| What happens in production? | Monitoring, rollback, ownership, retraining triggers, and human escalation |
+
+## Interview Angle
+
+Use this answer shape: define the concept, give a small example, identify the baseline, choose the
+metric, name the failure mode, and explain what you would monitor after launch.
+
+## Common Mistakes
+
+- Reciting definitions without a concrete user decision.
+- Skipping the baseline and starting with a complex model.
+- Reporting one metric without segment or failure analysis.
+- Ignoring data leakage, drift, privacy, latency, cost, or rollback.
+- Treating a polished demo as proof of production readiness.
+
+## Mini Exercise
+
+Explain {topic} in two minutes. Record the answer and check whether it included problem framing,
+baseline, metric, failure mode, and production plan.
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A[Frame problem] --> B[Choose baseline]
+    B --> C[Evaluate]
+    C --> D[Inspect failures]
+    D --> E[Improve or simplify]
+    E --> F[Monitor]
+```
+"""
+
+def capstone_body(path: Path) -> str:
+    title = title_from_filename(path)
+    project_label = sentence_label(title)
+    article = indefinite_article(project_label)
+    domain, dataset, baseline, advanced, metric = CAPSTONE_DETAILS.get(
+        content_slug(path),
+        (project_label, "project-specific data and labels", "simple baseline", "improved model or retrieval system", "task quality and reliability"),
+    )
+    return f"""# {title}
+
+## Goal
+
+Build a focused {project_label} that demonstrates practical machine learning engineering: problem
+framing, data handling, a measurable baseline, an improved approach, evaluation, communication, and
+production thinking.
+
+## Why This Project Matters
+
+This project is useful because {domain} work forces you to connect model quality with user impact.
+The strongest portfolio version shows not only a model score, but also data assumptions, error
+analysis, monitoring needs, and the tradeoffs behind the final design.
+
+## Intuition
+
+Think of the project as a small production system. The model is one component. The surrounding work
+defines the user decision, validates the data, compares against a baseline, measures failure modes,
+and explains when the system should ask for human review.
+
+## Explanation
+
+Use {dataset}. Start with this baseline: {baseline}. Compare it with {advanced}. Keep the data split,
+features, model version, and evaluation script easy to reproduce. Write down every assumption that
+would change if the system had real users.
+
+## Example Use Case
+
+A realistic version of this project could help a team make a decision in {domain}. The system should
+show the input, output, confidence or score, and one explanation of why the output is reasonable or
+where it might fail.
+
+## System Shape
+
+```mermaid
+flowchart LR
+    A[Problem framing] --> B[Dataset]
+    B --> C[Exploration]
+    C --> D[Baseline]
+    C --> E[Improved approach]
+    D --> F[Evaluation report]
+    E --> F
+    F --> G[Demo or service]
+    G --> H[Monitoring plan]
+```
+
+## Dataset Idea
+
+Use {dataset}. If a public dataset is not available, create a small synthetic dataset that preserves
+the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
+cases.
+
+## Step-by-Step Implementation Plan
+
+1. Write the product problem, target user, and success metric.
+2. Create or collect the dataset and document each column or field.
+3. Perform exploratory analysis and identify data quality risks.
+4. Build the baseline: {baseline}.
+5. Train or configure the improved approach: {advanced}.
+6. Compare both approaches on the same split.
+7. Analyze errors by segment and severity.
+8. Package a small demo script, notebook, or API.
+9. Add a model card style summary covering intended use, limits, risks, and monitoring.
+10. Prepare a two-minute interview explanation.
+
+## Evaluation
+
+Use {metric}. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
+where the system succeeds, fails, and should defer to a human.
+
+## Common Mistakes
+
+- Starting with the advanced approach before measuring the baseline.
+- Choosing a metric that does not match the user decision.
+- Ignoring data leakage, missing values, drift, or delayed labels.
+- Showing only aggregate results without segment analysis.
+- Leaving out monitoring, rollback, privacy, or ownership.
+
+## Resume Bullet Points
+
+- Built {article} {project_label} with documented data pipeline, baseline, model comparison, and evaluation.
+- Improved {metric} while adding error analysis and production risk assessment.
+- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+
+## Interview Angle
+
+Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
+biggest lesson from error analysis. End with what you would do next if the project had real users.
+
+## Mini Exercise
+
+Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
+deployment path, simplify the project until you can.
+"""
+
 def apply_folder_readmes() -> None:
     for folder in MAJOR_FOLDERS:
         write(ROOT / folder / "README.md", folder_readme(folder))
@@ -764,6 +1316,21 @@ def apply_case_studies_and_mocks() -> None:
             existing_nav = text[text.rfind(marker) + 1 :]
         write(path, mock_body(path) + "\n\n" + existing_nav)
 
+def apply_interview_prep_cheatsheets_and_capstones() -> None:
+    body_functions = {
+        "interview-prep": interview_prep_body,
+        "cheatsheets": cheatsheet_body,
+        "capstone-projects": capstone_body,
+    }
+    for folder, body_function in body_functions.items():
+        for path in learning_markdown_files(folder):
+            existing_nav = navigation_block(path, ROOT / "README.md", ROOT / "README.md")
+            text = read(path)
+            marker = "\n---\n## Navigation\n"
+            if marker in text:
+                existing_nav = text[text.rfind(marker) + 1 :]
+            write(path, body_function(path) + "\n\n" + existing_nav)
+
 def normalize_repository_text() -> None:
     text_suffixes = {".md", ".py", ".txt", ".mmd", ".ipynb"}
     for path in ROOT.rglob("*"):
@@ -793,6 +1360,7 @@ def main() -> int:
     apply_root_readme()
     apply_folder_readmes()
     apply_case_studies_and_mocks()
+    apply_interview_prep_cheatsheets_and_capstones()
     apply_navigation()
     normalize_root_markdown_without_navigation()
     normalize_repository_text()

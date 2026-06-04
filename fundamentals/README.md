@@ -26,7 +26,7 @@ Read the numbered Markdown files in ascending order. They are arranged from foun
 | 7 | [Models Parameters Hyperparameters](07-models-parameters-hyperparameters.md) |
 | 8 | [Loss Functions And Optimization](08-loss-functions-and-optimization.md) |
 | 9 | [Generalization](09-generalization.md) |
-| 10 | [End To End ML Workflow](10-end-to-end-ml-workflow.md) |
+| 10 | [End-to-End ML Workflow](10-end-to-end-ml-workflow.md) |
 
 ## What You Should Know After Finishing
 

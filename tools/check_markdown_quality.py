@@ -56,6 +56,17 @@ FORBIDDEN_ROOT_FILES = [
     phrase("AG", "ENTS.md"),
 ]
 
+EXPECTED_ROOT_FILES = [
+    "README.md",
+    "ROADMAP.md",
+    "STUDY_PLAN.md",
+    "INTERVIEW_GUIDE.md",
+    "PROJECTS.md",
+    "GLOSSARY.md",
+    "REPO_INDEX.md",
+    "LICENSE",
+]
+
 BANNED_PATTERNS = [
     re.compile(pattern, re.IGNORECASE)
     for pattern in [
@@ -70,7 +81,27 @@ BANNED_PATTERNS = [
     ]
 ]
 
+LOW_QUALITY_PATTERNS = [
+    (
+        re.compile(phrase("turns raw data or documents into a useful"), re.IGNORECASE),
+        "generic case study problem statement",
+    ),
+    (
+        re.compile(r"\bscenario\s+[123]\b", re.IGNORECASE),
+        "placeholder interview scenario heading",
+    ),
+    (
+        re.compile(r"\bend-to-end\s+end to end\b", re.IGNORECASE),
+        "duplicated end-to-end phrasing",
+    ),
+    (
+        re.compile(r"\bsystem system\b", re.IGNORECASE),
+        "duplicated system wording",
+    ),
+]
+
 REQUIRED_ROOT_SECTIONS = [
+    "Purpose",
     "Start Here",
     "Beginner Path",
     "Deep Study Path",
@@ -128,6 +159,42 @@ MOCK_REQUIRED = [
     "self-review checklist",
 ]
 
+INTERVIEW_PREP_REQUIRED = [
+    "how to use this file",
+    "core preparation checklist",
+    "interview question sections",
+    "strong answer",
+    "weak answer",
+    "follow-up questions",
+    "common traps",
+    "mini exercise",
+]
+
+CHEATSHEET_REQUIRED = [
+    "intuition",
+    "explanation",
+    "why it matters",
+    "example",
+    "interview angle",
+    "common mistakes",
+    "mini exercise",
+]
+
+CAPSTONE_REQUIRED = [
+    "goal",
+    "why this project matters",
+    "intuition",
+    "explanation",
+    "example use case",
+    "system shape",
+    "dataset idea",
+    "step-by-step implementation plan",
+    "evaluation",
+    "common mistakes",
+    "interview angle",
+    "mini exercise",
+]
+
 def markdown_files() -> list[Path]:
     return sorted(
         path
@@ -174,6 +241,11 @@ def check_forbidden_root_files(errors: list[str]) -> None:
     for name in FORBIDDEN_ROOT_FILES:
         if (ROOT / name).exists():
             report(errors, f"{name} should not exist in this personal learning repository.")
+
+def check_expected_root_files(errors: list[str]) -> None:
+    for name in EXPECTED_ROOT_FILES:
+        if not (ROOT / name).exists():
+            report(errors, f"{name} is expected at repository root.")
 
 def check_major_folder_readmes(errors: list[str]) -> None:
     for folder in MAJOR_FOLDERS:
@@ -260,6 +332,27 @@ def check_content_sections(errors: list[str]) -> None:
         for section in MOCK_REQUIRED:
             if not section_present(text, section):
                 report(errors, f"{path.relative_to(ROOT)} missing mock section: {section}.")
+    for path in numbered_markdown("interview-prep"):
+        text = path.read_text(encoding="utf-8")
+        for section in INTERVIEW_PREP_REQUIRED:
+            if not section_present(text, section):
+                report(errors, f"{path.relative_to(ROOT)} missing interview prep section: {section}.")
+        if "```mermaid" not in text:
+            report(errors, f"{path.relative_to(ROOT)} should include a Mermaid diagram.")
+    for path in numbered_markdown("cheatsheets"):
+        text = path.read_text(encoding="utf-8")
+        for section in CHEATSHEET_REQUIRED:
+            if not section_present(text, section):
+                report(errors, f"{path.relative_to(ROOT)} missing cheatsheet section: {section}.")
+        if "```mermaid" not in text:
+            report(errors, f"{path.relative_to(ROOT)} should include a Mermaid diagram.")
+    for path in numbered_markdown("capstone-projects"):
+        text = path.read_text(encoding="utf-8")
+        for section in CAPSTONE_REQUIRED:
+            if not section_present(text, section):
+                report(errors, f"{path.relative_to(ROOT)} missing capstone section: {section}.")
+        if "```mermaid" not in text:
+            report(errors, f"{path.relative_to(ROOT)} should include a Mermaid diagram.")
     for path in numbered_markdown("quizzes"):
         text = path.read_text(encoding="utf-8")
         if len(re.findall(r"^\d+\.", text, flags=re.MULTILINE)) < 20:
@@ -280,6 +373,9 @@ def check_markdown_basics(errors: list[str]) -> None:
         for pattern in BANNED_PATTERNS:
             if pattern.search(text):
                 report(errors, f"{rel} contains banned phrase matching {pattern.pattern!r}.")
+        for pattern, description in LOW_QUALITY_PATTERNS:
+            if pattern.search(text):
+                report(errors, f"{rel} contains {description}.")
         for line_number, line in enumerate(text.splitlines(), start=1):
             if "TODO" in line and "exercise" not in line.lower():
                 report(errors, f"{rel}:{line_number} contains a TODO placeholder outside an exercise.")
@@ -295,6 +391,7 @@ def main() -> int:
     errors: list[str] = []
     check_root_readme(errors)
     check_forbidden_root_files(errors)
+    check_expected_root_files(errors)
     check_major_folder_readmes(errors)
     check_numbering(errors)
     check_notebook_numbering(errors)

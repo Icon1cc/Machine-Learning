@@ -17,7 +17,7 @@ Read the numbered Markdown files in ascending order. They are arranged from foun
 
 | Order | File |
 | --- | --- |
-| 1 | [End To End Classical ML Project](01-end-to-end-classical-ml-project.md) |
+| 1 | [End-to-End Classical ML Project](01-end-to-end-classical-ml-project.md) |
 | 2 | [House Price Prediction](02-house-price-prediction.md) |
 | 3 | [Fraud Detection System](03-fraud-detection-system.md) |
 | 4 | [Customer Churn Prediction](04-customer-churn-prediction.md) |

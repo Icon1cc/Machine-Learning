@@ -4,6 +4,12 @@ This repository is a personal learning path for machine learning, AI engineering
 agents, production AI, and interview preparation. It is designed as a practical engineering knowledge
 base with lessons, case studies, quizzes, cheatsheets, mocks, notebooks, and runnable examples.
 
+## Purpose
+
+The purpose of this repository is to make machine learning study concrete. It connects concepts to
+examples, interview prompts, diagrams, exercises, case studies, and portfolio projects so each topic
+can be reviewed, practiced, and explained clearly.
+
 ## Who This Repository Is For
 
 - Software engineers moving into AI or machine learning engineering.

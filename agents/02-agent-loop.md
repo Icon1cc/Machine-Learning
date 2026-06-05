@@ -45,6 +45,21 @@ search keeps returning irrelevant pages. The loop made multi-step research possi
 - No progress check, so the agent repeats the same failing action.
 - Hiding tool errors from the model instead of feeding them back for correction.
 
+## Production Concerns
+
+A progress detector compares the last two or three observations and
+flags repetition: same tool plus same arguments twice in a row, or
+identical observation hashes, mean the agent is stuck. Trigger a
+forced replan or escalate to human. The context-cost curve is
+super-linear: doubling steps more than doubles spend because the
+context grows. At scale, cap context bytes (not just steps) and
+summarize aggressively past a threshold. Partial failure on tool
+calls is its own pattern: a tool that returns a transient error gets
+one or two retries with backoff, then surfaces the failure to the
+model as an observation. Permanent failures (4xx) skip retry and
+move on. SLAs degrade gracefully: a missed step budget returns the
+best partial answer with a clear caveat rather than a hard error.
+
 ## Interview Angle
 
 **Question:** How do you stop an agent from looping forever?

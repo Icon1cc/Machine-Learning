@@ -44,6 +44,20 @@ wandered without structure. Interleaving planning with replanning handled both.
 - Treating chain-of-thought as a guarantee of correctness rather than a heuristic.
 - No progress tracking, so the agent cannot tell it is stuck.
 
+## Production Concerns
+
+Plan invalidation is a metric. Count how often plans fail to survive
+the first observation; high rates mean the planner is hallucinating
+unavailable steps or the environment is more dynamic than assumed.
+Replanning has a cost: each replan is another model call plus more
+context, so cap replans per task (typically 2-3) and escalate beyond
+that. Multi-agent plan coordination introduces races: two agents
+acting on overlapping subtasks duplicate work or step on each other.
+Either serialize the planning step (one planner, multiple executors)
+or use distributed locking on shared resources. Track time-from-plan-
+to-completion alongside steps; a plan that takes 8 minutes but the
+SLA is 2 is broken even if it eventually succeeds.
+
 ## Interview Angle
 
 **Question:** Plan-and-execute or ReAct for an agent?

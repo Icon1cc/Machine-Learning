@@ -1,100 +1,76 @@
-# Ab Testing
+# A/B Testing
 
 ## Beginner-Friendly Intuition
 
-Ab Testing is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to reason under uncertainty, measure evidence, and avoid drawing claims the data cannot support. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
-
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+An A/B test is a randomized experiment that splits users into a control and a treatment group, applies a change to the treatment, and measures the difference in a chosen metric. Randomization makes the groups comparable; the only systematic difference should be the treatment.
 
 ## Formal Explanation
 
-A/B testing estimates the effect of a product change by randomly assigning comparable users to variants. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+Define the primary metric, the unit of randomization, and the duration. Compute sample size using `n ≈ 2 σ² (z_{α/2} + z_β)² / Δ²` where `Δ` is the minimum detectable effect. Run the test long enough to reach the planned size before peeking. Use stratified or blocked randomization to reduce variance. Analyze with a t-test for continuous metrics or a proportion test for binary; correct for multiple comparisons across secondary metrics. Watch for SUTVA violations (treatment effect spilling between users) and novelty/seasonality effects.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect an experiment, metric, or uncertainty question to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Most product changes that look good in dashboards are noise; A/B tests filter the real wins. Big tech runs thousands of experiments per quarter. Engineers who can design and analyze them rigorously protect the company from shipping changes that hurt users.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. Define the user, the metric, and the minimum effect that matters.
+2. Compute required sample size for desired power.
+3. Randomize at the right unit (user, account, session) so spillover does not contaminate.
+4. Pre-register hypotheses, sample size, and stopping rules.
+5. Run for the planned duration; do not peek and stop early.
+6. Analyze with confidence intervals and a check on guardrail metrics (latency, errors, revenue).
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A search team A/B tests a new ranker. Click-through rate rises 1 percent (significant) but revenue drops 2 percent (significant). Looking only at the primary metric would have shipped a clearly bad change. Tracking guardrails saved the team from a regression.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+## SUTVA, Switchback, and Long-Term Metrics
+
+**SUTVA (Stable Unit Treatment Value Assumption)** is the assumption that one user's treatment does not affect another user's outcome. Standard A/B tests rely on it. SUTVA breaks when there are network effects: a treated user posts content that affects untreated users' feeds, or treated drivers in a marketplace change prices for untreated riders. When SUTVA breaks, the difference between treatment and control underestimates the true effect of a full rollout because the control is partially "treated" through spillovers.
+
+**Switchback tests** address SUTVA violations in marketplaces and ride-hailing. Instead of randomizing users, you randomize time windows within a region: in San Francisco, on hour-long blocks, alternate treatment and control globally. Every user in that region experiences both arms, but at different times. The test still measures a marginal effect, with assumptions about temporal stability. Use switchback when treatment affects shared system state (price, supply, queue depth) and per-user randomization is contaminated.
+
+**Long-term metrics** like 90-day retention, lifetime value, and trust take weeks or months to mature. Three strategies. First, **proxy metrics**: identify a fast-moving leading indicator (e.g., week-1 retention) that is known to correlate with the long-term metric, and gate the launch on the proxy with the long-term metric tracked as a follow-up. Second, **cohort holdout**: hold a small percentage of users out of the launch permanently and measure the long-term metric for that cohort over time. Third, **surrogate index**: train a model to predict the long-term metric from short-term signals and use the prediction as the experiment's outcome (with all the usual caveats about model drift). Each strategy trades one form of uncertainty for another; pick based on how costly a wrong launch is.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Stopping early when results look good (peeking inflates false positives).
+- Randomizing at the wrong unit (treating sessions when users straddle treatments).
+- Ignoring power and chasing tiny effects with too-small samples.
+- Skipping pre-registration and trying many metrics until one is significant.
+- Forgetting novelty effects: the first week may not represent steady state.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Walk through how you would design an A/B test for a new recommendation algorithm.
 
-**Question:** Explain Ab Testing, then describe how you would use it in a real system.
+**Strong answer:** Define the metric (e.g., long-term watch time per user) and minimum lift that matters. Compute sample size for 80 percent power. Randomize at user level to avoid contamination. Run a pre-launch sanity check on a small percentage of traffic. Pre-register hypotheses. Run for at least a week to capture day-of-week effects. Analyze with CI plus guardrails (latency, ad revenue, complaints). Decide based on practical and statistical significance.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Quote 'p < 0.05 ship it' without effect size, sample size, or guardrails.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What is the difference between SUTVA and SUTPA?
+- When do you need a switchback test instead of a parallel A/B?
+- How do you handle long-term metrics that take weeks to mature?
+- What is a guardrail metric and why does it matter?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick a feature you ship. Design the A/B test: metric, randomization unit, sample size, duration, guardrails, decision rule. One page.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Ab Testing]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    U[Users] --> R[Randomize]
+    R --> A[Control]
+    R --> B[Treatment]
+    A --> M[Metric]
+    B --> M
+    M --> St[Stat test + CI]
+    St --> Dec[Ship / kill / iterate]
 ```
 
 ---

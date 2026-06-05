@@ -2,99 +2,78 @@
 
 ## Beginner-Friendly Intuition
 
-Hypothesis Testing is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to reason under uncertainty, measure evidence, and avoid drawing claims the data cannot support. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
-
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+Hypothesis testing asks whether an observed effect is real or could be noise. You set up a null (no effect) and an alternative, compute a test statistic, and ask how likely the data would be if the null were true. If unlikely (small p-value), you reject the null.
 
 ## Formal Explanation
 
-Hypothesis testing asks whether observed data is surprising under a stated null assumption. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+Two-sample tests (t-test, z-test, Mann-Whitney) compare distributions. Categorical data uses chi-square. The p-value is `P(observed or more extreme | H0)`. A significance level `α` (often 0.05) sets the type-I error rate. Power is `1 - P(type-II error)`; sample size, effect size, and variance set achievable power. Multiple testing inflates false positives; correct with Bonferroni, BH, or sequential methods.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect an experiment, metric, or uncertainty question to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Every A/B test, every claim of a model improvement, every experiment in the wild lives or dies by hypothesis testing. Misusing it produces fake wins, wasted resources, and embarrassing rollbacks.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. State `H0` and `H1` precisely.
+2. Pick the right test based on the data (continuous, categorical, paired, sample size).
+3. Estimate sample size for desired power before running.
+4. Compute the test statistic and p-value.
+5. Decide using both p-value and effect size; report a confidence interval.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A team A/B tests a UI change with 500 users per arm. p-value is 0.03 with a 0.5 percent lift. The change is statistically significant but the effect is tiny and the CI nearly includes zero. Shipping it provides almost no business value and adds maintenance burden. Statistical significance is necessary, not sufficient.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+## Sample Size and Power: Numeric Example
+
+For a two-sample test of means with equal variances, the rough sample size per arm is `n ≈ 2 σ² (z_{α/2} + z_β)² / Δ²`. Set `α = 0.05` (so `z_{α/2} = 1.96`), power = 80 percent (so `z_β = 0.84`). Then `(z_{α/2} + z_β)² ≈ 7.85`. If your metric has `σ = 1.0` and you want to detect a lift of `Δ = 0.05` (a 5 percent change in the standard-deviation units), you need `n ≈ 2 * 1 * 7.85 / 0.0025 = 6,280` per arm. To detect `Δ = 0.025`, the sample size quadruples to roughly 25,120 per arm; halving the effect size requires four times the data. This is why teams that chase small effects need either large traffic or variance reduction (CUPED, stratification).
+
+## Multiple Testing Decision Tree
+
+Different methods fit different scales:
+
+- **Few hypotheses, want to control familywise error rate (probability of any false positive).** Use **Bonferroni**: divide α by the number of tests. Conservative but simple. Fine when you have 5 to 20 pre-registered tests.
+- **Many hypotheses, want to control false discovery rate (expected proportion of false positives among rejections).** Use **Benjamini-Hochberg (BH)**. Sort p-values, reject the top `k` such that the `k`-th p-value is below `k * α / m` where `m` is the total. Less conservative than Bonferroni; appropriate for screening hundreds of features for an effect.
+- **Sequential or interim looks at an ongoing experiment.** Use **alpha-spending**, **group sequential boundaries**, or **mSPRT** (mixed sequential probability ratio test). Naively peeking at p-values inflates the false-positive rate well above α; sequential methods correct for it.
+
+A common mistake is applying Bonferroni when BH is appropriate (you over-correct and miss real effects), or skipping correction entirely when running many secondary metrics in an A/B test (you find spurious wins).
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Confusing p-value with `P(H0 is true)`.
+- Peeking at results and stopping early (inflates false positives).
+- Ignoring power; small samples cannot detect small effects.
+- Multiple testing without correction.
+- Running a one-sided test to chase significance.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** What is a p-value and what are its common misinterpretations?
 
-**Question:** Explain Hypothesis Testing, then describe how you would use it in a real system.
+**Strong answer:** A p-value is the probability of observing data at least as extreme as ours, assuming the null hypothesis. It is not the probability the null is true, not the probability the effect is real, and not the magnitude of the effect. Pair it with a confidence interval and a practical significance threshold.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Define a p-value as the probability the null is true.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What is the difference between type-I and type-II error?
+- Why is `p < 0.05` a convention rather than a law?
+- How do you correct for multiple comparisons?
+- What is the difference between statistical and practical significance?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Take any A/B test result you have. Recompute the test, the CI, and the practical effect size. Decide whether the win is worth shipping.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Hypothesis Testing]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    H0[Null H0] --> T[Test stat]
+    H1[Alternative H1] --> T
+    D[Data] --> T
+    T --> P[p-value]
+    P --> Dec{p < α and<br/>effect meaningful?}
 ```
 
 ---

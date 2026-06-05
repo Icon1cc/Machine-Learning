@@ -73,8 +73,13 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with rules and TF-IDF linear models with human review for low confidence. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with rules and TF-IDF linear models with bigram features
+and class-weighted loss for imbalance. Add human review for low
+confidence. Length-based and structure-based features (number
+of sections, presence of tables) help on document-style data.
+The baseline should be easy to explain, cheap to run, and
+strong enough to expose data quality problems before advanced
+modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +175,11 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Treating multi-label as multi-class; documents often belong to
+  multiple categories and forcing single-label hides recall.
+- Long-document truncation: BERT-style 512-token limits silently
+  drop content; use sliding windows or hierarchical encoders for
+  long documents.
 
 ---
 ## Navigation

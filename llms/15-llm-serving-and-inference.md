@@ -17,6 +17,28 @@ generated, cutting perceived latency. Other levers: quantization (smaller, faste
 decoding, and prompt caching for shared prefixes. Metrics are time-to-first-token, tokens-per-second, and
 cost per request.
 
+**Speculative decoding** uses a small "draft" model to predict the next 4-8 tokens; the large "target"
+model verifies them in a single forward pass and accepts the prefix that matches its own distribution.
+On accepted tokens you got several decodes for the cost of one large-model forward pass; on rejection the
+target model emits the next token normally. Typical 2-3x decode-throughput improvement when the draft
+model is fast and reasonably aligned with the target. Standard in modern serving stacks (vLLM, TensorRT-LLM).
+
+**Batch size tuning** is the throughput-vs-latency lever. Two regimes:
+
+- **Latency-bound** (low traffic, strict per-request time). Small batch (1-4); each request gets nearly
+  full GPU. Cost-per-request high.
+- **Throughput-bound** (high traffic, fixed budget). Large batch (32-128 with continuous batching);
+  GPU saturated; per-request latency rises but cost-per-token drops 5-20x.
+
+**Prefill-decode separation** is a 2024+ pattern: schedule prefill (CPU-bound, parallel, high arithmetic
+intensity) and decode (memory-bandwidth-bound, sequential) on different replicas tuned for each phase.
+This raises overall GPU utilization and lets you size hardware differently for each. Vendors: vLLM,
+SGLang, NVIDIA Triton with TensorRT-LLM, AWS Bedrock under the hood.
+
+**Hardware choice.** A100 80GB for general-purpose serving; H100 for higher throughput and FP8 support;
+L4/L40S for cost-optimized smaller models; AMD MI300X as an emerging alternative. The price-performance
+gap can be 5-10x; benchmark before committing.
+
 ## Why It Matters in Real Jobs
 
 Latency and cost make or break an LLM product. A chat that takes 9 seconds to start responding loses users;

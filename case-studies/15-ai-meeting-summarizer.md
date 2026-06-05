@@ -73,8 +73,14 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with extractive notes using transcript sections and keyword action detection. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with extractive notes: take the top-N highest-importance
+sentences (TextRank or similar) per transcript section, plus
+keyword-based action-item detection ("we need to", "I will",
+"action item"). Speaker-attributed snippets. The baseline is
+shippable and produces useful notes even before generation
+quality matters. The baseline should be easy to explain, cheap
+to run, and strong enough to expose data quality problems
+before advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +176,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Hallucinated action items that no participant said; faithfulness
+  must be measured with citations to transcript spans, not just
+  fluency or rouge.
+- Speaker attribution errors that make the summary unusable for
+  decision tracking; speaker diarization quality is its own
+  metric to track.
 
 ---
 ## Navigation

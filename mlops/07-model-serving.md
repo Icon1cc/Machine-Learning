@@ -45,6 +45,24 @@ a table. Matching the serving mode to the need keeps both fast and cost-effectiv
 - Computing features in the serving path differently than in training.
 - No graceful degradation when the model or a dependency fails.
 
+## Production Concerns
+
+Serving SLAs decompose end-to-end latency into a budget per
+component (network 5ms, feature lookup 10ms, model 50ms,
+postprocess 5ms). Each component has its own monitoring and budget
+alarms. Autoscaling on QPS plus a buffer for tail traffic keeps p99
+honest; reserved capacity for SLA reliability prevents cold-start
+penalties at peak. Cost ceilings are enforced: per-request cost
+multiplied by QPS gives the hourly bill, and a runaway alert fires
+on cost overrun. Model-version mismatch between rollouts is a
+classic incident: a feature schema change ships in serving before
+the new model artifact, so old model sees new schema. Serving and
+the model registry are co-versioned; an atomic deploy ships both
+together. Graceful degradation has a documented hierarchy: live
+model -> cached prior prediction -> simple rule -> static default.
+Each fallback returns a clearly-labeled response so downstream
+systems can react.
+
 ## Interview Angle
 
 **Question:** How would you serve this model?

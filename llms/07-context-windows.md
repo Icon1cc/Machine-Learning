@@ -15,6 +15,21 @@ length, so larger windows are expensive in compute and memory. Even within the w
 "lost in the middle" effect: information at the start and end is used more reliably than information buried
 in the middle. So effective context is about both fitting and positioning the important content well.
 
+The **lost-in-the-middle** effect (Liu et al., 2023) is position-dependent and not uniform: the curve looks
+like a U, with strong recall on content at the very start and at the very end, sharp degradation in the
+middle, and worst recall around 60-75 percent through the input. The effect is most pronounced for
+relevant facts that need to be retrieved verbatim; less pronounced for stylistic or summarization tasks.
+Modern long-context models (LLaMA-3-128K, Claude 200K, GPT-4 128K) mitigate but do not eliminate it; the
+practical advice is **never bury the answer in the middle**. RoPE and ALiBi positional encodings allow some
+**context extrapolation** (a model trained to 4K can sometimes generalize to 8K-32K with quality
+degradation), but production systems should not rely on extrapolation past the trained window.
+
+A useful **budget calculation**: if your model has a 32K context and your system prompt is 800 tokens, your
+RAG retrieval is 4K tokens, and your conversation history runs 2K tokens, you have ~25K tokens left for the
+output. Most chat assistants reserve at least 1K-4K for the response; verify the math when sizing
+retrieval. Output tokens compete with input tokens for the same budget; chat with multi-turn responses can
+silently squeeze the answer space if you do not track it.
+
 ## Why It Matters in Real Jobs
 
 Context limits drive real design choices: how much to retrieve in RAG, how to summarize long conversations,

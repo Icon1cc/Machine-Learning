@@ -45,7 +45,15 @@ languages use more tokens per word.
 - Confusing tokens with words or characters when estimating cost and context.
 - Forgetting that code, numbers, and non-English text tokenize inefficiently.
 - Ignoring tokenization when a prompt unexpectedly exceeds the context window.
-- Assuming token counts are the same across different models (vocabularies differ).
+- Assuming token counts are the same across different models. Vocabularies and merge tables differ;
+  the same string can be 800 tokens in GPT-4 and 1100 in LLaMA-3, or vice versa. Always count with
+  the actual model's tokenizer.
+- Forgetting that special tokens (BOS, EOS, system tags, chat markers like `<|im_start|>`) count
+  against the budget too. A formatted chat with 6 turns can lose 40-60 tokens to formatting alone.
+- Tokenizing long numbers naively. "1234567890" might split into 4-6 pieces; arithmetic gets harder
+  for the model. Comma-formatted numbers and scientific notation often tokenize more compactly.
+- Assuming rare-word tokenization is graceful. A misspelled brand name or a technical acronym can
+  fragment into 5+ pieces, inflating cost and confusing retrieval.
 
 ## Interview Angle
 

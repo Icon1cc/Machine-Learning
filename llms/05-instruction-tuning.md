@@ -16,6 +16,18 @@ the instruction data matter more than raw quantity; a smaller, cleaner set of we
 beats a larger noisy one. SFT typically precedes preference optimization (RLHF or DPO), which further refines
 helpfulness and safety.
 
+In practice, **SFT data saturates surprisingly fast**. The LIMA paper (Zhou et al., 2023) showed that
+1,000 carefully-curated instruction-response pairs were enough to align a strong base model on
+general-purpose chat. Production teams typically work in the **1K-10K range for narrow tasks** (a specific
+output format or domain) and **10K-100K for general assistant behavior**. Beyond that, returns diminish
+sharply on a fixed compute budget. The bigger risk is **catastrophic forgetting**: aggressive SFT on a
+narrow task can degrade general reasoning. Mitigations include using a low learning rate (1e-5 to 1e-6 for
+full SFT, 1e-4 for LoRA), training for fewer epochs (1-3 typical), mixing in a small fraction of
+diverse general data ("rehearsal"), and preferring **LoRA or QLoRA** over full fine-tuning when the
+adapter weights can be loaded only when needed. The cleanest framing for the SFT vs RAG decision: SFT
+shifts **distribution of behavior** (format, tone, narrow skill); it does not reliably teach **new facts**.
+Facts that change should live in retrieval; behavior that should be consistent can live in the SFT mix.
+
 ## Why It Matters in Real Jobs
 
 Instruction tuning is why you can prompt a model in plain language and get useful behavior. For teams, a

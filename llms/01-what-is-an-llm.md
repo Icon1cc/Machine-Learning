@@ -25,6 +25,14 @@ costs money per token. Real value comes from wrapping it in a task contract, gro
 when facts matter, evaluating it, and controlling cost and latency. "Use a bigger model" is rarely the
 right first move.
 
+A useful production frame is the **cost of a wrong answer**. A misrouted support ticket costs minutes; a
+hallucinated medical dosage costs lives. The same model is appropriate for one and unacceptable for the
+other without a verification layer. Match the controls (grounding, abstention, human review) to the cost.
+**Temperature** controls how diverse the sampling is: at `temperature = 0` the model is near-deterministic
+and repeats answers; at `temperature = 1.0` it samples freely and the same prompt produces different
+answers. Most production systems run factual tasks at `temperature = 0` to 0.3 and creative tasks higher.
+Output diversity is a knob, not an accident.
+
 ## How It Works Step by Step
 
 1. **Pretrain:** learn next-token prediction on massive text (the base model).

@@ -7,6 +7,16 @@ prompt, you score by clarifying the task, shipping a prompt baseline, choosing p
 vs tools based on the actual failure, defining evaluation, and covering cost, latency, and safety. Candidates
 who default to "use the biggest model and fine-tune it" lose points.
 
+"Narrowest tool" is a measurable principle: prefer the option with **fewer parameters, lower latency, lower
+cost-per-request, and less operational surface** that still meets the quality bar. Concretely, a 3B
+parameter fine-tuned model beats a 70B prompted one if it hits the same accuracy at a tenth the cost.
+Prompt + RAG beats fine-tuning if the corpus changes weekly. The principle is comparison-driven, not
+guesswork: if asked "why is this narrower," cite the parameter count, the latency, the cost, or the
+operational complexity. For deeper architecture context, see
+[`../rag/01-what-is-rag.md`](../rag/01-what-is-rag.md) on retrieval grounding and
+[`../vector-databases/01-what-is-a-vector-database.md`](../vector-databases/01-what-is-a-vector-database.md)
+on the storage layer.
+
 ## Formal Explanation
 
 The recurring frame for any LLM prompt:

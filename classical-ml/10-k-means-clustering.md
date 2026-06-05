@@ -1,100 +1,190 @@
-# K Means Clustering
+# K-Means Clustering
 
 ## Beginner-Friendly Intuition
 
-K Means Clustering is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to build strong, interpretable baselines for structured data before reaching for larger models. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
+K-means takes a number `k`, picks `k` initial centers, and then alternates two
+steps: assign every point to its nearest center, then move every center to the
+mean of its assigned points. Repeat until nothing moves. The points that share
+a center belong to the same cluster.
 
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+The intuition is gravitational. Each center pulls in the nearby points; once
+points have been assigned, the center drifts to the new center of mass; that
+shift pulls in slightly different points; eventually the system settles. The
+result is `k` blobs whose total "spread" (sum of squared distances to their
+centers) is locally minimized.
+
+K-means is the canonical clustering algorithm. It is fast, simple, and easy to
+explain. It also assumes spherical, equal-sized clusters, gets stuck in local
+minima, and demands you choose `k` ahead of time. Knowing when those
+assumptions break is the difference between using k-means well and producing
+nonsense clusters.
 
 ## Formal Explanation
 
-K-means groups examples by alternating nearest-centroid assignment and centroid updates. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+Given `n` points in `R^d` and a target number of clusters `k`, k-means seeks
+centers `μ_1, ..., μ_k` and an assignment `c: {1...n} -> {1...k}` minimizing
 
-The rigorous version usually includes:
+```
+J = Σ_i ||x_i - μ_{c(i)}||²
+```
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+Lloyd's algorithm:
+
+1. Initialize centers (random or k-means++).
+2. **Assignment step.** `c(i) = argmin_j ||x_i - μ_j||²`. O(nkd).
+3. **Update step.** `μ_j = mean of points assigned to cluster j`.
+4. Repeat 2-3 until assignments stop changing or a max iteration cap is hit.
+
+Each iteration decreases `J`; convergence is guaranteed but only to a local
+minimum.
+
+**k-means++** initialization (Arthur and Vassilvitskii, 2007): pick the first
+center at random; pick each subsequent center with probability proportional to
+the squared distance to the nearest already-chosen center. This gives an
+`O(log k)` factor approximation guarantee in expectation and dramatically
+reduces the chance of bad local minima. It is the default in sklearn.
+
+**Choosing `k`:**
+
+- **Elbow method.** Plot `J` vs `k`. Pick the `k` where the curve bends. Often
+  ambiguous on real data.
+- **Silhouette score.** For each point, `(b - a) / max(a, b)` where `a` is the
+  mean distance to its own cluster and `b` is the minimum mean distance to any
+  other cluster. Average over all points. Higher is better; pick the `k` that
+  maximizes the average silhouette.
+- **Gap statistic.** Compare `J` to what you would get on uniformly random
+  data; pick the smallest `k` where the gap exceeds a threshold.
+- **Domain knowledge.** Often the most reliable: "we have three customer
+  tiers" or "we run experiments at four geographies."
+
+**Mini-batch k-means** uses small random batches to update centers, scaling to
+millions of rows at the cost of slightly worse minima. Useful for large data.
+
+**Complexity:** standard k-means is `O(I n k d)` where `I` is the iteration
+count (typically 10 to 100). It is fast.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a tabular prediction task to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
+K-means lives in three production roles. First, **customer segmentation** for
+analytics dashboards: cluster users by behavior signals to produce
+human-readable cohorts. Second, **vector quantization** in retrieval: cluster
+embeddings into `k` centers, then index by which centroid each vector is
+closest to (the inverted file index in FAISS). Third, **feature engineering**:
+the cluster ID is a useful new feature, and the distance to each centroid can
+be added to a downstream model.
 
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+It loses when clusters are non-convex, of unequal size, or of very different
+density. For non-convex shapes use DBSCAN or HDBSCAN. For unequal sizes use
+Gaussian mixture models. For categorical or mixed data use k-prototypes or
+k-modes. For very high dimensions, reduce dimensionality first (PCA, UMAP) or
+use spectral clustering.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Standardize features.** K-means uses Euclidean distance; one big-scale
+   feature dominates everything else.
+2. **Pick `k`.** Use silhouette or domain knowledge. Run multiple values
+   anyway.
+3. **Use k-means++ initialization.** Default in sklearn. Cheap and worth it.
+4. **Run multiple restarts.** sklearn's `n_init` defaults to 10. Each restart
+   picks a different initialization; the algorithm keeps the lowest-`J`
+   solution.
+5. **Cap iterations.** `max_iter = 300` is the sklearn default. K-means usually
+   converges in 10 to 30 iterations.
+6. **Inspect cluster sizes.** Wildly imbalanced clusters (one cluster with 95
+   percent of the data) usually mean `k` is too high or the data has no
+   natural cluster structure.
+7. **Validate the clusters mean something.** Silhouette score above 0.5 is
+   strong; below 0.25 is weak. Compute per-cluster summaries (mean of each
+   feature) and check they tell a coherent story to a domain expert.
+
+## When K-Means Fails (and What to Use Instead)
+
+- **Non-convex clusters** (concentric rings, spirals): k-means partitions by
+  Voronoi cells, which are convex. Use DBSCAN, spectral clustering, or feature
+  engineering.
+- **Clusters of very different sizes:** the larger cluster's centroid drifts to
+  steal points from the smaller cluster. Use Gaussian mixture models with
+  full covariance, or HDBSCAN.
+- **Categorical data:** Euclidean distance is undefined. Use k-modes or
+  k-prototypes.
+- **Outliers:** k-means is sensitive to extremes. Use k-medoids (PAM) or
+  pre-process to remove outliers.
+- **Unknown `k`:** if you cannot pick `k`, k-means is the wrong tool. Use
+  HDBSCAN.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A subscription product wants to identify usage cohorts among 2M users. Features
+are 14 standardized behavioral signals over the last 30 days. The team runs
+k-means for `k ∈ {3, ..., 10}`. Silhouette peaks at `k = 5` with score 0.41.
+They inspect each cluster's mean profile: power users (12 percent), engaged
+casuals (28 percent), feature-narrow users (33 percent), one-feature users (19
+percent), near-dormant (8 percent). The marketing team builds five separate
+campaigns. Six months later, mini-batch k-means refits weekly on the latest
+30-day windows; cluster IDs become a feature in the churn model and lift AUC
+by 0.02 over the baseline without cluster IDs.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Skipping standardization; the feature with the largest scale dominates.
+- Picking `k` once and trusting it forever. The natural number of clusters
+  drifts with data.
+- Random initialization without `n_init > 1`. Bad seeds produce visibly bad
+  clusters.
+- Reading the cluster IDs as ordinal. The IDs are arbitrary labels, not ranks.
+- Using k-means on data with non-convex cluster structure. Plot first.
+- Treating one-cluster outcomes (one cluster with most points) as a
+  meaningful segmentation.
+- Comparing inertia (`J`) across different `k` values and concluding the lower
+  one is better. `J` always decreases with `k`; that is why the elbow exists.
+- Running k-means on raw text TF-IDF without dimensionality reduction; high
+  dimensionality plus equal Euclidean distance produces meaningless centroids.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Describe Lloyd's algorithm and explain why it converges but only
+to a local minimum.
 
-**Question:** Explain K Means Clustering, then describe how you would use it in a real system.
+**Strong answer:** Lloyd's algorithm alternates two steps: assign each point to
+its nearest centroid, then update each centroid to the mean of its assigned
+points. Both steps strictly decrease the total within-cluster sum of squares
+`J`. The assignment step minimizes `J` over assignments holding centroids
+fixed; the update step minimizes `J` over centroids holding assignments fixed.
+So `J` is monotone decreasing. Since it is bounded below by zero and there are
+finitely many possible assignments (k^n), the algorithm must terminate. But the
+optimization is non-convex: different initializations lead to different
+critical points, all of them local minima of `J`. K-means++ initialization
+gives a probabilistic guarantee that the chosen starting centroids are
+far apart, which empirically reduces the gap between local and global minima.
+Running multiple random restarts (`n_init`) further reduces the chance of a bad
+local minimum.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "It converges because the loss decreases" without addressing
+local vs global or why initialization matters.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What is k-means++ and why does it help?
+- How would you choose `k`?
+- When does k-means fail?
+- What is the time complexity of k-means?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Generate three synthetic 2D datasets: three Gaussian blobs, two concentric
+rings, and three Gaussians of unequal variance. Run k-means with `k = 3` on
+each. Plot the resulting clusters. Note the failure modes.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[K Means Clustering]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    I[Initialize k centroids] --> A[Assign each point to nearest centroid]
+    A --> U[Update centroids to cluster means]
+    U --> C{Converged?}
+    C -- No --> A
+    C -- Yes --> O[Output clusters]
 ```
 
 ---

@@ -2,106 +2,177 @@
 
 ## How to Use This File
 
-Use this page to practice structured interview answers for project selection, scope, metrics, impact framing, and interview-ready explanation. Read each question, answer out
-loud, then compare your response with the strong and weak answer patterns. Keep answers concrete:
-name the user, data, baseline, metric, failure mode, and production plan.
+Three core questions on resume projects for AI and ML roles:
+project selection, scope and impact framing, and interview-
+ready storytelling. Read each, draft your answer, then compare
+with the patterns. Strong answers name specific decisions and
+defensible numbers; weak answers list technologies.
 
 ## Core Preparation Checklist
 
-- Clarify the role, user, decision, and constraints before naming a model.
-- State assumptions about data availability, labels, latency, privacy, and cost.
-- Start with a simple baseline and explain why added complexity is justified.
-- Choose metrics that match the product decision and the cost of mistakes.
-- Discuss leakage, drift, monitoring, rollback, and human review.
-- Communicate tradeoffs in plain language and connect them to user impact.
+- Pick projects that demonstrate a production tradeoff (cost,
+  latency, fairness, security, governance), not just modeling.
+- Have one project that shows the full pipeline (data,
+  baseline, model, evaluation, deployment, monitoring) end-to-
+  end.
+- Have defensible numbers: "improved metric by X percent" with
+  the baseline, sample size, and confidence interval ready.
+- Have a 30-second pitch and a 5-minute deep dive for each
+  project.
+- Know what you would do differently; the senior signal is
+  honest reflection.
+- Avoid resume buzzword stacks ("used PyTorch, Hugging Face,
+  LangChain"); they tell the interviewer nothing about
+  judgment.
 
 ## Interview Question Sections
 
-### Question 1: Problem Framing and Baseline
+### Question 1: Project selection
 
-**Question:** You are asked to design or analyze a solution involving project selection, scope, metrics, impact framing, and interview-ready explanation. What would you clarify
-first, and what baseline would you build before using a more complex approach?
+**Question:** Walk me through how you chose your portfolio
+projects.
 
-**What the interviewer is testing:** Whether you can turn an ambiguous prompt into a measurable
-engineering problem without hiding behind model names.
+**What the interviewer is testing:** Whether your project
+selection demonstrates judgment about what matters in
+production AI.
 
-**Strong answer:** Clarify the user decision, available data, label or feedback source, constraints,
-and failure cost. Propose a baseline that can be evaluated quickly, then state what evidence would
-justify a more advanced model or architecture.
+**Strong answer:** Pick projects against three criteria:
+breadth (cover multiple production concerns: not all modeling,
+not all infrastructure), depth (one project should go deep
+enough to defend in a 5-minute interview), and recency (one
+project from the last 6 months ideally). Specifically: one
+project on the modeling axis (a real model with baseline,
+metric, evaluation, error analysis); one on the infrastructure
+axis (deployment, monitoring, drift, rollback); one on the LLM
+axis (prompting, RAG, agents, eval harness). For each, I have
+the metric improvement with the baseline and confidence
+interval, the production tradeoff I made, and one thing I
+would do differently. The mistake to avoid is a portfolio of
+five toy notebooks; one production-quality project beats five
+half-built ones.
 
-**Weak answer:** Jump straight to a model, skip the baseline, ignore data quality, and never define
-how success will be measured.
-
-**Follow-up questions:**
-
-- What data would be available only after the decision is made?
-- Which simple baseline would be hardest to beat?
-- What metric would be misleading if used alone?
-
-**Common traps:** Optimizing the offline metric without understanding the product decision, assuming
-labels are clean, and ignoring high-risk segments.
-
-### Question 2: Evaluation and Failure Modes
-
-**Question:** How would you evaluate a system for project selection, scope, metrics, impact framing, and interview-ready explanation, and how would you explain its most
-important failure modes?
-
-**What the interviewer is testing:** Whether you can connect metrics, error analysis, guardrails, and
-production risk.
-
-**Strong answer:** Define a primary metric, guardrail metrics, slice analysis, and a hard-example
-set. Explain false positives, false negatives, latency or cost failures, privacy risks, and what
-human review should handle.
-
-**Weak answer:** Report one aggregate score and treat it as proof that the system is ready.
+**Weak answer:** "I built a recommendation system, a chatbot,
+and a sentiment classifier." Without the production tradeoffs
+or numbers.
 
 **Follow-up questions:**
 
-- How would you detect a regression after release?
-- Which segment would you inspect first?
-- What would make the evaluation set untrustworthy?
+- Which project is the strongest and why?
+- What is one project you started but did not finish, and why?
+- How do you decide when a project is done?
+- What does production-ready mean for a portfolio project?
 
-**Common traps:** Confusing correlation with impact, overlooking delayed labels, and failing to
-calibrate confidence.
+**Common traps:** Resume-as-buzzword-stack. Five toy projects
+at the same depth. No quantified impact.
 
-### Question 3: Production Design and Communication
+### Question 2: Scope and impact framing
 
-**Question:** How would you move a solution for project selection, scope, metrics, impact framing, and interview-ready explanation from prototype to production, and how would
-you explain the tradeoffs to a non-technical stakeholder?
+**Question:** How do you frame impact on a project where the
+metric is unclear or the numbers are small?
 
-**What the interviewer is testing:** Whether you understand ownership after launch.
+**Strong answer:** Pick the metric that aligns with the
+project's purpose, even if the absolute number is small.
+Frame the metric in business or user terms, not technical:
+"reduced manual review time by 40 percent on a 1000-document
+sample" lands better than "improved F1 from 0.78 to 0.84."
+For early-stage projects without production data, use a
+defensible offline metric with the baseline, sample size, and
+confidence interval. Acknowledge limits explicitly: "evaluated
+on a synthetic dataset because production data was not
+available." Quality of reflection beats inflated impact: "I
+improved the metric by 5 percent and learned that the next
+gain requires a 10x larger dataset" is a stronger signal than
+"I built a state-of-the-art model" with no number to back it.
+The senior interview signal is calibrated honesty; inflated
+claims signal junior thinking.
 
-**Strong answer:** Separate offline and online paths, version data and models, add monitoring and
-rollback, define escalation, and explain tradeoffs between quality, latency, cost, privacy, and user
-trust.
-
-**Weak answer:** Stop at a notebook result or architecture sketch without deployment, monitoring, or
-support plans.
+**Weak answer:** "Achieved 0.95 accuracy" with no baseline or
+context. Or "built a state-of-the-art model" with no
+benchmark.
 
 **Follow-up questions:**
 
-- What should be logged and what should not be logged?
-- What happens when confidence is low?
-- How would you roll back a bad release?
+- What was the baseline?
+- What was the variance of your evaluation?
+- How did you choose the metric?
+- What would the impact look like at scale?
 
-**Common traps:** Forgetting operational ownership, treating model output as always safe, and
-communicating metrics without business context.
+**Common traps:** Inflated claims. No baseline. Technical
+metric without business framing. No acknowledgment of limits.
+
+### Question 3: Interview-ready storytelling
+
+**Question:** Walk me through your strongest project in 5
+minutes.
+
+**Strong answer:** A defensible 5-minute walkthrough has a
+shape:
+- **Problem (30 seconds).** What the project solved and for
+  whom. Why it mattered.
+- **Constraints (30 seconds).** Latency, cost, fairness, data
+  availability, regulatory.
+- **Approach (1 minute).** Baseline first; explain why a
+  simple baseline was not enough; describe the architecture
+  choice and one alternative you considered and rejected.
+- **Evaluation (1 minute).** Metrics, sample size, confidence,
+  per-segment results. Honest about what worked and what did
+  not.
+- **Deployment (1 minute).** How it shipped: shadow, canary,
+  rollout. Monitoring. Rollback path.
+- **Reflection (1 minute).** One thing you would do
+  differently. One thing the project taught you.
+
+The structure proves you can think about an AI system end-to-
+end. Skipping any of the six segments signals a gap; rambling
+without structure signals not enough preparation.
+
+**Weak answer:** Spend 4 minutes on the model and 30 seconds
+on everything else. Or rattle off technologies without
+explaining tradeoffs.
+
+**Follow-up questions:**
+
+- How did you handle [a specific failure mode the interviewer
+  invents]?
+- How would you scale this to 10x?
+- What is the next thing you would build?
+- What surprised you?
+
+**Common traps:** Modeling-heavy with no production. Rambling
+without structure. No reflection. No surprises.
+
+## Sample Q and A
+
+**Q:** What makes a project resume-relevant for an AI
+engineering role?
+
+**A:** Production realism. A project that ships even a small
+demo with a measurable improvement, monitoring on a single
+metric, and a rollback path teaches more about production AI
+than a notebook with state-of-the-art numbers. The hiring
+manager wants someone who can ship safely, not someone who can
+beat a leaderboard. Specifically: one end-to-end project with
+data, model, eval, deployment, and monitoring; one project
+with a real production tradeoff named; one project where you
+reflected on a failure honestly. Three deep projects beat ten
+shallow ones.
 
 ## Mini Exercise
 
-Pick one project from this repository and give a five-minute answer using this structure: clarify,
-baseline, data, metric, failure modes, production plan, and tradeoff summary. Rewrite the weakest
-part until it is specific enough to defend.
+Pick your strongest project. Write the 30-second pitch and the
+5-minute deep dive. Test them on a peer. Identify the weakest
+30 seconds and rewrite it with one specific number and one
+specific decision you made.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Clarify] --> B[Baseline]
-    B --> C[Data and model]
-    C --> D[Evaluation]
-    D --> E[Production controls]
-    E --> F[Stakeholder explanation]
+    A[Project selection: breadth + depth + recency] --> B[Defensible numbers: baseline + CI]
+    B --> C[5-minute structure: problem + constraints + approach + eval + deploy + reflect]
+    C --> D[30-second pitch]
+    D --> E[Practice with peer]
+    E --> F[Iterate on weakest segment]
 ```
 
 ---

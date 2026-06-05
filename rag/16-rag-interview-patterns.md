@@ -12,12 +12,28 @@ prompt injection) that weaker candidates skip.
 The recurring interview frame for any RAG prompt:
 
 - **Clarify:** who asks, what corpus, how it changes, permissions, latency, and the cost of a wrong answer.
-- **Baseline:** BM25 plus a simple cite-or-abstain prompt, so you have a measurable reference.
+  Add: user scale (1 user vs 1M), document volatility (stable corpus vs daily updates), adversarial
+  threat model (closed internal vs public-facing).
+- **Baseline:** BM25 plus a simple cite-or-abstain prompt, so you have a measurable reference. For
+  high-precision domains (medical, legal), also state that abstention bias should lean conservative
+  even at the cost of recall.
 - **Improve where measured:** chunking, hybrid search, reranking, query rewriting, compression, each
   justified by a failure you observed.
 - **Evaluate:** retrieval (recall@k, context precision) and generation (faithfulness, citations)
-  separately, with a hard-example suite.
-- **Operate:** monitoring, security (ACLs, injection), freshness, cost, and rollback.
+  separately, with a hard-example suite. Reference RAGAS metrics where applicable (see
+  [`11-rag-evaluation.md`](11-rag-evaluation.md)).
+- **Operate:** monitoring, security (ACLs, injection), freshness, cost, and rollback. Add: rollback
+  strategy on embedding model upgrade (parallel index, dual-write window, atomic swap, retire old).
+
+**Domain-specific baseline adjustments.** "BM25 + cite-or-abstain" is the right baseline for FAQ
+and general chat; it is not the right baseline for medical or legal RAG, where:
+
+- **Precision matters more than recall.** A wrong abstention is much cheaper than a wrong answer.
+- **Citation accuracy must be verified.** NLI entailment check on every claim, not just span match.
+- **Provenance and audit are mandatory.** Every retrieval and answer logged with full context for
+  post-hoc review.
+
+The domain shapes the baseline; explicitly note this in the interview to score points.
 
 ## Why It Matters in Real Jobs
 

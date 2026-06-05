@@ -73,8 +73,13 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with exact search on a sample plus a simple HNSW index. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with a flat (brute-force) search on a 1-percent sample as
+the recall ground truth. Then build an HNSW index on the full
+corpus with default parameters (M=16, ef_construction=200).
+Measure recall@10 vs flat; tune ef_search at query time for
+the recall-latency operating point. The baseline should be
+easy to explain, cheap to run, and strong enough to expose
+data quality problems before advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +175,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- HNSW memory cost surprises at scale; a billion-vector index
+  in 768 dim demands hundreds of GB RAM. IVF-PQ trades memory
+  for compute via quantization; pick by the workload.
+- Reindex cost ignored; embedding-model upgrade requires
+  re-encoding the entire corpus, which is a multi-day job for
+  large indexes. Plan a dual-write window for the rollout.
 
 ---
 ## Navigation

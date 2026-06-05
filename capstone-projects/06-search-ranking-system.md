@@ -2,114 +2,158 @@
 
 ## Goal
 
-Build a focused search ranking system with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build a search-ranking system on a public IR benchmark: BM25
+baseline plus a learning-to-rank model with a cross-encoder
+reranker, with NDCG and latency evaluation, plus a small
+deployment.
 
 ## Why This Project Matters
 
-This project is useful because search relevance work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Search is the bedrock of information retrieval and the
+foundation under modern RAG. The two-stage pattern (cheap
+retrieval, expensive reranking) is universal in production.
+Building this from scratch teaches relevance metrics (NDCG,
+MRR, MAP), the offline-online gap (NDCG improvements often do
+not transfer to clicks), and the latency budgets that make or
+break user experience.
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+BM25 is a strong baseline that beats many neural models on
+out-of-domain queries. Beating it consistently requires
+learning-to-rank with both lexical and semantic features, plus
+a cross-encoder reranker that captures fine-grained query-
+document interactions. The senior production move is hybrid
+retrieval (sparse plus dense) feeding into the reranker, with
+clear latency budgets per stage.
 
 ## Explanation
 
-Use queries, documents, clicks, and judgments. Start with this baseline: BM25 with filters. Compare it with hybrid retrieval plus reranking. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Use MS MARCO or BEIR. Build a BM25 baseline (Pyserini or
+Elasticsearch). Add a dense retriever (a sentence-transformer
+encoder, with FAISS or similar ANN index). Combine via
+reciprocal-rank fusion or learned weights. Train a
+cross-encoder reranker on the top 100 candidates from the
+hybrid retriever. Evaluate NDCG@10 and latency p99. Track
+per-query-type performance (navigational, informational,
+transactional).
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in search relevance. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+A search box on an enterprise documentation site. User types a
+query. Hybrid retrieval returns top 100; cross-encoder reranks
+to top 10; results render in under 300 ms p99. The system
+explains "you may be looking for" with a confidence indicator
+on borderline queries.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Document corpus] --> B[Index: BM25 + dense embeddings]
+    C[User query] --> D[Hybrid retrieval: BM25 + dense]
+    B --> D
+    D --> E[Top 100 candidates]
+    E --> F[Cross-encoder reranker]
+    F --> G[Top 10 results]
+    G --> H[NDCG + per-query-type + latency]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use queries, documents, clicks, and judgments. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+MS MARCO Passage (Microsoft, 8.8M passages, 500K queries) is
+the canonical IR benchmark. BEIR is a multi-domain alternative
+useful for testing out-of-domain behavior.
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: BM25 with filters.
-5. Train or configure the improved approach: hybrid retrieval plus reranking.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1-2: setup.** Index the corpus with BM25 (Pyserini)
+   and dense embeddings (sentence-transformers). Verify
+   parity on a small subset.
+2. **Day 3: baseline.** BM25 NDCG@10 on the test set.
+3. **Day 4-5: dense retrieval.** Encode all passages; FAISS
+   index; recall@1000 and NDCG@10. Compare to BM25.
+4. **Day 6: hybrid.** Reciprocal-rank fusion of BM25 and dense
+   results; measure NDCG@10 lift over either alone.
+5. **Day 7-8: reranker.** Cross-encoder (bge-reranker or
+   ms-marco-MiniLM); rerank top 100 from hybrid; measure
+   NDCG@10.
+6. **Day 9: per-query-type.** Categorize queries (one-word,
+   long-tail, exact-phrase, ambiguous); per-type NDCG and
+   diagnostic of failure modes.
+7. **Day 10: latency profile.** Per-stage timing; bottleneck
+   identification; budget allocation.
+8. **Day 11-12: deployment.** Service with three stages
+   (retrieval, fusion, rerank); per-stage timeout; fallback
+   to BM25-only on reranker timeout.
+9. **Day 13: monitoring.** Per-query-type NDCG drift; cache
+   hit rate; latency p99; click-through-rate proxy.
+10. **Day 14: documentation.** Search system design doc,
+    latency budget breakdown, fallback runbook.
 
 ## Evaluation
 
-Use NDCG, MRR, zero-result rate, and latency. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: NDCG@10 on the dev set. Secondary: MRR,
+Recall@100, latency p50 / p95 / p99. Per-query-type NDCG.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- Standard MS MARCO evaluation; bootstrap CI on NDCG.
+- Per-query-type breakdown.
+- Latency budget per stage.
+- 3 success cases (the long-tail query the reranker rescues)
+  and 3 failure cases (the navigational query where BM25
+  alone wins).
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Multi-vector retrieval (ColBERT-style late interaction).
+- Personalization (user history features).
+- Query rewriting (LLM-based).
+- Diversity in results (sub-topic coverage).
+- Online learning from clicks.
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built a search ranking system with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved NDCG, MRR, zero-result rate, and latency while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- Skipping BM25 baseline; cannot quantify the lift.
+- Reranker on every query; latency p99 breaks under load.
+- No per-query-type analysis; aggregate hides where each
+  retriever wins.
+- No fallback; a slow reranker kills the SLO.
+- Cache without query normalization; hit rate is artificially
+  low.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The senior walk: name the two-stage architecture; describe the
+hybrid retrieval and why it beats either alone; describe the
+reranker placement and the latency tradeoff; close with the
+per-query-type analysis showing where each retriever wins. The
+candidate who treats reranking as universally better misses
+the latency reality.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+For your benchmark, compute BM25 NDCG@10. Estimate the lift
+from dense plus hybrid plus rerank. Identify one query type
+where the reranker is likely to make things worse (navigational
+queries with exact-match intent) and propose a routing
+strategy.
+
+## Resume Bullet Points
+
+- Built a hybrid search system on MS MARCO with BM25 plus
+  dense retrieval plus cross-encoder reranking, achieving
+  NDCG@10 of 0.39 (vs 0.22 BM25 baseline; 95-percent CI
+  [0.37, 0.41]) at 220ms p99 latency.
+- Per-query-type analysis exposed BM25 winning on
+  navigational queries; deployed a query-type router that
+  bypasses the reranker for short exact-match queries,
+  reducing latency 40 percent for that segment without NDCG
+  loss.
+- Containerized the three-stage pipeline with per-stage
+  timeouts, fallback to BM25 on reranker failure, and
+  per-query-type NDCG dashboards for drift monitoring.
 
 ---
 ## Navigation

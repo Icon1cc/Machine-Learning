@@ -45,6 +45,20 @@ tests, is what makes it an agent rather than a chatbot.
 - Giving the agent powerful tools with no permissions or approval.
 - Equating "agent" with "fully autonomous" instead of a controlled loop.
 
+## Production Concerns
+
+Cost-per-loop is the variable that bites at scale. Estimate it as
+average steps times average tokens per step times the per-token
+price; one stalled loop at 30 steps can cost more than a hundred
+healthy ones. Track p50 and p95 cost per task and alert on tail
+spend. Every tool call goes through a permission check, and the
+check writes to an audit log: caller identity, tool name, arguments
+hash, decision, timestamp. The log is the forensic record when an
+agent does something it should not have. Set a tool timeout per
+call (5-30s typical for read-only, longer for compute) and convert
+timeouts into observation messages the model can react to, rather
+than silently failing the loop.
+
 ## Interview Angle
 
 **Question:** What makes something an agent rather than just an LLM call?

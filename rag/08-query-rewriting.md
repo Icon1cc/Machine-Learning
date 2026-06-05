@@ -43,6 +43,22 @@ decomposes into two sub-queries, retrieves both policies, and the answer can act
 - Over-expanding queries until they retrieve unrelated content.
 - Rewriting so aggressively that the user's real intent is changed.
 - Adding rewriting latency without checking it actually improves recall.
+- **Query-rewriting failure modes.** Rewriting can introduce errors as well as fix them: entity
+  resolution can pick the wrong entity from history ("the contract" might refer to either of two
+  recent ones), multi-turn context loss can discard the relevant turn, and aggressive expansion
+  can pull in synonyms that the corpus does not actually use. Always validate the rewritten query
+  on an eval set; do not assume rewriting is monotonically positive.
+- **HyDE limitations.** Hypothetical Document Embeddings (HyDE) drafts a fake answer with the LLM and
+  embeds that to retrieve passages similar to it. Costs: one extra LLM call per query (latency and
+  spend), risk that the hypothetical hallucinates and pulls retrieval toward the wrong region,
+  diminishing returns on simple factual queries. HyDE helps most on complex multi-aspect queries
+  where the literal query terms differ from how the answer is phrased; it hurts on short factual
+  queries. Always measure.
+- **Decomposition complexity.** Splitting "compare X and Y" into separate sub-queries seems clean,
+  but: detecting that a query is multi-part is itself a classification problem; merging sub-results
+  back into a coherent answer requires deduplication and synthesis; failure modes compound across
+  sub-queries. For most chat RAG, single-shot retrieval with strong reranking wins; reach for
+  decomposition only when measured comparative-question failures justify it.
 
 ## Interview Angle
 

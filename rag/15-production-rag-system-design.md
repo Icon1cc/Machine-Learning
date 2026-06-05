@@ -45,6 +45,24 @@ stale. Caching common HR questions cut cost by a third.
 - Filtering permissions after retrieval, risking leaks.
 - No evaluation gate, so regressions reach users.
 - No caching or routing, so cost scales linearly with traffic.
+- **Reindex consistency model.** While the offline plane reindexes (a multi-hour job at scale),
+  the online plane keeps serving queries. Patterns: build a new index in parallel and atomically
+  swap reads at the end (zero-downtime, double the storage during the swap window); or
+  copy-on-write at the chunk level (always serve the latest version per chunk, lower storage but
+  more complex). Pick by storage budget vs implementation complexity; the parallel-build pattern
+  is the safer default.
+- **Soft delete vs hard delete cleanup.** Most vector DBs implement deletes as soft (mark-as-
+  deleted in metadata) for performance; queries skip deleted chunks via filter. Over time,
+  tombstones accumulate and slow queries. Schedule periodic compaction (rebuild without deletes)
+  or rely on the DB's background compaction. For compliance-driven deletes (GDPR right to erasure),
+  schedule hard delete within the SLA window (typically 30 days) and audit completion.
+- **Cache invalidation strategy.** Caching common answers cuts cost dramatically (30 percent hit
+  rate is realistic). But a cached answer derived from a now-stale document is a correctness
+  bug. Cache key must include: the query (or a normalized form), the user's permission set
+  (different users see different docs), the embedding model version, the index version, and the
+  prompt version. On any of those changing, invalidate. TTL also helps as a backstop (cache
+  expires after 1-24 hours). Without disciplined invalidation, the cache becomes a source of
+  silent stale answers.
 
 ## Interview Angle
 

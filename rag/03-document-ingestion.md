@@ -30,6 +30,36 @@ incidents trace back to ingestion losing structure or missing an update.
 4. **Detect changes:** add new docs, re-index updates, and tombstone deletes.
 5. **Hand off** clean, attributed text to the chunking stage.
 
+**Format-specific failure modes** worth budgeting for:
+
+- **Scanned PDFs** require OCR (Tesseract for cheap; Amazon Textract, Google Document AI, or hosted
+  vision models for accuracy). OCR cost can be 10-100x basic parsing; quality varies wildly with scan
+  resolution. Always run a sample through QA before bulk ingestion.
+- **Tables in PDFs** lose structure when flattened to text. Specialized parsers (Camelot, Unstructured.io,
+  Azure Document Intelligence) extract tables as structured data; embedding the table separately or as
+  a markdown table preserves searchability.
+- **Embedded images.** Diagrams and charts contain information that text parsing misses. Use a
+  multimodal model (CLIP, GPT-4V) to caption or describe images, then embed the caption alongside the
+  text.
+- **Code and structured documents.** Preserve code blocks; embedding them with surrounding prose
+  helps retrieval against natural-language queries about the code.
+
+**ACL schema patterns**:
+
+- **Per-user array.** `allowed_users = [u1, u2, ...]`. Simple but does not scale past a few hundred
+  users per document.
+- **Per-group array.** `allowed_groups = [g1, g2, ...]`. The user's group membership is computed at
+  query time; filter on intersection. Standard for SaaS.
+- **Hierarchical inheritance.** A document inherits permissions from its parent folder/space.
+  Resolved at ingestion time and cached, or at query time by walking the tree.
+- **Row-level security at the database layer.** PostgreSQL RLS policies, when pgvector backs the
+  store; the database enforces ACL transparently.
+
+**Update SLAs.** Nightly sync covers most enterprise corpora. Real-time ingestion (within seconds)
+requires event-driven pipelines (webhooks, queues) plus eventual consistency between source-of-truth
+and index. Plan for the latency budget on deletes, not just adds: a deleted compliance document still
+answering queries is a real incident.
+
 ## Real-World Example
 
 A company ingests its Confluence wiki. The parser keeps page headings so chunks stay coherent, records

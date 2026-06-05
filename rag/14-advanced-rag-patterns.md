@@ -45,6 +45,22 @@ cheap single-retrieval path via query routing. Cost rises only for the hard ques
 - Iterative retrieval with no step or cost cap, so it loops and overspends.
 - Routing logic so complex it becomes its own source of bugs.
 - Assuming a fancy pattern fixes problems that were really chunking or retrieval quality.
+- **Multi-hop error compounding.** Each retrieval step has a recall < 1.0; chaining N steps means
+  the joint recall is roughly recall^N. With recall@5 = 0.85 per step, a 3-hop chain has joint
+  recall 0.61. Mitigations: higher per-step k in multi-hop chains, query reformulation between
+  steps, fallback to ask-for-clarification on low-confidence intermediate results, and explicit
+  budget caps so a failing chain does not run forever.
+- **Agentic loop termination guards.** Without explicit caps, an agent can loop indefinitely
+  (calling the same tool, retrieving the same documents, refining without progress). Required
+  guards: maximum N retrieval-or-tool steps per query (typical 3-10), maximum total token budget
+  (typical 50K-200K tokens per query), confidence threshold that triggers handoff to human,
+  monotonic-progress check (refuse to repeat a recent state). Production agents without these
+  caps regularly burn $5-50 per stuck query.
+- **Query routing model design.** A router decides "DB vs vector store" or "doc store vs API tool"
+  per query. Implementations: small fine-tuned classifier (fast, opaque), embedding-based
+  similarity to tool descriptions (cheap, reasonable), or LLM-based routing (flexible, expensive).
+  Production default: classifier for high-traffic stable routes, LLM router for long-tail or new
+  tools. Whatever you pick, log the routing decision so misroutes are debuggable.
 
 ## Interview Angle
 

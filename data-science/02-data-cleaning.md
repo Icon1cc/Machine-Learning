@@ -2,99 +2,141 @@
 
 ## Beginner-Friendly Intuition
 
-Data Cleaning is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to turn messy records into evidence that supports a decision and can be explained to others. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
+Data cleaning is the work of turning what your sources actually logged into what you
+thought they logged. Real-world data has duplicates, wrong types, mixed units, broken
+timestamps, ghost users, and entries that were truncated by a script three years ago.
+None of this is glamorous. All of it changes the answer. A common rule of thumb is that
+60 to 80 percent of a data project's time goes here, and the share grows with how new
+the data source is.
 
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+The intuition to hold is that cleaning is not the same as preprocessing. Cleaning fixes
+errors that exist independent of your model. Preprocessing transforms valid values into
+the shape your model wants (scaling, encoding, splitting). Mixing the two leads to
+confusion, because preprocessing decisions can be tuned on validation data, but cleaning
+decisions cannot.
 
 ## Formal Explanation
 
-Data Cleaning is a practical concept used to convert messy records into evidence that supports decisions in a business analysis workflow. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+Data cleaning is the set of operations that bring a dataset into agreement with its
+declared schema and its real-world meaning. The main operation classes are:
 
-The rigorous version usually includes:
+- **Type coercion.** Strings that should be numbers, numbers that lost precision after
+  a CSV round-trip, datetimes stored as strings.
+- **Deduplication.** Exact duplicates, near duplicates (same user, two rows with
+  different casing), and conceptual duplicates (two row IDs that refer to the same
+  event).
+- **Outlier handling.** Out-of-range values (age = 999), tail values that are real but
+  rare, sentinel values (-1 or 9999 used to mean "missing").
+- **Unit and encoding fixes.** Mixed currencies, mixed time zones, mixed encodings
+  (UTF-8 vs Latin-1), mixed casing on join keys.
+- **Reference integrity.** Foreign keys that point at deleted rows, joins that silently
+  drop unmatched users.
+- **Missing values.** Distinguish "actually unknown" from "logged as empty string."
+  Detailed handling is in [05-handling-missing-values.md](05-handling-missing-values.md).
+- **Schema validation.** A contract on column names, types, allowed ranges, and
+  nullability that runs every time the dataset is rebuilt.
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+A clean dataset answers "yes" to four questions: do the columns mean what the schema
+says, are the rows the unit of analysis you want, are the values in the ranges you
+expect, and would the same query run yesterday give you the same answer.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a business analysis workflow to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
+A model trained on dirty data is not just less accurate; it is wrong in patterned ways
+that hide from the average metric and surface in the worst customer complaints. A
+classic example: a fraud model trained on a join that silently dropped users without
+profile photos appeared to hit 0.95 AUC offline. In production, recall on real fraud
+collapsed because most fraudsters did not upload photos. The model never saw them
+during training.
 
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Cleaning also matters for trust. When the finance team's number does not match the
+data team's number, the data team loses the argument. The fix is almost always a
+cleaning bug (different time zone, different deduplication rule), not a modeling bug.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Profile.** For every column, count rows, distinct values, nulls, min, max, top
+   values. This catches sentinel values and silent type drift.
+2. **Validate the schema.** Run a tool (Pandera, Great Expectations, dbt tests) that
+   asserts ranges, types, and nullability. Make the build fail when the contract
+   breaks.
+3. **Reconcile with sources of truth.** Cross-check totals against finance, against
+   the product analytics tool, and against a manual count of a small sample.
+4. **Deduplicate by the correct key.** "Same user" is rarely "same row." Decide whether
+   the unit is user, session, request, or event, and dedupe on that key.
+5. **Fix outliers with rules, not eyeballs.** Use IQR (anything outside Q1 minus 1.5
+   times IQR or Q3 plus 1.5 times IQR), z-scores (|z| > 3), or domain rules ("age must
+   be in [13, 110]"). Log every dropped row.
+6. **Normalize units and time zones once, at ingest.** Currency to a single currency
+   using the day's rate. All timestamps to UTC. All strings to a consistent case for
+   join keys.
+7. **Document the cleaning.** A short README that lists every rule, the count of rows
+   it dropped, and the date the rule was added.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A subscription product's revenue dashboard suddenly drops 8 percent. The data team
+investigates. The schema validator passes. The model is unchanged. The cause turns out
+to be a cleaning rule added two weeks earlier: a deduplication step on user email that
+lower-cased the address. A small set of paying users had been double-counted because
+their email casing differed across two sign-up flows. The dedup did not lose revenue;
+it revealed a count that had always been wrong. The fix was to update the historical
+dashboard, not to remove the cleaning rule. The lesson is that cleaning often surfaces
+inconvenient truths and the right response is to update downstream consumers, not to
+hide the truth behind older rules.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Treating cleaning as a one-time script instead of a recurring pipeline with tests.
+- Coercing types silently (`pd.to_numeric(..., errors='coerce')`) without logging how
+  many rows were turned into NaN.
+- Dropping outliers before checking whether they are real (a billion-dollar customer
+  is not noise).
+- Deduplicating on the wrong key and losing rows that meant different things.
+- Mixing cleaning with preprocessing so that test-set rows are quietly transformed
+  using statistics computed on themselves.
+- Running cleaning in a notebook and forgetting which version of the data the report
+  was built on.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** A teammate's analysis says revenue is up 12 percent and another says it
+is flat. Both pulled from the same warehouse. What do you check?
 
-**Question:** Explain Data Cleaning, then describe how you would use it in a real system.
+**Strong answer:** First, ask each person for the exact query and the run timestamp.
+Cleaning differences usually explain it. Likely culprits: different deduplication keys
+(email vs user_id), different time-zone treatment (UTC vs local), different inclusion
+of refunds, different handling of test accounts, different join semantics (inner vs
+left). Reconcile with finance to identify which number matches the source of truth,
+then write a shared cleaning step both queries call.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "Probably one of them has a bug." The interview wants the diagnostic
+tree, not a guess.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How would you write a contract test that catches this in CI?
+- How do you decide whether to drop or keep a row that fails a validation rule?
+- What goes in a data quality dashboard?
+- When does cleaning become preprocessing?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Take any tabular dataset you have. Write a one-page profile: for each column, list
+type, null rate, distinct count, min, max, and the five most frequent values. Mark
+any column where the profile suggests a cleaning rule (sentinel values, type drift,
+unbounded outliers).
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Data Cleaning]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    R[Raw source] --> P[Profile and validate]
+    P --> D[Dedup on correct key]
+    D --> N[Normalize units and time zones]
+    N --> O[Outlier and sentinel rules]
+    O --> C[Cleaned dataset with contract]
+    C --> M[Model or analysis]
 ```
 
 ---

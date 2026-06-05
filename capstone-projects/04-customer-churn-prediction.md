@@ -2,114 +2,165 @@
 
 ## Goal
 
-Build a focused customer churn prediction with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build a churn-prediction system on a public telco or SaaS
+dataset that beats a tenure-based baseline, surfaces actionable
+risk drivers, and supports a real intervention pipeline (offer
+a discount, route to retention team).
 
 ## Why This Project Matters
 
-This project is useful because subscription retention work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Churn modeling is high-leverage and well-defined: every
+prevented churn pays for itself many times over. The challenge
+is causal: identifying users likely to churn is necessary but
+not sufficient; the model must surface users where intervention
+plausibly changes outcome. Hiring managers ask about churn
+because it tests metric design (precision at top-K), feature
+engineering (tenure, recency, support contacts), and the
+deployment shape (batch precompute or online).
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+A simple "users who logged in last more than 30 days ago" rule
+catches a significant fraction. Beating it requires behavioral
+features (recency, frequency, value patterns) and survival-
+style modeling that estimates time-to-churn, not just binary
+likelihood. The senior production move is precision at top-K
+(retention team can only call 5000 users a month) plus a
+controlled experiment to measure intervention effect.
 
 ## Explanation
 
-Use usage, billing, support, and churn labels. Start with this baseline: recency and usage rules. Compare it with survival or gradient boosted model. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Use Telco Customer Churn (Kaggle, 7K rows) or build a synthetic
+SaaS-style dataset. Engineer features (tenure buckets, recency,
+support-contact frequency, plan tier, billing-issue count).
+Baseline: cohort-based churn rate (segment by tenure and plan).
+Advanced: gradient boosting on engineered features; survival
+model (Cox proportional hazards or random survival forest) for
+time-to-churn. Calibrate; rank users by predicted churn
+probability; intervene on top-K.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in subscription retention. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+Monthly batch: score every active customer; rank by predicted
+churn risk; route the top 5000 to the retention team for
+outreach. The intervention (discount, support call) is the
+treatment; A/B test the model-driven targeting against random
+or rule-based selection to measure causal lift.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Subscriber data + behavior] --> B[Feature pipeline: tenure + recency]
+    B --> C[Baseline: cohort churn rate]
+    B --> D[Advanced: gradient boosting + survival]
+    C --> E[Per-cohort precision at top-K]
+    D --> E
+    E --> F[Batch ranking: top-K users]
+    F --> G[Retention intervention + A/B test]
+    G --> H[Causal lift measurement]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use usage, billing, support, and churn labels. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+Telco Customer Churn (IBM, hosted on Kaggle, 7K rows) is the
+canonical public dataset. Synthetic SaaS data is acceptable if
+you preserve realistic feature distributions and a
+5-15-percent positive class.
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: recency and usage rules.
-5. Train or configure the improved approach: survival or gradient boosted model.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1-2: EDA.** Churn rate by tenure, plan, and contract
+   type. Recency distributions. Missing-data patterns.
+2. **Day 3: baseline.** Cohort churn rate by tenure-plan
+   bucket. Rank users by their cohort's churn rate. Measure
+   precision at K.
+3. **Day 4-5: features.** Engineer 10-20 features (tenure,
+   recency since last interaction, support-contact frequency,
+   billing patterns, plan changes).
+4. **Day 6-7: advanced model.** LightGBM with class weight;
+   AUC plus precision at top-K. Compare to baseline.
+5. **Day 8: survival.** Random survival forest or Cox PH for
+   time-to-churn estimation; restricted mean survival time
+   per user for ranking.
+6. **Day 9: calibration.** Isotonic on a held-out set;
+   precision-at-K stability across calibration changes.
+7. **Day 10: A/B design.** Pre-register a 50/50 experiment:
+   model-targeted intervention vs random within the at-risk
+   pool. Sample size for 10-percent retention lift detection.
+8. **Day 11-12: deployment.** Monthly batch job; feature
+   freshness contract; idempotent execution; audit log.
+9. **Day 13: monitoring.** Per-cohort churn rate drift;
+   precision-at-K stability; intervention success rate.
+10. **Day 14: documentation.** Model card, intervention
+    runbook, A/B-test results template.
 
 ## Evaluation
 
-Use lift, calibration, and intervention cost. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: precision at top 5000 (or appropriate K).
+Secondary: ROC-AUC, calibration error, per-cohort precision.
+A/B-test causal lift on the intervention as the final
+business metric.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- Time-aware split: train on data through month T, predict
+  churn in month T+1, test on month T+2 (delayed labels).
+- Bootstrap CI on precision at K.
+- Per-cohort precision (by tenure bucket and plan).
+- A/B test: pre-registered hypothesis, sample size, run
+  length.
+- 3 success cases (the high-risk user the model flagged) and 3
+  failure cases (the low-risk user who churned anyway)
+  described qualitatively.
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Survival modeling for time-to-churn ranking.
+- Uplift modeling: predict who would benefit from intervention,
+  not just who is at risk.
+- Multi-step churn (tier downgrade, payment failure, full
+  churn).
+- Long-term retention follow-up: did interventions work after
+  3 months?
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built a customer churn prediction with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved lift, calibration, and intervention cost while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- Predicting churn likelihood but ignoring whether the
+  intervention helps.
+- Using future-looking features (next-month plan change) that
+  leak.
+- Ranking by probability without per-cohort calibration.
+- No A/B test; treating model predictions as causal.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The senior walk: name the cohort baseline first, then the
+lift; describe the precision-at-K metric and why it matters
+for the retention team's capacity; describe the A/B test that
+measures causal intervention lift, not just predictive
+accuracy. The uplift-modeling extension signals depth.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+For your dataset, define K (the retention-team monthly
+capacity). Compute the baseline cohort precision at K.
+Estimate the lift you expect from gradient boosting plus
+calibration. State one segment where the model is likely to
+underperform and why.
+
+## Resume Bullet Points
+
+- Built a churn-prediction pipeline on telecom data improving
+  precision at top-5000 from 0.34 (cohort baseline) to 0.51
+  (gradient boosting plus survival modeling), validated by a
+  90-percent-power A/B test on the intervention.
+- Per-cohort precision exposed a 2.5x gap on month-to-month
+  contract customers, driving a tenure-bucket-specific
+  threshold and a documented retention-team runbook.
+- Deployed as a monthly batch with feature-freshness
+  contracts, drift monitoring, and a pre-registered A/B-test
+  template for evaluating intervention lift.
 
 ---
 ## Navigation

@@ -44,6 +44,21 @@ compact note so the context does not overflow, keeping cost bounded while preser
 - Storing sensitive user data in memory with no expiry or controls.
 - Confusing short-term (context) with long-term (external store) memory.
 
+## Production Concerns
+
+Long-term memory needs a consistency model. A write-then-read in the
+same session may not see the new fact if the store is eventually
+consistent; design for it explicitly (read-after-write within session
+via a local cache, or accept staleness). Eviction policy matters:
+LRU keeps recent, time-decay keeps fresh, importance-weighted keeps
+useful. Pick by use case and document the policy. Storage quotas per
+user prevent runaway memory growth; alert at 80 percent. Retrieval
+latency is part of the loop's cost: a 500ms memory query on every
+step adds up. Set a budget (50-100ms typical) and cache hot keys.
+Long-term memory is in scope for data-subject deletion: right-to-be-
+forgotten propagates to the memory store within the regulated window
+or the system is non-compliant.
+
 ## Interview Angle
 
 **Question:** How does memory work in an agent and why do you need two kinds?

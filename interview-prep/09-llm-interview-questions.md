@@ -2,106 +2,175 @@
 
 ## How to Use This File
 
-Use this page to practice structured interview answers for tokenization, transformers, prompting, tool use, evaluation, and serving. Read each question, answer out
-loud, then compare your response with the strong and weak answer patterns. Keep answers concrete:
-name the user, data, baseline, metric, failure mode, and production plan.
+Three core LLM interview questions: decoding choice, function-
+calling design, and hallucination handling under production
+constraints. Read each, answer for 2-3 minutes, then compare
+with the patterns. Strong answers name specific parameters and
+failure modes; weak answers stop at "use temperature 0.7."
 
 ## Core Preparation Checklist
 
-- Clarify the role, user, decision, and constraints before naming a model.
-- State assumptions about data availability, labels, latency, privacy, and cost.
-- Start with a simple baseline and explain why added complexity is justified.
-- Choose metrics that match the product decision and the cost of mistakes.
-- Discuss leakage, drift, monitoring, rollback, and human review.
-- Communicate tradeoffs in plain language and connect them to user impact.
+- Know greedy, top-k, top-p (nucleus), beam search, and when
+  each fits.
+- Know temperature, repetition penalty, frequency penalty as
+  decoding controls.
+- Know function calling (tool use) and the runtime contract:
+  schema, validation, execution, observation back to the model.
+- Know structured outputs (JSON Schema, Pydantic) and why they
+  matter for production reliability.
+- Know hallucination categories: knowledge cutoff, false
+  reasoning, fabricated citations, format failure under
+  pressure.
+- Know prompt injection (direct and indirect) and the layered
+  defenses.
+- Have one production LLM debugging story ready.
 
 ## Interview Question Sections
 
-### Question 1: Problem Framing and Baseline
+### Question 1: Decoding choice for production
 
-**Question:** You are asked to design or analyze a solution involving tokenization, transformers, prompting, tool use, evaluation, and serving. What would you clarify
-first, and what baseline would you build before using a more complex approach?
+**Question:** A chat assistant returns answers that feel
+robotic and repetitive. The team's instinct is to raise the
+temperature. Walk through a more rigorous response.
 
-**What the interviewer is testing:** Whether you can turn an ambiguous prompt into a measurable
-engineering problem without hiding behind model names.
+**Strong answer:** First diagnose: is the issue determinism or
+distribution shape? Greedy decoding always picks the most
+likely token, producing repetitive outputs especially when the
+model is uncertain (the most-likely token at each step adds up
+to a degenerate path). Top-p (nucleus) sampling adapts to
+distribution shape: when the model is confident, the nucleus
+is small and the output is similar to greedy; when the model
+is uncertain, the nucleus widens and produces diverse outputs.
+Top-k uses a fixed cutoff regardless of confidence. Temperature
+sharpens or flattens the distribution; high temperature can
+produce nonsense. For a chat assistant: top-p around 0.9 with
+moderate temperature (0.7-0.9) plus a repetition penalty often
+fixes the robotic-and-repetitive failure without the
+hallucination risk of temperature alone. Test with the eval
+harness; pick the operating point that improves diversity
+without breaking task quality.
 
-**Strong answer:** Clarify the user decision, available data, label or feedback source, constraints,
-and failure cost. Propose a baseline that can be evaluated quickly, then state what evidence would
-justify a more advanced model or architecture.
-
-**Weak answer:** Jump straight to a model, skip the baseline, ignore data quality, and never define
-how success will be measured.
-
-**Follow-up questions:**
-
-- What data would be available only after the decision is made?
-- Which simple baseline would be hardest to beat?
-- What metric would be misleading if used alone?
-
-**Common traps:** Optimizing the offline metric without understanding the product decision, assuming
-labels are clean, and ignoring high-risk segments.
-
-### Question 2: Evaluation and Failure Modes
-
-**Question:** How would you evaluate a system for tokenization, transformers, prompting, tool use, evaluation, and serving, and how would you explain its most
-important failure modes?
-
-**What the interviewer is testing:** Whether you can connect metrics, error analysis, guardrails, and
-production risk.
-
-**Strong answer:** Define a primary metric, guardrail metrics, slice analysis, and a hard-example
-set. Explain false positives, false negatives, latency or cost failures, privacy risks, and what
-human review should handle.
-
-**Weak answer:** Report one aggregate score and treat it as proof that the system is ready.
+**Weak answer:** "Set temperature to 1.0." Without engaging
+top-p or repetition penalty.
 
 **Follow-up questions:**
 
-- How would you detect a regression after release?
-- Which segment would you inspect first?
-- What would make the evaluation set untrustworthy?
+- What is the difference between top-p and top-k?
+- When does beam search fail for open-ended generation?
+- What is repetition penalty and when does it hurt?
+- How would you eval the decoding change?
 
-**Common traps:** Confusing correlation with impact, overlooking delayed labels, and failing to
-calibrate confidence.
+**Common traps:** Treating temperature as the only knob.
+Beam search for open-ended generation. No eval after change.
 
-### Question 3: Production Design and Communication
+### Question 2: Function-calling design
 
-**Question:** How would you move a solution for tokenization, transformers, prompting, tool use, evaluation, and serving from prototype to production, and how would
-you explain the tradeoffs to a non-technical stakeholder?
+**Question:** Your LLM-powered assistant needs to look up
+account balances via a tool call. Design the tool interface and
+the production controls.
 
-**What the interviewer is testing:** Whether you understand ownership after launch.
+**Strong answer:** Define the tool schema: name (clear,
+specific, e.g., get_account_balance), description (when the
+model should use it), arguments (account_id with type, format,
+length constraints), return shape. Strict JSON Schema validation
+on the model's emitted call rejects malformed arguments. The
+runtime applies authorization (does the requesting user have
+access to this account?), executes the tool, and returns the
+result as an observation message the model can reason over.
+Errors return as observations, not silent failures, so the
+model can retry or escalate. Idempotency keys on state-changing
+calls prevent duplicate side effects. Audit log every tool call
+with caller identity, arguments hash, decision, timestamp.
+Rate limits per user. Risky tools (refunds, deletes) require
+human approval before execution. Treat tool outputs as
+untrusted; an upstream change in the API response could carry
+malicious content (indirect injection).
 
-**Strong answer:** Separate offline and online paths, version data and models, add monitoring and
-rollback, define escalation, and explain tradeoffs between quality, latency, cost, privacy, and user
-trust.
-
-**Weak answer:** Stop at a notebook result or architecture sketch without deployment, monitoring, or
-support plans.
+**Weak answer:** "Pass the account ID and let the model
+handle errors." No schema validation, no authorization, no
+audit log.
 
 **Follow-up questions:**
 
-- What should be logged and what should not be logged?
-- What happens when confidence is low?
-- How would you roll back a bad release?
+- What is excessive agency on the OWASP LLM list?
+- How do you defend against indirect prompt injection in tool
+  outputs?
+- Why are idempotency keys important?
+- What goes in the audit log?
 
-**Common traps:** Forgetting operational ownership, treating model output as always safe, and
-communicating metrics without business context.
+**Common traps:** Vague tool descriptions causing wrong-tool
+calls. No argument validation. No authorization layer. No
+audit log.
+
+### Question 3: Hallucination under production constraints
+
+**Question:** Your LLM-powered customer-support assistant
+occasionally fabricates policies that do not exist. Walk
+through the systems response.
+
+**Strong answer:** Hallucination is a systems problem, not a
+model bug. Layered fix: ground answers via retrieval from the
+authoritative policy corpus; require cite-or-abstain (the
+model must cite a source or say it does not know); use a
+calibrated faithfulness eval (each claim supported by retrieved
+evidence) to measure the contract's effectiveness; output
+filter for known fabrication patterns; abstention rate
+monitoring per segment. When evidence is weak, the model
+abstains; when strong, it cites. Operational monitoring on
+abstention rate and faithfulness drift catches regressions.
+Bigger model alone does not fix this; the contract and the
+eval do.
+
+**Weak answer:** "Use a bigger model." Or "use lower
+temperature." Without the grounding, contract, and monitoring.
+
+**Follow-up questions:**
+
+- What is faithfulness and how do you measure it?
+- When should the model abstain instead of generate?
+- How do you detect a regression in abstention behavior?
+- How do you prevent the model from ignoring its citation
+  contract?
+
+**Common traps:** Treating hallucination as a model
+limitation. No grounding. No abstention rule. Lower
+temperature and call it solved.
+
+## Sample Q and A
+
+**Q:** What is the most important production control for an
+LLM feature that ingests untrusted user input plus retrieved
+content?
+
+**A:** Layered defense against prompt injection. Direct
+injection: input classifier plus instruction hierarchy
+(system role outranks user content, enforced by the API).
+Indirect injection: tag retrieved content (treat as data, not
+instructions), output filter to catch outputs that follow
+embedded instructions, and assume any retrieved content may
+be hostile. The single most-overlooked defense is the
+indirect-injection layer; a system that ingests retrieval or
+tool output without it is exploitable.
 
 ## Mini Exercise
 
-Pick one project from this repository and give a five-minute answer using this structure: clarify,
-baseline, data, metric, failure modes, production plan, and tradeoff summary. Rewrite the weakest
-part until it is specific enough to defend.
+Pick an LLM feature you have used or designed. Specify the
+decoding parameters, the function-calling tools (if any), and
+the hallucination defenses (grounding, abstention, output
+filter). Identify the weakest layer.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Clarify] --> B[Baseline]
-    B --> C[Data and model]
-    C --> D[Evaluation]
-    D --> E[Production controls]
-    E --> F[Stakeholder explanation]
+    A[User input + retrieval] --> B[Input classifier + instruction hierarchy]
+    B --> C[Decoding: top-p + temperature + repetition penalty]
+    C --> D{Tool needed?}
+    D -- Yes --> E[Schema validation + auth + idempotent call]
+    D -- No --> F[Generate with cite-or-abstain]
+    E --> F
+    F --> G[Output filter + faithfulness gate]
+    G --> H[Audit + monitor + iterate]
 ```
 
 ---

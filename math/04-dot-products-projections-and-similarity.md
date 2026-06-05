@@ -1,100 +1,78 @@
-# Dot Products Projections and Similarity
+# Dot Products, Projections, and Similarity
 
 ## Beginner-Friendly Intuition
 
-Dot Products Projections And Similarity is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to turn geometry, rates of change, and information measures into tools for understanding model behavior. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
-
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+The dot product measures how much two vectors point in the same direction, weighted by their lengths. Project a vector onto another and you keep only the component aligned with that direction. Similarity scores in ML are almost always built from this idea: alignment in some learned vector space.
 
 ## Formal Explanation
 
-Dot products measure alignment, projections decompose vectors, and similarity powers search and ranking. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+`u · v = Σ u_i v_i = ||u|| ||v|| cos θ`. The projection of `v` onto `u` is `(v · u / u · u) u`. Cosine similarity is `u · v / (||u|| ||v||)`. On normalized vectors, dot product equals cosine. The dot product is linear in each argument, which is why it composes well with linear models.
 
-The rigorous version usually includes:
+**Where the projection formula comes from.** The projection is the scalar multiple of `u` that is closest to `v`. Write the projection as `α u`. The error vector `v - α u` should be perpendicular to `u`, otherwise we could shrink the error along `u`. So `(v - α u) · u = 0`, which gives `v · u = α (u · u)`, hence `α = (v · u) / (u · u)`. When `u` is unit-norm, this simplifies to `α = v · u` and the projection is `(v · u) u`. That is also the geometric content of orthogonal decomposition: `v = projection along u + component perpendicular to u`.
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+**Cauchy-Schwarz** says `|u · v| <= ||u|| ||v||`, with equality iff `u` and `v` are parallel. This is why cosine similarity always lies in `[-1, 1]`: dividing by `||u|| ||v||` cannot exceed 1 in magnitude. Cauchy-Schwarz also bounds the variance of linear combinations of features and underlies many proofs you see in ML theory.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a numerical training or similarity problem to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Retrieval, attention, recommender scoring, and contrastive losses are all dot products in disguise. Whether to normalize, what dimension to use, and whether to scale by `sqrt(d)` change quality and stability. These are not exotic choices; they show up in every embedding system.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. Normalize when length should not matter.
+2. Scale by `sqrt(d)` when dimensions differ to keep variance comparable.
+3. Use dot product (faster) when vectors are already normalized.
+4. Project to remove a direction you do not want (debiasing embeddings).
+5. Confirm the metric matches how the model was trained.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+An image embedding model returns 512-dim vectors with average norm 5. A new model trained with cosine has unit norms. Mixing them in one index without re-normalizing produces wildly biased scores. Re-encoding everything with the same normalization fixes recall.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+## Debiasing an Embedding by Projection
+
+Suppose you suspect a word embedding picked up a "gender direction" `g` (the unit-norm vector roughly pointing from "she" toward "he" in embedding space). To remove that direction from a word vector `w`, subtract its projection onto `g`:
+
+```
+w_debiased = w - (w · g) g
+```
+
+Numeric example with two-dim vectors. Let `g = (1, 0)` and `w = (0.6, 0.8)`. The projection of `w` onto `g` is `(w · g) g = 0.6 * (1, 0) = (0.6, 0)`. The debiased vector is `(0.6, 0.8) - (0.6, 0) = (0, 0.8)`. The component along `g` is gone; only the orthogonal part survives. Real debiasing uses a list of word pairs to estimate `g` (Bolukbasi et al., 2016), and the same projection step removes the direction from the entire vocabulary. The technique generalizes: project out any direction you do not want a downstream model to pick up.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Forgetting that dot product favors longer vectors when lengths vary.
+- Comparing vectors from different models without sanity-checking norms.
+- Computing cosine on already-normalized vectors and paying for the extra divisions.
+- Using projection without checking the projector is unit-norm.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Why might a retrieval system using dot product perform worse than one using cosine on the same embeddings?
 
-**Question:** Explain Dot Products Projections and Similarity, then describe how you would use it in a real system.
+**Strong answer:** Dot product is sensitive to vector length. If embedding norm correlates with frequency or length, longer items dominate. Cosine removes length and ranks by direction. The fix is to normalize, or to switch to cosine. Either way, match the metric the model was trained for.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Claim they are always equivalent.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- When is dot product preferred to cosine for performance?
+- How do you debias an embedding by projecting out a direction?
+- What does Cauchy-Schwarz tell you about dot products?
+- Why do attention scores divide by `sqrt(d_k)`?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Take 100 random vectors with varying norms. Rank them by dot product to a query and by cosine. Show the top-10 lists differ and explain why.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Dot Products Projections and Similarity]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    U[u] --> D[u . v]
+    V[v] --> D
+    D --> S{Lengths matter?}
+    S -- No --> Cos[Normalize then dot = cosine]
+    S -- Yes --> Dot[Use raw dot product]
 ```
 
 ---

@@ -45,6 +45,22 @@ clearer tool descriptions and a tighter budget. Outcome alone would have hidden 
 - Ignoring tool-error rate and unauthorized-action rate.
 - No hard-example or should-refuse cases in the suite.
 
+## Production Concerns
+
+Statistical significance matters at small benchmark sizes; a 50-task
+benchmark with a 5-point success rate change has a wide confidence
+interval. Bootstrap CIs on success rate; require non-overlap before
+declaring an improvement. The cost-quality Pareto frontier
+visualizes the tradeoff: plot success rate against cost per task
+across configurations. The chosen point is the operating decision;
+ship the configuration on the frontier, not strictly the highest
+success rate. Regression alerts have their own SLO: drop in success
+rate beyond historical noise pages the on-call within minutes;
+slower drift triggers a ticket. The benchmark itself drifts: refresh
+quarterly with new failure cases from production traces. Without
+refresh, the benchmark passes while real users see new failure
+modes.
+
 ## Interview Angle
 
 **Question:** How do you evaluate an agent?

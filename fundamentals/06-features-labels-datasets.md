@@ -1,100 +1,66 @@
-# Features Labels Datasets
+# Features, Labels, and Datasets
 
 ## Beginner-Friendly Intuition
 
-Features Labels Datasets is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to connect a business or product question to data, labels, models, metrics, and failure modes. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
-
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+A dataset is a table where each row is an example. The columns split into features (the inputs the model sees) and labels (the outputs we want to predict). Good features encode the signal cleanly; good labels reflect the actual decision the system supports. Most ML quality wins come from fixing features and labels, not from changing models.
 
 ## Formal Explanation
 
-Features are inputs, labels are target outputs, and datasets are the collected examples used to learn or evaluate a task. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+A feature can be numeric (price, age), categorical (country), ordinal (rating tier), text, image, or derived (rolling 7-day average). Labels can be ground truth (a confirmed fraud chargeback), a proxy (a click on a result), or human judgment. Each label kind brings different noise. A dataset is a snapshot of the world at a moment, with a schema, a sampling process, and a time range. Knowing the sampling process is what tells you whether the data covers the cases you care about.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a product or workflow decision to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Many production failures are mislabeled features or mismatched labels. A click-as-label optimizes engagement, not satisfaction. A 'fraud' label that includes only confirmed cases misses the long tail of unconfirmed fraud. Engineers who pause on the dataset definition save weeks of debugging.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. Write the feature schema: name, type, source, freshness, missing-rate.
+2. Write the label schema: source, delay, noise, coverage, who decides.
+3. Plot distributions and missingness for each feature; spot leakage and outliers.
+4. Check the join: are you sure the label belongs to this row?
+5. Decide which features are available at prediction time. Drop ones that leak the future.
+6. Document assumptions where the dataset will fail (new users, new merchants, new languages).
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A churn dataset uses 'cancelled within 30 days' as the label. The team finds that 'time since last login' is a strong feature. But this feature is computed at the moment of training, after some users already cancelled, so it leaks. They fix it by computing the feature as of the prediction time. Validation AUC drops from 0.94 to 0.82, which is the real number.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Using post-event information as a feature (leakage).
+- Treating missing values as zero without labeling missingness.
+- Optimizing a proxy label that does not match the real decision (clicks vs satisfaction).
+- Ignoring label noise and reviewer disagreement.
+- Letting a single column secretly encode the user identity, which destroys generalization.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** How do you design features and labels for a new ML problem, and what failure modes do you watch for?
 
-**Question:** Explain Features Labels Datasets, then describe how you would use it in a real system.
+**Strong answer:** Define the user decision first, then choose a label that reflects that decision (not a convenient proxy). Build features that are available at prediction time, with explicit handling of missing values. Document data sources and freshness. Check leakage by training on shuffled labels and seeing if performance is too good.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Pick whatever fields are available, treat them as features, and use the most convenient column as the label.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How would you detect label noise?
+- What is the difference between a hard label and a soft label?
+- How would you handle missing values in a high-stakes setting?
+- When is a proxy label good enough and when is it dangerous?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick a problem you understand. Write the feature schema (5+ features with type, source, freshness) and the label schema (source, delay, noise). Then circle any feature that might leak.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Features Labels Datasets]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    R[Raw events] --> J[Join + filter]
+    J --> F[Features at prediction time]
+    J --> L[Labels with delay + noise]
+    F --> D[Dataset row]
+    L --> D
 ```
 
 ---

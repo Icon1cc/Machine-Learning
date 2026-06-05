@@ -73,8 +73,13 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with recency and usage rules plus logistic regression on account-level features. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with recency and usage rules (no login in 30 days) plus
+logistic regression on account-level features: tenure in
+months, plan tier, support-contact frequency, billing-issue
+count, days-since-last-active, recent plan changes. The
+baseline should be easy to explain, cheap to run, and strong
+enough to expose data quality problems before advanced modeling
+begins.
 
 ## Advanced Approach
 
@@ -170,6 +175,11 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Predicting churn likelihood but not whether the planned
+  intervention helps; ranking by predicted risk without an A/B
+  test of the intervention conflates correlation with causation.
+- Using future-looking features ("plan downgrade next month") as
+  inputs; the offline AUC inflates and production fails.
 
 ---
 ## Navigation

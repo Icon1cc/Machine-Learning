@@ -47,6 +47,22 @@ proposes several autonomous agents chatting, then stalls on "what stops it from 
 - Evaluating only the final outcome, not the trajectory.
 - Ignoring prompt injection and irreversible-action risk.
 
+## Production Concerns
+
+Common failure modes from postmortems map to interview red flags:
+prompt-injection from retrieved content (defense missing in the
+design), unbounded loops (no stop condition specified), unauthorized
+tool calls (no permission scopes named), runaway cost (no budget),
+silent regression (no monitoring or eval), wrong-user data leak (no
+ACL on retrieval and memory). Naming each unprompted is a strong
+signal. A pre-ship verification checklist: budgets defined, kill
+switch tested, audit log retained, eval suite passing,
+prompt-injection defenses tested, rollback tested, named on-call,
+runbooks written. Strong candidates close their answer with this
+list. The interviewer is also looking for restraint: the candidate
+who says "this is a workflow, not an agent" gains points where the
+candidate who reaches for multi-agent loses them.
+
 ## Interview Angle
 
 **Question:** The interviewer asks "does this need an agent at all?"

@@ -2,99 +2,180 @@
 
 ## Beginner-Friendly Intuition
 
-Naive Bayes is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to build strong, interpretable baselines for structured data before reaching for larger models. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
+Naive Bayes asks the simplest possible question: given that this email contains
+the words "free", "viagra", and "click", what is the probability it is spam? It
+applies Bayes' theorem to combine the prior probability of each class with the
+likelihood of each feature, and pretends all features are independent given the
+class. That independence assumption is almost always wrong, which is the "naive"
+in the name. Yet Naive Bayes works astonishingly well on text and on small data
+where every parameter you can avoid estimating is a parameter you do not need to
+fit.
 
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+The intuition: when you have lots of features and not much data, a model that
+ignores feature correlations and only estimates `P(feature | class)` for each
+feature is robust because it has very few parameters. When the assumption breaks
+mildly, it still ranks things correctly even if absolute probabilities are off.
 
 ## Formal Explanation
 
-Naive Bayes is a practical concept used to build strong baselines and interpretable models for structured data in a tabular prediction task. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+By Bayes' theorem, for a class `c` and feature vector `x = (x_1, ..., x_d)`:
 
-The rigorous version usually includes:
+```
+P(c | x) ∝ P(c) · P(x | c) = P(c) · P(x_1, ..., x_d | c)
+```
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+The naive assumption is that features are conditionally independent given the
+class:
+
+```
+P(x | c) = Π_j P(x_j | c)
+```
+
+Predict the class that maximizes this product, equivalently the sum in log
+space:
+
+```
+ĉ = argmax_c [ log P(c) + Σ_j log P(x_j | c) ]
+```
+
+Variants by feature distribution:
+
+- **Multinomial NB.** Features are counts (word frequencies). Standard for text.
+  Estimate `P(word | class)` from class-conditional word frequencies.
+- **Bernoulli NB.** Features are binary (word present or absent). Useful when
+  document length is uninformative.
+- **Gaussian NB.** Features are continuous, modeled as Gaussians per class. Each
+  class gets its own mean and variance per feature.
+- **Categorical NB.** Discrete unordered categoricals.
+
+**Laplace (additive) smoothing** prevents `P(word | class) = 0` from killing the
+whole product when a word never appears in a class during training:
+
+```
+P(word_j | class) = (count_jc + α) / (Σ_j count_jc + α V)
+```
+
+with `α = 1` typical and `V` the vocabulary size.
+
+**Always work in log space.** Multiplying many small probabilities underflows
+floating point. Sum of log-probabilities is numerically stable.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a tabular prediction task to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
+Naive Bayes is rarely the headline model in 2026, but it remains useful in three
+roles. First, the spam-class baseline: text classification with TF-IDF +
+Multinomial NB is competitive with logistic regression on small labeled sets and
+trains in milliseconds. Second, the explanatory baseline before BERT or a
+transformer: it tells you what fraction of the signal is "bag of words." If NB
+gets 0.87 F1 and a fine-tuned transformer gets 0.91, the transformer's
+contribution is small and may not justify the cost. Third, real-time scoring on
+constrained devices: NB's inference is a sum of log-probabilities, microseconds
+on any hardware.
 
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+It also has a teaching role: NB is the simplest concrete example of a
+generative classifier, modeling `P(x | c)` rather than the discriminative
+`P(c | x)` that logistic regression learns. That distinction matters in many
+production decisions (handling unseen classes, rejection options, semi-supervised
+learning).
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Pick the variant by data type.** Counts -> Multinomial; binary indicators
+   -> Bernoulli; continuous -> Gaussian; categorical -> Categorical.
+2. **Compute class priors.** From training-set class frequencies, possibly
+   uniform if you want to be robust to class imbalance.
+3. **Compute conditional likelihoods.** Per-class word counts (Multinomial),
+   per-class means and variances (Gaussian), etc.
+4. **Apply Laplace smoothing.** Crucial; without it any unseen word in a class
+   sets the joint to zero.
+5. **Predict in log space.** `argmax_c [log prior + Σ log likelihood]`.
+6. **Calibrate.** NB scores are not calibrated probabilities even when correct
+   class is chosen. Apply isotonic regression or Platt scaling on a held-out
+   set if you need probabilities.
+7. **Validate against alternatives.** A logistic regression with the same
+   features is the natural sanity check. If LR is meaningfully better, the
+   independence assumption is too costly.
+
+## Why It Surprisingly Wins on Text
+
+Real text features are highly correlated ("free" and "money" co-occur). So why
+does NB work? Two reasons. First, even when the absolute probabilities are
+miscalibrated by the independence assumption, the **rankings** are often
+correct: the class with higher product is still the right class. Second, with
+small training sets and large vocabularies (say 10K words and 1K labeled
+examples), there is not enough data to estimate joint distributions reliably.
+Estimating `V` parameters per class (NB) instead of `V²` parameters (a model
+that pairs words) can win by sample-efficiency alone. As data grows, logistic
+regression and transformers overtake.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A team builds a triage classifier for support tickets, routing them to one of 8
+queues. Training data is 4,200 labeled tickets. They tokenize, lowercase, drop
+stopwords, and build TF-IDF vectors with the top 5,000 terms. Multinomial NB
+with `α = 1` reaches macro F1 = 0.74. Logistic regression with L2 reaches 0.78.
+A fine-tuned distilbert reaches 0.83 but takes 60 ms per inference vs 0.3 ms
+for NB. The team ships NB as the fallback (when the GPU service is unavailable)
+and as the explanation tool: per ticket, they show the top three words that
+contributed to the decision (highest `log P(word | class)` minus mean across
+classes). NB makes that interpretation trivial; the transformer does not.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Skipping Laplace smoothing and getting `-inf` probabilities for any unseen
+  word.
+- Multiplying probabilities directly instead of summing log-probabilities;
+  underflow on long documents.
+- Using Gaussian NB on heavily skewed continuous features without log
+  transforming first.
+- Treating NB scores as probabilities without calibration.
+- Forgetting that the independence assumption rarely holds; do not use NB to
+  estimate causal feature effects.
+- Comparing NB to logistic regression on tiny data and concluding NB is
+  outdated; on small data NB often matches or beats LR.
+- Using one-hot encoded high-cardinality features with Multinomial NB; switch
+  to Categorical or hash the feature.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Why does Naive Bayes often beat logistic regression on small text
+datasets even though the conditional independence assumption is wrong?
 
-**Question:** Explain Naive Bayes, then describe how you would use it in a real system.
+**Strong answer:** Two factors. First, with `V` features and `n << V` examples,
+estimating `V` per-class likelihoods is statistically much more reliable than
+fitting `V` interacting weights via gradient descent on cross-entropy. NB's
+parameter count is independent of the number of feature interactions; LR's
+optimal solution depends on those interactions. Second, NB minimizes a
+generative criterion that has a higher asymptotic error than LR but lower
+finite-sample variance (Ng and Jordan, 2001). So NB converges faster as `n`
+grows, even though its final error is higher. The crossover happens around
+`n / V ≈ 1`. For text in production this means NB is a strong baseline up to a
+few thousand examples and gets overtaken by LR and then transformers as data
+grows.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** "Independence is fine for text" or "NB always works on text."
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- Derive the decision rule for binary Multinomial NB.
+- When would you prefer Bernoulli NB to Multinomial NB?
+- How does Laplace smoothing relate to Bayesian priors?
+- What is the difference between a generative and a discriminative classifier?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Take a small text classification dataset (20 newsgroups, IMDB sample). Fit
+Multinomial NB with `α ∈ {0.01, 1, 10}`. Compare macro F1. Note how the optimal
+`α` depends on dataset size.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Naive Bayes]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    X[Features x_1...x_d] --> L[Per-feature P(x_j | c) per class]
+    L --> S[Sum log probs + log prior]
+    S --> A[Argmax over classes]
+    A --> P[Predicted class]
 ```
 
 ---

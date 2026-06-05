@@ -2,114 +2,156 @@
 
 ## Goal
 
-Build a focused image classifier with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build an image classifier on a small public dataset using
+transfer learning, with rigorous augmentation, per-class
+evaluation, and a deployed inference endpoint.
 
 ## Why This Project Matters
 
-This project is useful because image classification work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Image classification is the canonical computer-vision task and
+the foundation for many production CV systems. Hiring managers
+ask about it because it tests transfer learning judgment,
+augmentation discipline, and the per-class evaluation that
+separates "0.95 macro F1" from "0.95 average that hides 0.4 on
+the hard class." A small public dataset makes the project
+reproducible by reviewers.
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+A pre-trained backbone fine-tuned on a small dataset beats a
+from-scratch model, often by a large margin. The senior
+production move is matching model capacity to data: 5K images
+cannot support a 100M-parameter network from scratch, but a
+fine-tuned backbone with strong augmentation can produce a
+useful classifier.
 
 ## Explanation
 
-Use labeled images and augmentation metadata. Start with this baseline: simple CNN or transfer-learning baseline. Compare it with fine-tuned vision backbone. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Use CIFAR-10, Fashion-MNIST, or a Kaggle small dataset. Choose
+a pre-trained backbone (ResNet50 or ViT-B/16) and freeze early
+layers, fine-tune the head and later layers. Apply augmentation
+(RandAugment, Mixup, CutMix). Use cosine LR schedule with
+warmup. Evaluate per-class F1 plus calibration. Deploy as a
+small API or batch.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in image classification. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+A medical imaging classifier on a public X-ray dataset routes
+images by predicted abnormality category. The system returns
+the top-3 predictions with confidence; below a threshold, route
+to manual review.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Public image dataset] --> B[Augmentation pipeline]
+    B --> C[Pre-trained backbone: ResNet or ViT]
+    C --> D[Fine-tune head + later layers]
+    D --> E[Per-class F1 + calibration]
+    E --> F[Confidence-based routing]
+    F --> G[API + per-class drift monitor]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use labeled images and augmentation metadata. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+CIFAR-10 (60K images, 10 classes) is the standard learning
+dataset. For a more interesting capstone, use Tiny-ImageNet
+(100K images, 200 classes) or a Kaggle domain-specific dataset
+(plant disease, road sign, etc.).
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: simple CNN or transfer-learning baseline.
-5. Train or configure the improved approach: fine-tuned vision backbone.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1: data exploration.** Class distribution; image-
+   resolution distribution; sample inspection by class.
+2. **Day 2: baseline.** Linear probe on a frozen pre-trained
+   backbone (no fine-tuning). Macro F1 and per-class accuracy
+   on the test set.
+3. **Day 3-5: fine-tune.** Unfreeze later layers; AdamW with
+   cosine schedule; basic augmentation (random crop, flip,
+   color jitter).
+4. **Day 6: stronger augmentation.** RandAugment or Mixup;
+   compare to basic.
+5. **Day 7: per-class analysis.** Confusion matrix; per-class
+   precision / recall / F1; identify the worst class.
+6. **Day 8: calibration.** Temperature scaling on a held-out
+   set; reliability diagram.
+7. **Day 9: hard-example mining.** Inspect 50 misclassified
+   examples; categorize errors (mislabeled, ambiguous,
+   genuine model failure).
+8. **Day 10: deployment.** TorchScript or ONNX export;
+   FastAPI service returning top-K predictions plus
+   confidence; CPU plus GPU benchmarks.
+9. **Day 11: monitoring.** Per-class accuracy drift on a
+   labeled stream; input-distribution drift via PSI on
+   image-level statistics; canary deployment with rollback.
+10. **Day 12-14: documentation.** Model card with intended
+    use, per-class limits, fairness analysis (per-subgroup if
+    applicable), and a confidence-routing runbook.
 
 ## Evaluation
 
-Use accuracy, macro F1, and class-level recall. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: Macro F1 (treats all classes equally).
+Secondary: per-class precision and recall, calibration error,
+top-3 accuracy. For imbalanced datasets, report per-class
+metrics first; aggregate-only is misleading.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- Stratified train-validation-test split.
+- Bootstrap CI on macro F1.
+- Per-class breakdown; identify the worst class with at least
+  two metrics.
+- Confusion matrix.
+- 3 success cases (clean classifications) and 3 failure cases
+  (mislabeled, ambiguous, genuine errors) described
+  qualitatively.
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Self-supervised pre-training on unlabeled data.
+- Semi-supervised learning with pseudo-labels.
+- Active learning loop on borderline examples.
+- Adversarial robustness analysis.
+- Knowledge distillation to a smaller deployable model.
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built an image classifier with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved accuracy, macro F1, and class-level recall while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- Training from scratch on a small dataset.
+- Reporting top-1 accuracy on imbalanced data without per-
+  class breakdown.
+- No augmentation; the model overfits.
+- No calibration; confidence-based routing is meaningless.
+- No deployment artifact; the model lives in a notebook.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The senior walk: name the transfer learning choice; describe
+augmentation and calibration; surface the per-class gap as a
+strength of your evaluation; name the deployment shape and the
+confidence-routing rule. The candidate who reports macro F1
+without per-class analysis loses the "what could go wrong"
+question.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+For your dataset, list the class distribution and identify the
+class likely to be hardest. Estimate the macro F1 lift from
+transfer learning vs from-scratch. Define the confidence
+threshold for routing to manual review.
+
+## Resume Bullet Points
+
+- Built an image classifier on CIFAR-10 using a fine-tuned
+  ResNet50 backbone, achieving macro F1 of 0.93 (vs 0.78
+  from-scratch baseline; 95-percent CI [0.92, 0.94]).
+- Per-class analysis exposed a 12-point F1 gap on the cat
+  class; iterated on augmentation and class-weighted loss to
+  close the gap to 4 points.
+- Deployed an ONNX-exported FastAPI service with temperature-
+  scaling calibration, confidence-based manual-review routing,
+  and per-class drift monitoring on a labeled production
+  sample.
 
 ---
 ## Navigation

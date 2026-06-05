@@ -2,100 +2,409 @@
 
 ## Beginner-Friendly Intuition
 
-ML System Design is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to make machine learning reproducible, deployable, observable, and governable after the notebook stage. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
+ML system design is the discipline of mapping a business problem
+to a complete production system: contract, data, training,
+serving, monitoring, governance. The frame that matters: design
+the contract first, then everything else. The team that starts
+with "let's train a model" without defining what is being asked of
+the system ships something that does not fit; the team that starts
+with the contract ships something that does.
 
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+The intuition: a model is one component. The system around it is
+ten other components: data ingestion, feature pipeline, training
+pipeline, model registry, serving infrastructure, monitoring,
+governance, evaluation, fallback, observability. Designing only
+the model and leaving the rest implicit is the standard failure
+mode. Designing the system is the senior skill.
+
+This file covers the end-to-end ML system design template, the
+reference architectures for batch and online ML systems, and the
+structure of a strong ML system design interview answer (since
+this material is also the most-asked interview format).
 
 ## Formal Explanation
 
-ML System Design is a practical concept used to make machine learning reproducible, deployable, observable, and governable in a model lifecycle. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+### The contract first
 
-The rigorous version usually includes:
+Before any ML, define the contract:
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+- **Inputs.** What does the system receive? Schema, expected
+  ranges, freshness, source.
+- **Outputs.** What does it produce? Type (classification,
+  regression, ranking, generation), confidence, structure.
+- **Latency.** End-to-end SLA; budget per component.
+- **Throughput.** QPS at peak and average.
+- **Freshness.** Maximum staleness of features and predictions.
+- **Quality bar.** Accuracy / precision / recall / faithfulness
+  threshold for acceptable; the threshold is the contract.
+- **Failure mode.** What happens when the system cannot answer.
+- **Fairness and safety.** Per-group requirements; refusal cases.
+- **Cost ceiling.** Per request, per month.
+
+The contract is the document everything else is built against.
+Skipping it produces a system that solves an unclear problem.
+
+### End-to-end template
+
+A complete production ML system has these layers:
+
+1. **Data ingestion.** Raw data sources, ETL pipelines, schema
+   validation, lineage tracking.
+2. **Feature pipeline.** Derived features, batch and streaming,
+   stored in a feature store with TTLs.
+3. **Training pipeline.** Reproducible: data version + code +
+   config -> registered model. Validation gates.
+4. **Model registry.** State machine for promotion; lineage; audit.
+5. **Serving infrastructure.** Online service or batch job;
+   autoscaling; health checks; fallback.
+6. **Monitoring.** Operational, ML quality, drift, business.
+7. **Governance.** Documentation, change management, audit.
+8. **Evaluation.** Eval harness, regression suite, periodic re-eval.
+9. **Observability.** Tracing, logging, dashboards, alerting.
+10. **Cost tracking.** Per request, per feature, per customer.
+
+Each layer has owners, deliverables, and SLAs. A complete design
+addresses each.
+
+### Reference: batch ML system
+
+Use case: nightly recommendation precompute.
+
+```
+Sources -> Ingestion -> Warehouse -> Feature pipeline -> Training
+  pipeline (scheduled) -> Model registry -> Batch scoring job ->
+  Output store -> Online serving (cache lookup) -> Application
+```
+
+Characteristics:
+
+- High throughput, no real-time latency requirement on training.
+- Online serving = cache lookup; sub-millisecond.
+- Freshness = up to 24 hours.
+- Cost dominated by the periodic training/scoring job.
+- Monitoring includes job duration, output freshness, prediction
+  drift.
+
+### Reference: online ML system
+
+Use case: real-time fraud scoring.
+
+```
+Streaming events -> Feature pipeline (Kafka + Flink) ->
+  Online feature store -> Online inference service (load balanced,
+  autoscaled) -> Application -> Outcomes -> Outcome pipeline ->
+  Training pipeline (scheduled) -> Model registry -> Online inference
+  service deploy
+```
+
+Characteristics:
+
+- Sub-second user-facing latency required.
+- Features served fresh from a streaming pipeline.
+- Online inference service handles peak QPS with autoscaling.
+- Fallback to a rule-based score on outage.
+- Monitoring includes p99 latency, drift, fairness, business
+  metrics.
+
+### Reference: LLM RAG system
+
+Use case: enterprise knowledge assistant.
+
+```
+Documents -> Ingestion + chunking -> Embedding pipeline ->
+  Vector store (with ACL) -> Query: rewrite -> retrieval ->
+  rerank -> generate -> output filter -> Application -> Logs ->
+  Eval harness -> Prompt/model iteration
+```
+
+Characteristics:
+
+- Latency budget per component; reranker often the longest.
+- Faithfulness as the quality bar.
+- ACL filter on retrieval is a hard requirement.
+- Eval-driven iteration; prompt CI/CD.
+- Cost dominated by generation (and reranker).
+
+### Decomposition strategy
+
+A complete design addresses each layer in order:
+
+1. Contract.
+2. Data: sources, schema, freshness.
+3. Features: derived, batch vs streaming, store.
+4. Training: pipeline, validation gates, registry.
+5. Serving: mode (online / batch / streaming / async); scaling.
+6. Monitoring: operational, quality, drift, business.
+7. Governance: documentation, change management, audit.
+8. Evaluation: harness, regression, online metrics.
+9. Cost: estimate per layer.
+10. Failure: per layer.
+11. Iteration: how does the team improve over time.
+
+Skipping a layer is the most common interview failure. The
+strong answer addresses each.
+
+### Capacity planning
+
+Specific to online ML systems:
+
+- **Peak QPS.** Estimate from traffic patterns; typically 3-5x
+  daily average.
+- **Latency budget.** End-to-end SLA decomposed: network,
+  preprocessing, model, postprocessing, postlogic.
+- **Hardware.** GPU vs CPU per model; concurrency per device.
+- **Replicas.** Provisioned for peak; autoscaling for bursts;
+  reserved for SLA reliability.
+- **Cost estimate.** Replica cost per hour x replicas x 24 x 30.
+
+Without capacity planning, the system either drops requests at
+peak or pays for idle capacity off-peak.
+
+### Failure modes per layer
+
+A senior design names the failure modes:
+
+- **Data.** Source outage, schema change, distribution shift,
+  data quality issue.
+- **Features.** Pipeline lag, computation bug, training-serving
+  skew.
+- **Training.** Reproducibility failure, gate regression, gpu
+  shortage.
+- **Serving.** Outage, latency tail, capacity miss, version
+  mismatch.
+- **Monitoring.** Alert fatigue, missed drift, dashboard rot.
+- **Governance.** Documentation drift, lineage break, audit
+  failure.
+
+Each has a control: backup source, schema validation, drift alert,
+fallback model, capacity buffer, on-call rotation.
+
+### Iteration and feedback loops
+
+A production system improves continuously:
+
+- **New training data.** From production outcomes; feedback
+  pipeline.
+- **New features.** From investigations; A/B tested.
+- **New models.** Architecture; vendor upgrade.
+- **New evaluation.** From production failures; eval set updated.
+- **New monitoring.** From postmortems; surfaces added.
+
+A design without an iteration loop ships a static system that
+ages.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a model lifecycle to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Three production reasons. First, **system design is what
+distinguishes senior ML engineers from junior**. Anyone can train
+a model; few can design the system that ships, monitors, and
+maintains it. Second, **the failure modes that kill production
+systems are at the system level**, not the model level. Latency
+tails, data drift, training-serving skew, lineage gaps, missing
+fallback. The system design is what addresses them. Third, **ML
+system design is the most-asked senior interview format**. A
+strong template plus practice with the layers separates strong
+candidates from weak.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Define the contract.** Inputs, outputs, latency, freshness,
+   quality, failure, cost.
+2. **Map data sources.** Available, missing, refresh cadence,
+   freshness.
+3. **Design the feature pipeline.** Batch vs streaming; feature
+   store; lineage.
+4. **Design the training pipeline.** Reproducible; validation
+   gates; registry.
+5. **Pick the serving mode.** Online / batch / streaming / async;
+   capacity plan.
+6. **Plan the monitoring.** Operational, quality, drift, business.
+7. **Build governance.** Documentation, change management, audit.
+8. **Build evaluation.** Eval set, regression suite, online
+   metrics.
+9. **Specify failure modes per layer.** Fallbacks, alerts,
+   runbooks.
+10. **Estimate cost.** Per layer; total per request.
+11. **Define iteration.** Feedback loops; how the system improves.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A team designs a recommendation system for a streaming media product.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+Contract:
+
+- **Input.** User ID, current context (page, time of day, device).
+- **Output.** Top 20 ranked items with scores.
+- **Latency.** p99 < 100 ms.
+- **Throughput.** 50K QPS at peak.
+- **Freshness.** Recommendations reflect activity within the
+  last 5 minutes.
+- **Quality.** CTR uplift over baseline > 3 percent.
+- **Cost ceiling.** $50K/month total.
+- **Fairness.** Per-content-creator coverage above floor; no
+  systematic suppression of underrepresented categories.
+- **Failure mode.** Outage = serve trending items list; degraded
+  but not broken.
+
+Architecture:
+
+- **Data.** Click stream from Kafka; user profile from data
+  warehouse; content catalog from CMS.
+- **Features.** Streaming pipeline maintains per-user recent
+  activity in an online feature store (sub-minute freshness);
+  batch pipeline updates per-user demographics nightly.
+- **Training.** Two-stage: candidate generation (matrix
+  factorization, retrained weekly) + ranking (gradient-boosted
+  trees, retrained daily). Both pipelines reproducible; gate on
+  per-segment NDCG.
+- **Registry.** MLflow; state machine; canary policy.
+- **Serving.** Online inference service with autoscaling; p95 65
+  ms; fallback to trending-items list on outage.
+- **Monitoring.** Operational (latency, error rate); ML (CTR,
+  per-segment, fairness); drift (PSI on top features); business
+  (session duration, retention).
+- **Governance.** Model cards per stage; lineage; quarterly
+  fairness audit.
+- **Evaluation.** Offline NDCG on weekly eval set; online A/B at
+  every model change; quarterly user study.
+- **Cost.** $35K/month: $20K serving, $10K training/scoring, $5K
+  monitoring/observability.
+- **Iteration.** Postmortems update runbooks; new features added
+  monthly via A/B; new model architecture evaluated quarterly.
+
+A real iteration win: production showed CTR underperforming on
+mobile during commutes. Investigation: the ranker was biased
+against short-form content. Fix: add a feature for content length
+context-weighted; A/B test confirmed CTR uplift; ship. Without
+the per-segment monitoring, the team would have missed the
+opportunity.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Starting with "I would train a model". Skips the contract;
+  produces a non-fitting system.
+- Skipping a layer. The interview answer or the production system
+  has a hole.
+- Online when batch fits. 100x cost.
+- Batch when freshness needed. Stale system.
+- No fallback. Outage = user-visible failure.
+- Capacity for average, not peak. Drops at peak.
+- No monitoring on drift. Silent degradation.
+- No governance. Audit fails.
+- No iteration plan. Static system ages.
+- Cost not estimated. Production budget overrun.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Design a system for a recommendation feature on a
+high-traffic e-commerce site.
 
-**Question:** Explain ML System Design, then describe how you would use it in a real system.
+**Strong answer:** Walk through the layers in order. Specifics
+matter; the strong candidate names tradeoffs.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
+**Layer 1: contract.** Latency p99 100 ms; throughput 100K QPS
+peak; freshness 5 minutes for user activity; quality CTR uplift
+over baseline; fairness coverage floor; cost ceiling.
 
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Layer 2: data.** User click stream (Kafka), user profile
+(warehouse), product catalog (CMS), inventory (real-time service).
+Schema validation; lineage tracking.
+
+**Layer 3: features.** Streaming pipeline updates user-recent
+activity in an online feature store. Batch pipeline updates
+demographics nightly. Item features from catalog. Training-serving
+parity is non-negotiable.
+
+**Layer 4: training.** Two-stage: candidate generation (vector
+similarity), ranking (GBM or neural). Both pipelines reproducible.
+Validation gates: per-segment NDCG, fairness disparity threshold,
+calibration.
+
+**Layer 5: registry.** State machine; canary policy; rollback
+path; lineage.
+
+**Layer 6: serving.** Online for the user-facing path; batch
+precompute for cold-start fallback. Microbatching at the GPU
+boundary if neural ranker. Autoscaling on QPS. Fallback to a
+trending-items list on outage; circuit breaker on the ranking
+service.
+
+**Layer 7: monitoring.** Operational (latency, error, throughput);
+ML (per-segment CTR, NDCG, fairness); drift (PSI per feature,
+prediction drift); business (session, conversion, retention).
+Per-segment everything.
+
+**Layer 8: governance.** Model card per stage; lineage; change
+management. Material changes (new feature class) trigger
+validation; routine retrains abbreviated.
+
+**Layer 9: evaluation.** Offline weekly NDCG; online A/B at every
+material change; quarterly user study for slow signals.
+
+**Layer 10: failure.** Per layer.
+
+- Data outage: serve from cache; if cache cold, fall back to
+  trending items.
+- Streaming lag: serve from feature store with stale features;
+  alert.
+- Training failure: serve previous version; alert; investigate.
+- Serving outage: trending-items fallback; circuit breaker; alert.
+- Monitoring outage: shadow path; alert.
+
+**Layer 11: cost.** Estimate per layer. Online dominated by serving
+infrastructure; training a fixed cost; batch precompute amortized.
+Total checked against ceiling.
+
+**Layer 12: iteration.** Feedback loop: outcomes feed training
+data; postmortems update runbooks; A/B test infrastructure for new
+features and models. The system improves continuously.
+
+**Tradeoffs to name.**
+
+- **Online vs batch vs hybrid.** Pure online for freshness;
+  hybrid for cost; pure batch for very high volume.
+- **Single-stage vs two-stage ranking.** Single is simpler; two-
+  stage is the production standard for scale.
+- **Neural vs GBM.** Neural for richer features; GBM for ease of
+  ops and interpretability.
+- **Realtime feature pipeline vs feature store snapshots.**
+  Realtime for true freshness; snapshots for cheap.
+
+The senior instinct: **the system is more important than the
+model**. A great model in a weak system fails; a good model in a
+strong system succeeds. Design the system; the model is one
+component.
+
+**Weak answer:** "I would train a deep learning model and deploy
+it." No contract; no monitoring; no governance; no failure mode;
+no iteration. Loses the interview.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How would you handle cold-start users?
+- How would you scale to 10x traffic?
+- How would you detect bias?
+- How would you upgrade the model architecture?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick an ML system you have used. Sketch each of the 11 layers in
+two sentences each. Identify the layer most likely missing in a
+typical first design.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Goal] --> B[Inputs and constraints]
-    B --> C[ML System Design]
-    C --> D[Evaluation]
-    D --> E[Monitoring and feedback]
-    E --> B
+    C[Contract: SLA + quality + cost] --> D[Data ingestion + schema]
+    D --> F[Feature pipeline + store]
+    F --> T[Training pipeline + gates]
+    T --> R[Model registry]
+    R --> S[Serving: mode + capacity + fallback]
+    S --> M[Monitoring: ops + ML + drift + business]
+    M --> G[Governance: docs + change + audit]
+    G --> E[Evaluation + iteration]
+    E --> F
 ```
 
 ---

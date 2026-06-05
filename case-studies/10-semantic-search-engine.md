@@ -73,8 +73,12 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with BM25 plus metadata filters and manually tuned synonyms. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with BM25 plus metadata filters (date range, content type,
+language, ACL) and manually tuned synonym lists for known query
+patterns. Standard tokenization and stop-word handling. The
+baseline should be easy to explain, cheap to run, and strong
+enough to expose data quality problems before advanced modeling
+begins.
 
 ## Advanced Approach
 
@@ -170,6 +174,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- No reindex plan for embedding-model upgrades; switching
+  embedders without rebuilding the index produces silent
+  retrieval-quality regressions.
+- Pure dense retrieval without BM25 fallback fails on queries
+  with proper nouns, codes, or out-of-distribution vocabulary;
+  hybrid retrieval is the production answer.
 
 ---
 ## Navigation

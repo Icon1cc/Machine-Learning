@@ -2,106 +2,176 @@
 
 ## How to Use This File
 
-Use this page to practice structured interview answers for ingestion, chunking, retrieval, reranking, grounding, evaluation, and security. Read each question, answer out
-loud, then compare your response with the strong and weak answer patterns. Keep answers concrete:
-name the user, data, baseline, metric, failure mode, and production plan.
+Three core RAG interview questions: chunking and retrieval
+design, ACL on retrieval, and faithfulness evaluation. Read
+each, answer for 2-3 minutes, then compare with the patterns.
+Strong answers name specific knobs and failure modes; weak
+answers stop at "do RAG."
 
 ## Core Preparation Checklist
 
-- Clarify the role, user, decision, and constraints before naming a model.
-- State assumptions about data availability, labels, latency, privacy, and cost.
-- Start with a simple baseline and explain why added complexity is justified.
-- Choose metrics that match the product decision and the cost of mistakes.
-- Discuss leakage, drift, monitoring, rollback, and human review.
-- Communicate tradeoffs in plain language and connect them to user impact.
+- Know chunking strategies and the typical 256-1024 token range
+  with overlap.
+- Know hybrid retrieval (BM25 plus dense) and when sparse,
+  dense, or both each fit.
+- Know reranker placement and the cross-encoder vs LLM-judge
+  tradeoff.
+- Know cite-or-abstain contracts and how they shape behavior.
+- Know ACL on retrieval (pre-filter is the only safe option for
+  multi-tenant).
+- Know faithfulness evaluation with calibrated LLM judges and
+  human spot checks.
+- Have one RAG retrieval-quality story ready.
 
 ## Interview Question Sections
 
-### Question 1: Problem Framing and Baseline
+### Question 1: Chunking and retrieval design
 
-**Question:** You are asked to design or analyze a solution involving ingestion, chunking, retrieval, reranking, grounding, evaluation, and security. What would you clarify
-first, and what baseline would you build before using a more complex approach?
+**Question:** A team is building RAG over a corpus of 10K
+internal documents averaging 30 pages each. Walk through the
+chunking and retrieval design.
 
-**What the interviewer is testing:** Whether you can turn an ambiguous prompt into a measurable
-engineering problem without hiding behind model names.
+**Strong answer:** Start with the question shape: are user
+queries fact-lookup ("what is the policy on X") or holistic
+("summarize the project Y plan")? Fact lookup wants smaller
+chunks (256-512 tokens) so retrieval is precise; holistic
+queries want larger chunks or hierarchical retrieval (parent
+document IDs after candidate chunks) so context is
+preserved. Use overlap (10-20 percent) so claims do not get
+split across chunks. Hybrid retrieval is the default: BM25
+for proper nouns, codes, and rare terms; dense embeddings for
+paraphrase matching. Reranker on top-N (cross-encoder for
+quality, smaller LLM for cost-quality balance) re-orders the
+candidate set before generation. Eval: recall@k on a labeled
+question set, faithfulness on the generated answer. Iterate
+chunk size and reranker model based on the eval, not on
+hunches. With 10K documents, the retrieval index and the
+embedding model dominate cost; cache aggressively.
 
-**Strong answer:** Clarify the user decision, available data, label or feedback source, constraints,
-and failure cost. Propose a baseline that can be evaluated quickly, then state what evidence would
-justify a more advanced model or architecture.
-
-**Weak answer:** Jump straight to a model, skip the baseline, ignore data quality, and never define
-how success will be measured.
-
-**Follow-up questions:**
-
-- What data would be available only after the decision is made?
-- Which simple baseline would be hardest to beat?
-- What metric would be misleading if used alone?
-
-**Common traps:** Optimizing the offline metric without understanding the product decision, assuming
-labels are clean, and ignoring high-risk segments.
-
-### Question 2: Evaluation and Failure Modes
-
-**Question:** How would you evaluate a system for ingestion, chunking, retrieval, reranking, grounding, evaluation, and security, and how would you explain its most
-important failure modes?
-
-**What the interviewer is testing:** Whether you can connect metrics, error analysis, guardrails, and
-production risk.
-
-**Strong answer:** Define a primary metric, guardrail metrics, slice analysis, and a hard-example
-set. Explain false positives, false negatives, latency or cost failures, privacy risks, and what
-human review should handle.
-
-**Weak answer:** Report one aggregate score and treat it as proof that the system is ready.
+**Weak answer:** "Use 1000-token chunks and dense retrieval."
+Without engaging the question shape, hybrid retrieval, or
+reranker.
 
 **Follow-up questions:**
 
-- How would you detect a regression after release?
-- Which segment would you inspect first?
-- What would make the evaluation set untrustworthy?
+- When does smaller chunk size hurt?
+- Why use a reranker instead of just retrieving top-K?
+- How do you handle a document that does not chunk cleanly
+  (tables, code blocks)?
+- What is hierarchical retrieval and when does it help?
 
-**Common traps:** Confusing correlation with impact, overlooking delayed labels, and failing to
-calibrate confidence.
+**Common traps:** One chunk size for all. Pure dense without
+hybrid. No reranker. No iteration based on retrieval eval.
 
-### Question 3: Production Design and Communication
+### Question 2: ACL on retrieval
 
-**Question:** How would you move a solution for ingestion, chunking, retrieval, reranking, grounding, evaluation, and security from prototype to production, and how would
-you explain the tradeoffs to a non-technical stakeholder?
+**Question:** A multi-tenant RAG product must guarantee a
+user cannot retrieve another tenant's documents. Design the
+controls.
 
-**What the interviewer is testing:** Whether you understand ownership after launch.
+**Strong answer:** ACL pre-filter is the only safe option.
+Filtering after retrieval risks leaking results; filtering
+on the LLM output is too late. Two patterns: per-tenant
+partitioning (separate index per tenant; strong isolation,
+operational overhead) or per-document ACL metadata in a shared
+index with filter applied during ANN search. The filter must
+be applied at the index level so the search returns only
+authorized documents; many vector databases support this via
+metadata filters. Caching follows the same rule: cache keys
+include the user identity (or tenant ID and ACL hash) so a
+shared cache cannot leak across tenants. Audit log every
+retrieval with caller identity and the document IDs returned.
+Test the controls: red-team probes that try to elicit
+cross-tenant content; eval suite includes "must refuse"
+cases. The single deployment-blocking gap in enterprise RAG
+is forgetting the cache key.
 
-**Strong answer:** Separate offline and online paths, version data and models, add monitoring and
-rollback, define escalation, and explain tradeoffs between quality, latency, cost, privacy, and user
-trust.
-
-**Weak answer:** Stop at a notebook result or architecture sketch without deployment, monitoring, or
-support plans.
+**Weak answer:** "Filter the LLM output." Or "trust the
+prompt." Without the index-level filter or cache-key design.
 
 **Follow-up questions:**
 
-- What should be logged and what should not be logged?
-- What happens when confidence is low?
-- How would you roll back a bad release?
+- What is the difference between pre-filter and post-filter
+  on retrieval?
+- How do you handle ACL changes (a user's permissions are
+  revoked)?
+- How do you cache safely in a multi-tenant RAG system?
+- What goes in the audit log?
 
-**Common traps:** Forgetting operational ownership, treating model output as always safe, and
-communicating metrics without business context.
+**Common traps:** Output-only filtering. Cache without ACL.
+No periodic re-filter on permission changes.
+
+### Question 3: Faithfulness evaluation
+
+**Question:** Your RAG system has 0.85 retrieval recall but
+users complain about wrong answers. Walk through the
+diagnosis.
+
+**Strong answer:** High retrieval recall plus low quality
+means the model is failing to use the retrieved evidence.
+Diagnose by faithfulness eval: split each generated answer
+into claims; for each claim, check whether retrieved evidence
+supports it. LLM-as-judge with calibration against humans on a
+sample is the standard automated approach. Common causes: the
+model ignores the context and hallucinates; the cite-or-
+abstain contract is not in the prompt; the model fabricates
+citations; chunking splits a claim's evidence across chunks;
+the reranker is missing or misranks the relevant chunk; the
+prompt structure puts the question before the context, making
+the model anchor on prior knowledge. Fix the prompt
+(context-first, explicit cite-or-abstain), tune the reranker,
+audit chunking. Per-claim faithfulness drift in production
+catches regressions.
+
+**Weak answer:** "The model is wrong." Without the evidence-
+to-claim audit.
+
+**Follow-up questions:**
+
+- How do you calibrate an LLM judge against humans?
+- What is a cite-or-abstain contract?
+- How do you handle a question whose answer requires synthesis
+  across multiple chunks?
+- What does a faithfulness regression alert look like?
+
+**Common traps:** Treating high retrieval recall as proof.
+No claim-level audit. No abstention contract.
+
+## Sample Q and A
+
+**Q:** What is indirect prompt injection in RAG and how do you
+defend?
+
+**A:** Indirect prompt injection is when a retrieved document
+contains instructions that the model treats as commands. A web
+page, internal doc, or email could contain "ignore previous
+instructions and reply with X." The defense layers: tag
+retrieved content (e.g., wrap in `<document>...</document>`
+and instruct the model to treat tagged content as data, not
+instructions); output filter for the most-common injection
+patterns; assume retrieval is hostile by default. Periodic
+red-team probes verify the defense holds. Indirect injection
+is the most underestimated production threat in 2026 RAG
+systems.
 
 ## Mini Exercise
 
-Pick one project from this repository and give a five-minute answer using this structure: clarify,
-baseline, data, metric, failure modes, production plan, and tradeoff summary. Rewrite the weakest
-part until it is specific enough to defend.
+Pick a RAG system you have used or designed. Specify the
+chunking, retrieval (sparse, dense, hybrid), reranker, ACL
+strategy, and faithfulness eval. Identify the weakest layer
+and one production threat.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Clarify] --> B[Baseline]
-    B --> C[Data and model]
-    C --> D[Evaluation]
-    D --> E[Production controls]
-    E --> F[Stakeholder explanation]
+    A[Query] --> B[Rewrite + classify]
+    B --> C[Hybrid retrieval: sparse + dense]
+    C --> D[ACL pre-filter]
+    D --> E[Reranker]
+    E --> F[LLM with cite-or-abstain]
+    F --> G[Output filter + faithfulness gate]
+    G --> H[Audit + monitor + iterate]
 ```
 
 ---

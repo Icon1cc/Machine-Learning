@@ -16,6 +16,30 @@ small chunks for retrieval precision while returning the larger parent for gener
 (parent-document retrieval). The goal is that each retrievable unit can answer a real question on its
 own.
 
+**Semantic chunking** uses an embedding model to find natural breaks rather than fixed character or
+token counts. Slide a window through the document; embed adjacent sentences; when the cosine similarity
+between consecutive sentences drops below a threshold, place a chunk boundary. The result is chunks
+that contain semantically coherent ideas and break at topic shifts. Implementations: LangChain's
+`SemanticChunker`, LlamaIndex's `SemanticSplitter`. Cost: an embedding call per sentence at ingestion
+time. Quality: typically 5-15 percent retrieval recall improvement over fixed-size chunking on
+unstructured text.
+
+**Domain-dependent chunk size**:
+
+- **FAQ and support docs.** Short chunks (100-300 tokens). Each Q+A pair is its own chunk.
+- **Technical documentation.** Medium chunks (300-600 tokens). Section-aware boundaries; keep code
+  blocks intact.
+- **Legal contracts and policies.** Longer chunks (500-1500 tokens). Clauses and provisions span
+  paragraphs; cutting them mid-clause loses meaning.
+- **Academic papers.** Long structured chunks per section, with parent-document retrieval to surface
+  context.
+
+**Chunk overlap and pollution.** Overlap of 10-20 percent helps when an idea spans a boundary, but
+high overlap creates duplicate-ish chunks in the embedding space, which can pollute ranking (the same
+content appears multiple times in top-K). Mitigate with deduplication at retrieval time
+(near-duplicate detection on chunk content) or with parent-document retrieval where the small chunks
+serve only for similarity matching while the larger parent is what gets returned to the LLM.
+
 ## Why It Matters in Real Jobs
 
 Chunking is one of the highest-leverage knobs in RAG and one of the cheapest to tune. A poorly chunked

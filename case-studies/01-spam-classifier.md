@@ -73,8 +73,14 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with keyword rules, deny lists, sender reputation checks, and a logistic regression model over TF-IDF features. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with keyword rules, deny lists, sender reputation checks,
+and a logistic regression model over TF-IDF features. Add
+hand-crafted features the model would otherwise miss: sender-
+domain reputation (days since first observed approved mail),
+link-count, attachment-type signal, all-caps ratio, recipient-
+block-list hits. The baseline should be easy to explain, cheap
+to run, and strong enough to expose data quality problems before
+advanced modeling begins.
 
 ## Advanced Approach
 
@@ -139,6 +145,13 @@ manual labeling throughput, delayed ground truth, and noisy feedback loops.
 - A data pipeline change silently shifts feature values or retrieval quality.
 - Confidence is poorly calibrated, causing the system to automate cases that need review.
 - The critical failure to plan around is blocking a legitimate account recovery or business email.
+- A new phishing template floods inboxes faster than the label
+  pipeline updates; the model misses an entire wave until human
+  reports come in.
+- Adversarial spammers obfuscate keywords (Unicode lookalikes,
+  zero-width characters, image-only mail); the keyword and TF-IDF
+  baseline degrades silently if monitoring is per-keyword rather
+  than per-class.
 
 ## Tradeoffs
 
@@ -158,10 +171,14 @@ review, and a feedback loop before increasing automation.
 ## Follow-Up Questions
 
 - What baseline would you build first?
-- How would you prevent leakage?
+- How would you handle adversarial obfuscation (Unicode
+  lookalikes, image-only mail)?
 - Which metric matters most and which metrics are guardrails?
 - What happens when confidence is low?
 - How would the design change at ten times the traffic?
+- How do you prevent the feedback loop where a user marking a
+  legitimate sender as spam poisons the training set for that
+  sender's other recipients?
 
 ## Common Mistakes
 
@@ -170,6 +187,11 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Optimizing recall against a fixed threshold; spam adversaries
+  shift, so the threshold must be tuned against fresh false-
+  positive samples.
+- Treating user-marked-as-spam labels as ground truth without
+  inspecting per-sender bias and labeling delay.
 
 ---
 ## Navigation

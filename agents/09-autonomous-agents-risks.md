@@ -45,6 +45,24 @@ plus approval plus audit, stopped a single failure from becoming a loss.
 - Trusting tool inputs and external content (injection surface).
 - No audit log, so an incident cannot be reconstructed.
 
+## Production Concerns
+
+A kill switch is a single control that immediately halts all
+running agent loops, drains in-flight tool calls, and freezes
+deployment. Triggers: spend over budget by N percent, error rate
+above threshold, abuse pattern detected, manual emergency. Test it
+quarterly. Audit log forensics matter: when an incident happens,
+the team must reconstruct who decided what, when, and why. Log
+every action with model version, prompt hash, tool name, arguments,
+result, decision, principal identity. Retain per regulatory window.
+Blast radius is quantified before launch: how many users, dollars,
+records does the agent touch in the worst case? The answer
+determines the controls needed (1 user = light gates; 1 million
+users = heavy gates plus pre-approval). Reversibility is a design
+choice: prefer queues and stagings (draft email, queued payment) so
+mistakes are caught at a human checkpoint before becoming
+irreversible.
+
 ## Interview Angle
 
 **Question:** What are the risks of an autonomous agent and how do you control them?

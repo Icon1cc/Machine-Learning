@@ -2,99 +2,333 @@
 
 ## Beginner-Friendly Intuition
 
-Bias And Fairness is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to anticipate harms, privacy risks, misuse paths, and governance needs before release. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
+Bias in an AI system is when its outputs differ systematically across
+groups in ways that disadvantage some unfairly. Fairness is the
+discipline of measuring, reducing, and operating against bias.
+Neither is a moral abstraction; both are engineering problems with
+specific metrics, specific controls, and specific failure modes.
 
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+The intuition: a model trained on historical data inherits historical
+biases. A hiring model trained on a company's past hires reflects
+the company's past hiring patterns, including any discrimination. A
+medical diagnostic trained on majority-group data performs worse on
+minority groups. A language model trained on internet text reproduces
+the stereotypes in that text. None of this is the model "being
+biased" in some abstract sense; it is the model accurately reflecting
+biased data.
+
+This file covers the bias and fairness tooling: where bias comes
+from, how to measure it, how to mitigate it, and how to operate the
+controls in production.
 
 ## Formal Explanation
 
-Bias and Fairness is a practical concept used to anticipate harms and build accountable controls into AI systems in a risk-sensitive AI decision. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+### Sources of bias
 
-The rigorous version usually includes:
+Five major sources, often layered:
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+- **Historical bias.** The training data reflects past discrimination.
+  A loan model trained on past approvals reproduces past bias even
+  if the model itself is "fair".
+- **Representation bias.** Some groups are underrepresented in the
+  training data. The model performs worse on them because it had
+  fewer examples to learn from.
+- **Measurement bias.** The label is measured differently across
+  groups. A "successful employee" label might be reviewed more
+  strictly for one group than another; the model learns the
+  reviewer's bias.
+- **Aggregation bias.** A single model assumes one relationship
+  fits all groups when relationships actually differ. Per-group
+  models or interaction terms can address.
+- **Deployment bias.** The model is deployed in a context different
+  from training. A model trained on Western users deployed globally
+  has deployment bias.
+
+Each source needs a different mitigation; misdiagnosing the source
+wastes effort.
+
+### Fairness metrics
+
+No single metric is the right one; choose by context.
+
+- **Demographic parity.** Each group has equal probability of a
+  positive prediction. Useful when the base rate should be equal
+  (representation in shortlists). Strict; can mask quality
+  differences.
+- **Equality of opportunity.** Each group has equal true-positive
+  rate (recall). The qualified candidates from each group have
+  equal chance of being identified. Common in hiring, healthcare.
+- **Equalized odds.** Each group has equal TPR and FPR. Stricter
+  than equality of opportunity.
+- **Calibration parity.** A predicted probability of 0.7 means 70
+  percent positive across all groups. Calibration matters when
+  scores feed into thresholds.
+- **Disparate impact (80 percent rule).** The selection rate for
+  any group should be at least 80 percent of the rate for the
+  highest-rate group. EEOC standard for hiring; widely cited.
+- **Predictive parity.** Each group has equal positive predictive
+  value (precision).
+
+The impossibility result (Chouldechova, Kleinberg et al.): under
+unequal base rates, you cannot satisfy demographic parity, equalized
+odds, and calibration parity simultaneously. The team must choose
+which metrics matter for the use case and accept the trade-offs.
+
+### Measuring bias
+
+The standard procedure:
+
+1. **Define groups.** Protected attributes (race, gender, age,
+   national origin, disability, religion, etc.) per applicable law.
+   Sometimes inferred (Bayesian Improved Surname Geocoding, BISG)
+   when not directly observed; the inference is itself
+   controversial.
+2. **Compute the metric per group.** TPR, FPR, precision, selection
+   rate per group.
+3. **Compare across groups.** Disparity ratios. Confidence intervals
+   on each.
+4. **Flag breaches.** Disparity exceeding a threshold (e.g., 80
+   percent rule, or per-pair statistical significance).
+
+Tools: Fairlearn, AIF360, What-If Tool, Aequitas. Each provides
+the standard metrics and visualization.
+
+### Mitigating bias
+
+Three intervention points:
+
+- **Pre-processing.** Adjust the training data: reweight samples
+  per group, drop biased features, generate synthetic balanced
+  data.
+- **In-processing.** Adjust the training objective: add fairness
+  constraints to the loss, train per-group models, use adversarial
+  debiasing.
+- **Post-processing.** Adjust the predictions: calibrate per group,
+  use group-specific thresholds, apply equalized odds correction.
+
+Each has trade-offs:
+
+- Pre-processing changes the data; downstream effects may be
+  unpredictable.
+- In-processing changes the model; harder to ship in regulated
+  contexts where the model is locked.
+- Post-processing is cheap and visible; per-group thresholds are
+  legally controversial in some jurisdictions (treating individuals
+  by group).
+
+### Operating fairness controls
+
+A production fairness control is not a one-time check; it is an
+ongoing audit:
+
+- **Per-group dashboards.** Continuous monitoring of fairness
+  metrics.
+- **Alert thresholds.** Disparity above threshold triggers
+  investigation and remediation.
+- **Periodic deep audit.** Quarterly or annual independent review;
+  findings feed back into the controls.
+- **Documentation.** Fairness analysis in the model card; regular
+  updates.
+- **Incident response.** When a fairness issue is detected, named
+  owner, timeline to remediation, postmortem.
+
+### Production gotchas
+
+- **Drift over time.** Fairness can degrade as the data distribution
+  shifts; ongoing monitoring catches it.
+- **Intersectional bias.** A model can be fair for "women" overall
+  and unfair for "Black women". Single-axis fairness misses
+  intersectional disparities.
+- **Proxy features.** Even when protected attributes are not
+  features, proxies (zip code, name) can encode them. Removing the
+  protected attribute alone is insufficient.
+- **Feedback loops.** Biased predictions affect outcomes (a
+  rejected loan applicant cannot demonstrate creditworthiness),
+  which become training data for the next model, amplifying bias.
+- **Disparate impact vs disparate treatment.** Some legal frameworks
+  forbid disparate treatment (using a protected attribute) but
+  allow disparate impact (unequal outcomes). Others forbid both.
+  Know your jurisdiction.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a risk-sensitive AI decision to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Three production reasons. First, **fairness is regulated**. EEOC
+hiring rules, ECOA credit rules, EU AI Act high-risk classification
+each impose requirements. Compliance failure has direct legal
+consequences. Second, **fairness incidents are visible**. A biased
+hiring model becomes a news story; the company's brand takes the
+hit. Third, **fairness is a quality dimension**. A model that works
+worse on some users is a worse model overall; the team that measures
+per-segment performance ships better products.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Identify protected attributes** per applicable law and product
+   context.
+2. **Pick fairness metrics** matched to the use case (equality of
+   opportunity, demographic parity, calibration parity, disparate
+   impact).
+3. **Measure baseline.** Compute metrics on the current system.
+4. **Diagnose source.** Historical, representation, measurement,
+   aggregation, deployment.
+5. **Apply mitigation.** Pre-processing, in-processing, or
+   post-processing.
+6. **Re-measure.** Verify the mitigation worked without
+   unacceptable accuracy loss.
+7. **Document.** Fairness analysis in the model card.
+8. **Operate.** Monitoring, alerts, periodic audit.
+9. **Iterate.** Re-measure as the system evolves; address drift.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A team builds a credit scoring model. The fairness review at design.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+- **Protected attributes.** Race, gender, age, marital status (per
+  ECOA).
+- **Metrics.** Disparate impact (80 percent rule) and equality of
+  opportunity (equal TPR across groups). Calibration parity for the
+  threshold.
+- **Baseline.** Disparity ratio 0.72 between two race groups (below
+  the 0.8 threshold). Equality of opportunity disparity 8
+  percentage points.
+- **Diagnosis.** Mix of historical bias (training data reflects
+  past lending) and representation bias (one group underrepresented
+  in approvals).
+- **Mitigation.** Reweight samples per group during training (pre-
+  processing); add fairness constraint to the loss (in-processing);
+  per-group calibration (post-processing). Combined.
+- **Re-measure.** Disparity ratio 0.86; equality of opportunity
+  disparity 2 percentage points. Accuracy drops 1.5 points;
+  acceptable.
+- **Documentation.** Model card includes the fairness analysis,
+  the mitigation steps, the residual disparity, and the monitoring
+  plan.
+- **Production controls.** Per-group dashboards. Alert if
+  disparity ratio drops below 0.8. Quarterly independent audit.
+
+A year later, an audit catches drift: disparity ratio at 0.78 due
+to a data source that started over-representing one group.
+Remediation: data source rebalanced; model retrained; disparity
+restored. The control caught what would otherwise have been a
+slow regulatory exposure.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Removing the protected attribute and assuming the model is fair.
+  Proxies remain.
+- Using a single fairness metric when multiple matter. The team
+  optimizes one and the others degrade.
+- Trying to satisfy all fairness metrics simultaneously without
+  understanding the impossibility result.
+- Skipping intersectional analysis. Single-axis fairness misses
+  important disparities.
+- Mitigating once and never re-measuring. Drift is real.
+- Documentation without operation. Fairness theater.
+- Ignoring deployment context. Training-time fairness does not
+  guarantee deployment-time fairness.
+- No incident response for fairness issues. First incident has no
+  playbook.
+- Treating fairness as an ML team problem. It is product, legal,
+  ethics, and engineering together.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** A team is concerned about bias in their hiring model.
+Walk through how you would diagnose and address it.
 
-**Question:** Explain Bias and Fairness, then describe how you would use it in a real system.
+**Strong answer:** Bias diagnosis is multi-step. The output is a
+mitigation plan with measured before-and-after.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
+**Step 1: define the scope.** What protected attributes apply? For
+US hiring: race, gender, age, national origin, disability, religion
+(EEOC). What fairness metrics matter? For hiring: equality of
+opportunity (equal TPR for qualified candidates), disparate impact
+(80 percent rule), calibration parity if scores feed thresholds.
 
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Step 2: measure baseline.** Compute the metrics per protected
+group. Confidence intervals. Compare across groups; flag
+disparities. Include intersectional analysis (race x gender).
+
+**Step 3: diagnose the source.**
+
+- **Historical bias.** Is the training data reflecting past
+  discrimination? Audit the labels.
+- **Representation bias.** Are some groups underrepresented? Count
+  per group.
+- **Measurement bias.** Is the label measured differently across
+  groups? Audit the labeling process.
+- **Aggregation bias.** Does one model fit all groups? Per-group
+  models can reveal this.
+- **Deployment bias.** Is deployment context different from
+  training?
+
+Each source needs a different mitigation; misdiagnosing wastes
+effort.
+
+**Step 4: design the mitigation.** Three intervention points:
+
+- **Pre-processing.** Reweight, drop biased features, augment
+  underrepresented groups.
+- **In-processing.** Fairness constraint in the loss, adversarial
+  debiasing, per-group models.
+- **Post-processing.** Calibrate per group, group-specific
+  thresholds (legally fraught in some jurisdictions), equalized
+  odds correction.
+
+Often combined. Each has trade-offs (legal, accuracy, complexity).
+
+**Step 5: re-measure.** After mitigation, verify the fairness
+metrics improved without unacceptable accuracy loss. Some accuracy
+loss is acceptable; the team and legal define the threshold.
+
+**Step 6: document.** Fairness analysis in the model card.
+Mitigation steps, residual disparity, the fairness-accuracy trade-
+off chosen and why.
+
+**Step 7: operate.** Per-group dashboards in production. Alert on
+disparity threshold breach. Quarterly audit. Annual independent
+review.
+
+**Step 8: feedback loop.** Drift over time can degrade fairness.
+The deployed model affects outcomes (rejected applicants do not
+get hired and do not become future positive examples), which
+amplifies bias in retraining data. Monitor and intervene.
+
+The senior instinct: **fairness is a measurable, mitigable
+engineering problem with regulatory consequences**. The team that
+treats it as such ships consistently; the team that treats it as a
+values discussion ships slowly and risks legal exposure.
+
+**Weak answer:** "Remove the protected attribute." Insufficient
+(proxies remain) and misses the diagnostic, mitigation, and
+operational steps.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What is the impossibility result and what does it imply?
+- What is intersectional bias?
+- How do you handle drift in fairness over time?
+- What are proxy features and why do they matter?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick an AI feature with potential fairness concerns. Identify the
+protected attributes, the fairness metric you would optimize, the
+intervention point (pre, in, post), and the production monitoring
+you would build.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Bias and Fairness]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    D[Data + labels] --> M[Model training]
+    M --> Pred[Predictions]
+    Pred --> Eval[Per-group fairness metrics]
+    Eval --> A{Disparity above threshold?}
+    A -- Yes --> Mit[Mitigate: pre / in / post]
+    Mit --> M
+    A -- No --> Op[Operate: monitor + alert + audit]
+    Op --> Eval
 ```
 
 ---

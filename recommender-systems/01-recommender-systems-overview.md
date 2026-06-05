@@ -2,99 +2,310 @@
 
 ## Beginner-Friendly Intuition
 
-Recommender Systems Overview is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to rank useful items for users while balancing relevance, diversity, freshness, and feedback loops. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
+A recommender system answers a deceptively simple question: of all the
+items I could show this user, which 10 are most likely to be useful to
+them right now? "Items" are anything: products, videos, songs, news
+articles, ads, friends-to-add, jobs. "Useful" is operationalized as a
+metric: predicted click, predicted purchase, predicted dwell time,
+predicted long-term retention. The challenge is that with millions of
+candidate items and hundreds of millions of users, you cannot score
+every (user, item) pair every time; the system architecture must be
+clever about what to score.
 
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+The intuition for the standard recommender pipeline: a **two-stage
+funnel**. The first stage, **candidate generation** (or retrieval),
+narrows millions of items down to a few thousand using cheap
+operations. The second stage, **ranking**, scores those few thousand
+with an expensive model. A third stage, **reranking**, applies
+business rules, diversity, and policy filters. This funnel is the
+reference architecture for almost every large-scale recommender:
+YouTube, TikTok, Netflix, Spotify, Amazon, LinkedIn, every major ads
+system. The details vary; the funnel does not.
 
 ## Formal Explanation
 
-Recommender Systems Overview is a practical concept used to rank useful items for users under product constraints in a personalization surface. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+### The recommendation problem
 
-The rigorous version usually includes:
+Given a user `u` and a set of items `I`, produce a ranked list of
+items to show. The ranking is optimized for some objective: predicted
+click, predicted purchase value, predicted long-term retention, or a
+weighted combination. The output is shown on a "personalization
+surface" (home feed, search, related items, recommendations panel).
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+### The two-stage funnel
+
+```
+millions of items
+    -> Candidate generation (retrieval): top 1K-10K
+    -> Ranking model: top 100
+    -> Reranking and policy: top 10-20
+    -> Shown to user
+```
+
+Each stage trades off accuracy for cost. Candidate generation must be
+cheap; ranking can be expensive but only over the candidates;
+reranking is even more expensive but over a tiny set.
+
+### Common candidate generation methods
+
+- **Two-tower retrieval (deep retrieval).** A user encoder produces a
+  user embedding from features; an item encoder produces an item
+  embedding. ANN-search to retrieve top-K items by dot-product
+  similarity. Standard in 2026.
+- **Collaborative filtering.** Look up items "similar users" liked.
+  See [02-collaborative-filtering.md](02-collaborative-filtering.md).
+- **Matrix factorization.** Factor the user-item interaction matrix
+  into user and item embeddings. See
+  [04-matrix-factorization.md](04-matrix-factorization.md).
+- **Content-based filtering.** Match items to user preferences by
+  content features. See
+  [03-content-based-filtering.md](03-content-based-filtering.md).
+- **Heuristic.** Recently popular items, items in same category as
+  past purchases, friends' items. Often a strong baseline.
+
+Production systems combine multiple sources of candidates (each
+contributing 100-1000 items) and unify them in the ranking stage.
+
+### Ranking
+
+A learned model that scores `(user, item, context)` tuples. Standard
+in 2026: a deep model with embeddings for high-cardinality features
+(user_id, item_id, video_id) plus dense features (recency, popularity,
+content embeddings, demographics). See
+[05-ranking-systems.md](05-ranking-systems.md).
+
+### Cold start
+
+The hardest problem in recommender systems.
+
+- **User cold start.** New user with no history. Use demographics,
+  context, popularity, or onboarding questions.
+- **Item cold start.** New item with no interactions. Use content
+  features (text, image embeddings) plus heuristics.
+- **System cold start.** New product line entirely. Often hand-curated
+  before learning.
+
+Content-based methods help with item cold start; CF and matrix
+factorization fail on cold-start items. Hybrid systems combine both.
+
+### Diversity, freshness, and exploration
+
+Pure relevance maximization produces bad user experiences. The system
+must also balance:
+
+- **Diversity.** Don't show 10 items from the same category. MMR
+  (maximum marginal relevance) and DPP (determinantal point processes)
+  formalize this.
+- **Freshness.** New content gets a boost; otherwise the system
+  drowns it under historical popular items.
+- **Exploration.** The system must occasionally show items it is
+  uncertain about, to learn. Bandit algorithms (epsilon-greedy,
+  Thompson sampling, LinUCB) balance exploit-explore.
+- **Fairness.** Ensure a long tail of providers (creators, sellers)
+  get exposure, not just the top 1 percent.
+
+These constraints typically live in the reranking stage as
+modifications to the ranking score.
+
+### Feedback loops
+
+Recommender systems shape what users see, which shapes what users
+click, which shapes the training data for the next model. This
+feedback loop can amplify popularity bias and reduce diversity. Common
+mitigations:
+
+- **Inverse propensity weighting.** Up-weight underexposed items
+  during training.
+- **Counterfactual evaluation.** Use logged data to estimate offline
+  what a different policy would have done.
+- **Exploration.** Force the model to occasionally see items outside
+  its current ranking.
+
+### Metrics
+
+Two layers of evaluation:
+
+- **Offline.** Recall@K, NDCG@K, MAP, MRR. Computed on a held-out set
+  of (user, clicked_item) tuples.
+  See [07-evaluation-metrics.md](07-evaluation-metrics.md).
+- **Online.** A/B tests on real users. CTR, conversion rate, retention,
+  long-term engagement. The decisive metric.
+
+Offline-online gap is huge for recommenders: a model that wins
+offline by 2 percent NDCG often produces zero or negative online lift.
+Reasons include: position bias, exploration data, distribution shift
+from changing what is shown, novelty effects.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a personalization surface to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Recommender systems power feeds, search, advertising, and every
+"things you might like" surface. Three production reasons. First,
+**revenue impact**: recommenders directly drive sessions, purchases,
+ads, and retention; small accuracy gains often translate into large
+revenue. Second, **system complexity**: a real recommender has
+dozens of components (candidate sources, ranker, reranker, policy
+filters, monitoring, retraining), and design choices interact. Third,
+**ethical and legal stakes**: recommendation drives content
+exposure, which has real societal effects (filter bubbles, content
+moderation, fairness).
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Define the surface and the objective.** Home feed, search,
+   related items, ads. Optimize for clicks, purchases, dwell time,
+   retention, or a composite.
+2. **Build the labeled data.** User interactions (clicks, purchases,
+   dwell). Treat unobserved interactions as implicit negatives,
+   weighted appropriately.
+3. **Build candidate generation.** Two-tower retrieval is a strong
+   default. Add other sources (popular, category-based) for
+   robustness.
+4. **Build the ranking model.** Deep model over user, item, and
+   context features. Train on logged interactions with weights.
+5. **Build the reranker.** Diversity, freshness, exploration, policy
+   filters.
+6. **Evaluate offline.** Recall@K for retrieval, NDCG@K for ranking.
+7. **A/B test.** The only metric that matters in the end.
+8. **Monitor.** CTR, conversion, retention, per-segment metrics.
+   Distribution shift, popularity drift, abuse vectors.
+9. **Retrain regularly.** User behavior shifts; recommender models
+   degrade fast without retraining.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A team builds the home feed for a video platform. The architecture.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+1. **Candidate generation.** Two-tower model produces user and video
+   embeddings (128-dim). Plus three other candidate sources: most-
+   recent, category-similar to recent watches, and friends' watches.
+   Combined: 5,000 candidates per user.
+2. **Ranking.** Deep model with user_id, video_id, channel_id
+   embeddings; recency features; predicted watch time as the target.
+   Trained on logged sessions with watch time as the label.
+3. **Reranking.** Diversity boost (limit any single channel to 3 of
+   top 20). Freshness boost (50 percent uplift for videos under 24
+   hours old). Bandit-style exploration (5 percent of slots reserved
+   for exploration items).
+
+The team A/B tests several variants. Adding the deep ranker over a
+matrix-factorization baseline lifts watch time by 8 percent. Adding
+diversity reranking drops short-term watch time by 1 percent but
+increases 7-day retention by 3 percent. The team ships diversity
+reranking because retention is the north star. Monitoring catches a
+case where the bandit exploration accidentally promotes copyright-
+violating content; they add a content-policy filter to the reranker.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Skipping candidate generation; trying to score the full catalog at
+  ranking time is too slow.
+- Optimizing pure relevance and watching diversity collapse.
+- Ignoring exploration; the system fossilizes around early winners.
+- Reporting only offline metrics; offline-online gap kills launches.
+- Treating implicit feedback (clicks) as ground-truth interest;
+  click-bait, position bias, and curiosity clicks all distort the
+  signal.
+- Forgetting cold start; the system serves new users badly without
+  explicit handling.
+- Ignoring the feedback loop; biased data produces biased models that
+  produce more biased data.
+- Skipping per-segment analysis; popular users dominate aggregate
+  metrics.
+- Tuning rerank policies without understanding their effect on the
+  ranker's training distribution.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Walk through the standard architecture of a large-scale
+recommender system, including why each stage exists.
 
-**Question:** Explain Recommender Systems Overview, then describe how you would use it in a real system.
+**Strong answer:** The reference architecture is a two-stage funnel
+plus reranking. The constraints that shape it: millions to billions of
+items, millions to billions of users, latency budgets in the tens to
+low hundreds of milliseconds. You cannot score every (user, item)
+pair every time. The funnel handles the cost.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
+1. **Candidate generation (retrieval).** Goal: produce a few thousand
+   candidates from millions of items, in milliseconds. Methods:
+   two-tower deep retrieval (user and item encoders into the same
+   space, ANN search), collaborative filtering, matrix factorization,
+   content-based, heuristics. Production systems combine multiple
+   sources and union the candidates. Optimized for **recall@K**: did
+   we retrieve a relevant item somewhere in the top K? The ranker
+   cannot recover items the retrieval missed.
 
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+2. **Ranking.** Goal: precisely score the few thousand candidates and
+   pick the top 50-100. Methods: deep models with embeddings for
+   high-cardinality features (user_id, item_id), dense features
+   (recency, popularity, demographics), and content embeddings. The
+   model can be expensive (millions of parameters) because it runs
+   over only thousands of candidates per query. Optimized for
+   **NDCG@K** or business-aligned metrics like predicted watch time.
+
+3. **Reranking and policy.** Goal: apply diversity, freshness,
+   exploration, fairness, and policy filters on top of the ranker's
+   scores. Methods: maximum marginal relevance for diversity, bandit
+   algorithms for exploration, business rule filters, hard
+   constraints (no copyright violations, no harmful content). This
+   stage often modifies but does not replace the ranker's ordering.
+
+Why each stage exists.
+
+- **Candidate generation** exists because scoring the full catalog at
+  ranker quality is too expensive. Cheap, scalable retrieval is the
+  only way to handle millions of items.
+- **Ranking** exists because retrieval alone is not accurate enough.
+  The ranker's deeper feature interactions and richer features
+  produce better top-K precision.
+- **Reranking** exists because pure relevance maximization produces
+  bad user experiences (no diversity, all popular items, no
+  exploration, exposure bias to top creators). Policy and diversity
+  must be applied as a separate, controllable layer.
+
+Production trade-offs.
+
+- **Latency budget.** Retrieval at 5-15 ms, ranking at 30-80 ms,
+  reranking at 5-20 ms. Total under 150 ms p99.
+- **Training cost.** Retrieval and ranker are usually trained
+  independently on shifted distributions; getting their training
+  signals consistent is engineering effort.
+- **Offline-online gap.** Common because the offline distribution is
+  driven by the current model; new models exposed to new candidates
+  produce different behavior than offline metrics suggest. A/B
+  testing is the decisive evaluation.
+
+A senior engineer's instinct: every recommender problem is a
+funnel-design problem. Where do candidates come from? How are they
+scored? What policies apply on top? How does the system explore? How
+is feedback closed? Every component touches the others.
+
+**Weak answer:** "Recommend items by similarity" without addressing
+the two-stage architecture or production constraints.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How does a two-tower retrieval model work?
+- What is exposure bias and how do you handle it?
+- Why is offline NDCG often disconnected from online metrics?
+- How would you handle cold-start users and items?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick a product (e-commerce, video, music). Sketch its recommender
+architecture: candidate sources, ranker features, reranking
+policies, evaluation metrics. Identify the single biggest risk.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Recommender Systems Overview]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    U[User + context] --> CG[Candidate generation: 1M -> 5K]
+    CG --> R[Ranking model: 5K -> 100]
+    R --> RR[Reranking: diversity, freshness, policy]
+    RR --> S[Top 10-20 shown]
+    S --> L[User interactions logged]
+    L --> CG
+    L --> R
 ```
 
 ---

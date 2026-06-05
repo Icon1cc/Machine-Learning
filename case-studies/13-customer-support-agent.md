@@ -73,8 +73,14 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with intent classifier, macro templates, and retrieval over support articles. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with an intent classifier (DistilBERT or similar) plus
+templated macros for the top-N intents (password reset, billing
+inquiry, account access). Add retrieval over the help-center
+corpus for free-form questions. Confidence-based routing:
+borderline scores escalate to a human queue with the customer
+context bundle attached. The baseline should be easy to explain,
+cheap to run, and strong enough to expose data quality problems
+before advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +176,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Optimizing deflection rate alone; CSAT erodes silently when
+  the agent confidently answers borderline tickets that should
+  escalate. Track both metrics and gate on the worse of the two.
+- Sentiment-blind escalation: a frustrated customer on a
+  deflectable intent should still escalate; classifier
+  confidence alone is insufficient.
 
 ---
 ## Navigation

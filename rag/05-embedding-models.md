@@ -44,6 +44,18 @@ embedding model, not the LLM or the prompt, and it required re-embedding the rep
 - Picking a general model for a specialized domain and missing jargon.
 - Choosing a metric the model was not trained for.
 - Forgetting that swapping models requires re-embedding the entire corpus.
+- **Ignoring multilingual coverage.** A query in Spanish against an English-only embedded corpus
+  retrieves poorly. Use a multilingual embedding model (BGE-M3, Cohere embed-multilingual-v3, E5-multilingual)
+  when any non-English content or queries exist. The cross-lingual quality matters: BGE-M3 retrieves
+  Chinese content from English queries reasonably; English-only models fail.
+- **Embedding quality drift over corpus growth.** A model fine-tuned for one domain can degrade as the
+  corpus grows into adjacent areas (e.g., support docs starting medical, growing legal). Periodic
+  re-evaluation on a fresh labeled set catches this; rebuild the eval set quarterly to track domain
+  drift.
+- **Dimensionality tradeoff missed.** Truncating from 1536 to 384 dimensions (Matryoshka-trained models
+  like text-embedding-3, OpenAI's small/large variants) saves 4x storage and ~30 percent latency. Recall
+  drop is typically 1-3 NDCG points on most benchmarks. Always measurable; often worth it for
+  cost-constrained systems.
 
 ## Interview Angle
 

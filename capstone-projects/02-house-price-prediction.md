@@ -2,114 +2,161 @@
 
 ## Goal
 
-Build a focused house price prediction with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build a production-quality house-price model that beats a strong
+median-by-segment baseline, with per-band evaluation, calibrated
+uncertainty intervals, and a deployment artifact a reviewer can
+run end-to-end.
 
 ## Why This Project Matters
 
-This project is useful because real estate pricing work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Real-estate pricing is a classic regression problem with real
+production constraints: skewed targets, segment heterogeneity
+(neighborhood, property type), and high-stakes decisions. A
+careless model gives a 95-percent confidence interval that does
+not contain the true price 95 percent of the time, which makes
+the model useless for actual decisions. This project teaches
+calibrated uncertainty, segment evaluation, and the business
+framing that hiring managers want to see.
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+A median price by neighborhood is a strong baseline. Beating it
+requires features that capture house-specific signal (size,
+quality, age, condition) without overfitting to noisy
+neighborhoods. The senior production move is calibrated
+confidence intervals so downstream consumers can use the model
+for real decisions, not just point estimates.
 
 ## Explanation
 
-Use property attributes, location, and sale price. Start with this baseline: median-by-neighborhood baseline. Compare it with regularized regression or gradient boosting. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Use a public housing dataset (Kaggle Ames Housing or California
+Housing). Engineer features (per-square-foot price by
+neighborhood, age, renovations, lot size). Baseline: median
+price within neighborhood-bedroom segments. Advanced: gradient
+boosting (LightGBM or CatBoost) with quantile loss for
+intervals. Evaluate per price band; the model that does well on
+median homes but fails on luxury or budget is a worse model.
+Calibrate uncertainty intervals via quantile regression or
+conformal prediction.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in real estate pricing. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+A real-estate platform shows estimated value for each listing
+with a confidence range. The model produces the point estimate
+and the interval; the platform shows both. A user looking at a
+$500K home sees "$480K-$525K typical range." The interval
+quality matters as much as the point estimate.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Public housing dataset] --> B[Feature pipeline + segments]
+    B --> C[Baseline: median by neighborhood-bedroom]
+    B --> D[Advanced: gradient boosting + quantile]
+    C --> E[Per-band MAE + interval coverage]
+    D --> E
+    E --> F[Calibration via conformal prediction]
+    F --> G[API + per-band monitoring]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use property attributes, location, and sale price. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+Ames Housing (Kaggle, 2900 rows, rich features) or California
+Housing (sklearn, 20K rows, simpler). Ames is the canonical
+choice; the rich feature set shows feature-engineering judgment.
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: median-by-neighborhood baseline.
-5. Train or configure the improved approach: regularized regression or gradient boosting.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1-2: EDA.** Distribution of target (long-tailed; log-
+   transform consideration); missing-value patterns; correlation
+   matrix; per-neighborhood price distributions.
+2. **Day 3: baseline.** Median by neighborhood-bedroom-bathroom
+   segments. MAE and per-band MAE on the test set with
+   confidence intervals.
+3. **Day 4-5: features.** Engineer 10-20 features (size per
+   bedroom, age, renovation indicator, lot ratio, location
+   features). Document each.
+4. **Day 6-7: advanced model.** LightGBM with median (L1) or
+   Tweedie loss. Tune via cross-validation. Compare to
+   baseline; target 20-30 percent MAE reduction overall.
+5. **Day 8: per-band eval.** Bucket prices into 5 bands;
+   evaluate MAE per band; identify failing bands.
+6. **Day 9: uncertainty.** Quantile regression at 0.05, 0.5,
+   0.95; check that 90-percent intervals cover 90 percent of
+   test prices (conformal prediction tightens this).
+7. **Day 10: deployment.** Small FastAPI service returning
+   point estimate plus interval; Dockerfile; documented inputs
+   and outputs.
+8. **Day 11: monitoring.** Per-feature PSI alerts; per-band
+   MAE drift dashboard; alert on coverage drop below 85
+   percent.
+9. **Day 12-14: documentation.** Model card with intended use
+   (estimate not price guarantee), limitations (luxury homes
+   underperform), fairness analysis (per-neighborhood
+   coverage), and rollback plan.
 
 ## Evaluation
 
-Use MAE and error by price band. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: MAE on the test set, with a confidence
+interval. Per-band MAE on 5 price buckets. Interval coverage
+(target 90 percent) on test data. Median Absolute Percentage
+Error for relative error reporting.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- Time-aware split if the dataset has a date column (older for
+  train, recent for test).
+- Per-band MAE: bottom 10 percent, middle 80 percent, top 10
+  percent at minimum.
+- Bootstrap CI on the overall MAE.
+- Calibration plot: predicted percentile vs observed.
+- 3 specific failure cases (the luxury home model misses, the
+  recently-renovated home it underprices, the unusual lot
+  size) described qualitatively.
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Add a neighborhood-level smoothing prior (Bayesian-style).
+- Add a fairness audit by neighborhood demographics.
+- Add a refinement step that lets a human override.
+- Add a CI workflow that runs the per-band MAE on every PR.
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built a house price prediction with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved MAE and error by price band while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- Reporting only overall MAE, hiding the luxury or budget gap.
+- Median Absolute Percentage Error without acknowledging
+  long-tail outlier sensitivity.
+- Quantile model without coverage check.
+- Skipping the deployment; the project lives in a notebook.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The strong walkthrough: the median baseline already beats some
+naive linear models; the gradient boosting lift is real but
+modest; the per-band analysis is what separates the project
+from a Kaggle-style "I won the leaderboard" pitch. The senior
+signal is the calibrated confidence interval and the per-band
+honesty.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+For your dataset, compute the median-by-segment baseline MAE.
+Estimate (roughly, no model) the lift you expect from gradient
+boosting. State which price band you expect to be hardest and
+why.
+
+## Resume Bullet Points
+
+- Built and deployed a house-price model on Ames Housing,
+  improving MAE by 28 percent over a median-by-neighborhood
+  baseline (95-percent CI [25, 31]).
+- Delivered calibrated 90-percent intervals via conformal
+  prediction, with per-price-band evaluation exposing a 40-
+  percent MAE gap on luxury homes and a documented remediation
+  plan.
+- Containerized the model behind a FastAPI service with PSI-
+  based drift alerts and a per-band MAE dashboard.
 
 ---
 ## Navigation

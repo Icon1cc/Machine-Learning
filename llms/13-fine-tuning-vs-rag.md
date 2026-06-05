@@ -16,6 +16,31 @@ Fine-tuning also has variants (full fine-tuning vs parameter-efficient methods l
 adapter weights). The decision rests on whether the gap is knowledge (RAG) or behavior (fine-tune), plus
 cost, latency, and update frequency.
 
+**LoRA rank tradeoffs.** LoRA (Hu et al., 2021) inserts low-rank adapter matrices into the model's
+linear layers; only the adapters are trained, freezing the base. The rank `r` controls capacity:
+
+- **r = 4-8.** Very efficient (minutes-to-hours of training, megabytes of weights). Good for narrow
+  format and tone tuning. Production default for most adaptation tasks.
+- **r = 16-32.** More capacity at moderate cost. Helps when the task involves more than format
+  (a domain-specific reasoning pattern, a structured workflow).
+- **r = 64-128.** Approaches full fine-tuning quality on many tasks; cost grows accordingly.
+
+**QLoRA** trains LoRA adapters on a 4-bit-quantized base, fitting 70B-parameter fine-tunes on a single
+80 GB GPU. Standard for cost-constrained adaptation in 2026.
+
+**Hybrid (RAG + fine-tune) cost picture.** When you do both: LoRA-fine-tune the model for behavior plus
+operate a RAG corpus for facts. Cost adds up: training cost (one-time per behavior change), serving
+cost (LoRA adapter loading per request adds 1-5 ms; retrieval adds 10-50 ms; reranking adds 30-100 ms;
+the LLM call itself dominates). Update frequency: behavior updates monthly to quarterly (re-fine-tune);
+knowledge updates daily to weekly (re-embed and re-index). Plan the operational cadence before
+committing.
+
+**Corpus update economics.** A 1M-document corpus re-embedded with a $0.02/M-token API: roughly $200-400
+to fully reindex, plus the time cost (typically a few hours wall-clock). Acceptable for monthly
+refreshes. For weekly or daily, consider self-hosted embedding to avoid the API line item, or
+incremental indexing (only re-embed changed documents). Index-rebuild compute can dwarf serving compute
+in a heavy-update environment.
+
 ## Why It Matters in Real Jobs
 
 This choice determines maintenance cost and reliability. Fine-tuning to memorize a changing catalog means

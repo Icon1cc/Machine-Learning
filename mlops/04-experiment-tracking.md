@@ -44,6 +44,22 @@ recreate it, and might ship a worse model by mistake.
 - Comparing runs by memory or spreadsheet instead of a system.
 - Logging metrics but not the model artifact.
 
+## Production Concerns
+
+Experiment bloat is real: a year of tracking can produce hundreds of
+thousands of runs and terabytes of artifacts. Define a retention
+policy: keep runs that produced a registered model indefinitely;
+keep top-K runs per project for 12 months; archive or prune the
+rest. Storage cost is monitored monthly. CI integration ties
+experiments to PRs: the eval harness logs metrics into the tracker
+on every PR; the dashboard shows the trend across PRs and catches
+silent regressions before merge. Real-time anomaly alerts on running
+experiments save GPU hours: if loss diverges or NaNs appear, the
+runner is killed automatically. Without it, a broken run wastes the
+full training budget. Per-team dashboards prevent metric collisions
+(different teams logging similar metric names with different
+definitions); the tracker enforces metric schemas where it matters.
+
 ## Interview Angle
 
 **Question:** Why use an experiment tracking tool?

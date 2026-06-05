@@ -2,114 +2,176 @@
 
 ## Goal
 
-Build a focused agentic research assistant with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build an agent that performs multi-step research tasks (search,
+read, synthesize) with bounded autonomy: tool budgets, stop
+conditions, audit logs, and the trajectory evaluation that
+proves it works without burning unbounded cost.
 
 ## Why This Project Matters
 
-This project is useful because research workflow support work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Agents are the production frontier of LLM systems and the
+highest-risk pattern (unbounded loops, irreversible actions,
+prompt injection from retrieved content). Building a real
+agent with bounded autonomy demonstrates the senior judgment
+hiring managers screen for: knowing when an agent is
+justified, how to constrain it, and how to evaluate
+trajectories.
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+A basic agent loop without stop conditions burns money on
+infinite searches. A reasonable agent has step caps, cost
+budgets, progress detectors, and trajectory evaluation. The
+senior production move is treating the loop as the dominant
+risk and engineering accordingly.
 
 ## Explanation
 
-Use user goals, sources, notes, and tool traces. Start with this baseline: retrieval plus structured notes. Compare it with bounded agent with citations and review steps. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Build a single agent (not multi-agent) that takes a research
+question, decomposes it, calls tools (web search, document
+read, summarize), and returns a cited synthesis. ReAct loop
+with explicit stop conditions: max 8 steps, cost budget per
+task, low-confidence escalation, progress detector on
+repetition. Audit log every action. Trajectory eval on a
+20-question benchmark.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in research workflow support. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+A researcher asks "compare the published claims about
+algorithm X across three vendor blog posts." The agent
+searches for the three posts, reads each, extracts claims,
+synthesizes a side-by-side comparison with citations. The
+trajectory log shows each search, each read, each extraction.
+A user can audit the work.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Research question] --> B[Plan: decompose into sub-questions]
+    B --> C[Loop: think -> act -> observe]
+    C --> D[Tool: search / read / summarize]
+    D --> C
+    C --> E{Stop condition?}
+    E -- Goal / steps / budget / progress --> F[Synthesize with citations]
+    F --> G[Audit log + trajectory eval]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use user goals, sources, notes, and tool traces. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+A 20-question benchmark of multi-hop research questions with
+known good answers (sourced from public knowledge: Wikipedia
+comparisons, public documentation, published benchmarks).
+Augment with 5 hard-case questions (no good answer exists; the
+agent should report what it found rather than fabricate).
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: retrieval plus structured notes.
-5. Train or configure the improved approach: bounded agent with citations and review steps.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1-2: tool definition.** Three tools: search (web or
+   public corpus), read (fetch a URL or doc), summarize (LLM
+   call on text). JSON schemas for each. Validation.
+2. **Day 3-4: loop framework.** ReAct implementation; context
+   management (summarize prior steps when context grows);
+   each step logged with thought, action, args, result.
+3. **Day 5: stop conditions.** Max steps (8), cost budget per
+   task (input plus output tokens), wall time, progress
+   detector (same tool plus same args twice = stuck).
+4. **Day 6-7: low-confidence escalation.** Self-confidence
+   reporting at each step; below threshold, escalate to
+   human-readable failure with the trajectory.
+5. **Day 8: synthesis with citations.** Final step generates
+   the answer with structured citations (source URL, claim
+   reference).
+6. **Day 9: audit log.** Per-task log: question, steps taken,
+   total cost, total wall time, final answer, citations,
+   stop reason.
+7. **Day 10: trajectory eval.** 20-question benchmark; metrics:
+   task success (correct synthesis), steps per task, cost per
+   task, citation accuracy, unauthorized-action rate (should
+   be zero).
+8. **Day 11: prompt-injection defense.** Tag retrieved content
+   in the loop; treat tool outputs as untrusted; output
+   filter on the final synthesis.
+9. **Day 12-13: deployment.** API with streaming step-by-step
+   updates so the user can see progress; audit log retention
+   per regulatory window.
+10. **Day 14: documentation.** Model card with intended use
+    (research, not autonomous action), limits (web search
+    quality, citation completeness), and a kill-switch
+    runbook.
 
 ## Evaluation
 
-Use task success, citation accuracy, and unsafe action rate. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: task success rate on the 20-question benchmark
+(was the synthesis correct against the known answer).
+Secondary: average steps per task (target 3-6), cost per task,
+citation accuracy (each cited claim is supported), abstention
+rate on hard cases.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- 20-question benchmark with known good answers.
+- 5-question hard-case set where abstention is correct
+  behavior.
+- Trajectory inspection on 30 random tasks; categorize
+  failures (looping, wrong tool, fabricated citation,
+  retrieval failure).
+- Cost-per-task distribution; alert on tail spend.
+- Per-question-type breakdown.
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Multi-step plans with replanning on failure.
+- Tool-permission tiers (read-only by default; state-
+  changing tools require approval).
+- Human-in-the-loop queue for low-confidence outputs.
+- Cost-quality Pareto: cheaper model first, escalate to
+  stronger on hard questions.
+- Self-correction: a critic agent reviews the synthesis.
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built a agentic research assistant with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved task success, citation accuracy, and unsafe action rate while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- No stop conditions; one stuck task burns hundreds of
+  dollars.
+- No progress detector; the agent loops on the same failing
+  search.
+- No trajectory eval; the team only sees final-answer
+  quality.
+- No injection defense for retrieved content; the agent
+  follows malicious instructions.
+- No audit log; postmortems are guesswork.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The senior walk: name the bounded-autonomy frame first;
+describe the stop conditions with concrete values; describe
+the trajectory eval and the cost-per-task distribution;
+describe the injection defense and the audit log; close with
+the kill-switch runbook. The candidate who builds an
+unbounded agent and shows the demo loses the production-
+readiness question.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+For your benchmark, define the cost budget per task and
+estimate the average cost. Identify one likely failure mode
+(looping search on a hard query) and the stop condition that
+catches it.
+
+## Resume Bullet Points
+
+- Built a bounded-autonomy research agent with three tools
+  (search, read, summarize), achieving 0.78 task success
+  rate on a 20-question multi-hop benchmark with average 4
+  steps per task and $0.18 cost per task.
+- Stop conditions (8-step cap, budget, progress detector on
+  repeated actions, low-confidence escalation) reduced
+  failure-mode tail spend by an estimated 40x compared to an
+  unbounded baseline.
+- Deployed with per-step streaming updates, immutable audit
+  logs, and a documented kill-switch runbook; trajectory
+  inspection on 30 random tasks drove iterative tool-prompt
+  improvements.
 
 ---
 ## Navigation

@@ -16,6 +16,28 @@ come from real evidence, enforce a cite-or-abstain contract, lower temperature f
 model to express uncertainty, and verify outputs (check citations, validate against sources). No single fix
 eliminates hallucination; you stack defenses and measure the residual rate.
 
+A useful **taxonomy of hallucination types**:
+
+- **Factual error.** A claim that is verifiably wrong (e.g., wrong date, wrong number).
+- **Source fabrication.** Citation to a paper, case, URL, or product that does not exist. Most damaging
+  in legal, medical, and academic contexts because the citation looks credible.
+- **Context conflation.** Two retrieved documents are merged into a single fabricated claim that neither
+  one supports. Common in RAG when chunks are short or related.
+- **Unsupported reasoning.** The model's logical chain looks valid but rests on an unstated and false
+  premise.
+- **Self-reinforcement.** In multi-turn conversations or chains-of-thought, the model treats its own
+  earlier (incorrect) statements as established fact and builds on them.
+
+**Per-claim measurement** is the rigorous way to track hallucination rate. For each generated answer,
+extract the verifiable claims (facts, numbers, citations), check each against authoritative sources, and
+compute the per-claim accuracy. Report at the claim level, not the answer level: an answer with 9 correct
+claims and 1 hallucinated number is 90 percent accurate at the claim level, which is more honest than
+counting it as "wrong." Per-claim eval requires either a labeled dataset or an LLM-as-judge configured
+specifically for fact verification (with calibration). For RAG systems combined with fine-tuning,
+hallucinations can still occur on questions adjacent to but not answered by the retrieved documents; the
+model fills the gap with prior knowledge instead of abstaining. A faithfulness eval (does every claim in
+the answer have support in the retrieved passages?) catches this.
+
 ## Why It Matters in Real Jobs
 
 In domains like medical, legal, or financial, a confident hallucination is a liability, not a quirk. The

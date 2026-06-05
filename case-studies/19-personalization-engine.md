@@ -73,8 +73,12 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with rules, segments, popularity, and recency-based recommendations. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with hand-tuned rules per user segment (new vs returning,
+free vs paid, region), popularity ranking with recency boost,
+and per-segment editorial overrides. Cold-start defaults for
+brand-new users. The baseline should be easy to explain, cheap
+to run, and strong enough to expose data quality problems
+before advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +174,11 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Personalization without privacy review; user behavior is
+  often regulated data and consent plus retention rules apply.
+- Filter-bubble collapse without diversity guardrails;
+  long-term engagement degrades even when short-term clicks
+  rise.
 
 ---
 ## Navigation

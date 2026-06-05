@@ -16,6 +16,18 @@ A simpler, increasingly common alternative is DPO (Direct Preference Optimizatio
 reward model and reinforcement loop, optimizing the model directly on preference pairs. Both shape behavior
 toward human preferences rather than just imitation.
 
+Preference data scales: production runs typically use **10K-100K preference pairs** for general assistant
+alignment, more for narrow safety behaviors. The cost is dominated by human labeling (a few dollars per
+pair from skilled raters); a 50K-pair dataset can cost tens to hundreds of thousands of dollars.
+**DPO** has become the default for many open-weight models because it skips the separate reward-model
+training step (saving compute and complexity) and is more stable than PPO (no policy collapse, no reward
+hacking through the reward model). The cost is that DPO does not explore as far from the SFT model and
+can underperform RLHF on tasks where the reward signal is rich and well-defined. Detection of
+**sycophancy** (the model agreeing with the user even when wrong) requires held-out factual evals where
+the user's stated belief is incorrect; if the model's accuracy drops when the user asserts a wrong belief,
+the model has been preference-tuned toward agreement. Recent variants (KTO, IPO, simPO) trade off
+implementation complexity for stability or sample efficiency; DPO remains the practical default in 2026.
+
 ## Why It Matters in Real Jobs
 
 Preference optimization is what makes assistant models feel aligned: concise when appropriate, willing to

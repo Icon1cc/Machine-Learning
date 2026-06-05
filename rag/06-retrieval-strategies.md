@@ -31,6 +31,26 @@ generation. Measuring retrieval separately is what makes RAG debuggable.
 4. **Apply metadata filters:** restrict to permitted, fresh, or relevant sources before ranking.
 5. **Measure recall@k** on a labeled query set and iterate.
 
+**Pre-filter vs post-filter ordering matters because it changes the score distribution.** Pre-filter
+restricts the candidate pool first, then ANN-searches the restricted set. Recall is preserved; latency
+depends on filter selectivity. Post-filter retrieves the global top-K, then drops candidates that fail
+the filter; on selective filters this can leave near-empty results because most of the top-K were not
+permitted. **Always pre-filter ACL and other selective constraints**; post-filter only for low-
+selectivity filters like language tags.
+
+**BM25 parameter tuning.** Defaults `k1 = 1.5, b = 0.75` work for most domains. Tune when:
+
+- Documents are very short (FAQ entries): lower `k1` (1.0-1.2) so term frequency saturates faster.
+- Documents are very long (legal, academic): lower `b` (0.3-0.5) to reduce length normalization.
+- Domain has heavy term repetition: experiment with `k1` 1.8-2.0.
+
+Always tune against an eval set; intuition is rarely accurate.
+
+**Recall@k vs cost tradeoff.** Higher k means more chunks in the prompt, more tokens, more cost, and
+diminishing returns past the answer. For most chat-style RAG, k=4-10 after reranking. For exploration
+or research-style tasks, k=20-50 with aggressive compression. Plot recall@k vs cost curves on the
+eval set; pick the smallest k that hits faithfulness target.
+
 ## Real-World Example
 
 A support assistant must answer "error code E-450". Pure semantic search returns conceptually similar

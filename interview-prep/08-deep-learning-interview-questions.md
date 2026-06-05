@@ -2,106 +2,171 @@
 
 ## How to Use This File
 
-Use this page to practice structured interview answers for optimization, backpropagation, regularization, architectures, and debugging. Read each question, answer out
-loud, then compare your response with the strong and weak answer patterns. Keep answers concrete:
-name the user, data, baseline, metric, failure mode, and production plan.
+Three core deep-learning interview questions: backprop and
+gradient flow, regularization in deep networks, and training
+diagnostics for divergence. Read each, answer for 2-3 minutes,
+then compare with the patterns. Strong answers diagnose
+specifically; weak answers stop at "use Adam."
 
 ## Core Preparation Checklist
 
-- Clarify the role, user, decision, and constraints before naming a model.
-- State assumptions about data availability, labels, latency, privacy, and cost.
-- Start with a simple baseline and explain why added complexity is justified.
-- Choose metrics that match the product decision and the cost of mistakes.
-- Discuss leakage, drift, monitoring, rollback, and human review.
-- Communicate tradeoffs in plain language and connect them to user impact.
+- Know backpropagation as the chain rule applied recursively.
+- Know vanishing and exploding gradients, and the architectural
+  responses (residual connections, batch and layer norm,
+  careful initialization, gradient clipping).
+- Know regularization stack: weight decay, dropout, label
+  smoothing, data augmentation, early stopping, mixup.
+- Know optimizer choice: SGD with momentum, Adam, AdamW, and
+  when each fits.
+- Know learning-rate scheduling: warmup, cosine, step decay.
+- Know mixed-precision training (fp16, bf16) and loss scaling.
+- Have one training-divergence story ready with the diagnostic
+  signal and the fix.
 
 ## Interview Question Sections
 
-### Question 1: Problem Framing and Baseline
+### Question 1: Backprop and gradient flow
 
-**Question:** You are asked to design or analyze a solution involving optimization, backpropagation, regularization, architectures, and debugging. What would you clarify
-first, and what baseline would you build before using a more complex approach?
+**Question:** Your 50-layer network trains slowly and the early
+layers barely change. Walk through what is happening and how to
+fix it.
 
-**What the interviewer is testing:** Whether you can turn an ambiguous prompt into a measurable
-engineering problem without hiding behind model names.
+**Strong answer:** Vanishing gradients. As the gradient
+backpropagates through many layers, repeated multiplication by
+small numbers (saturating activation derivatives, weight values
+below 1) shrinks the signal until it is too small to update
+early layers meaningfully. The architectural responses: residual
+(skip) connections, which let the gradient flow directly to
+early layers via the identity shortcut, are the single biggest
+unlock that made ResNet-style architectures with 100+ layers
+trainable. Use ReLU or GELU instead of saturating activations
+(sigmoid, tanh). Batch or layer normalization stabilizes
+activations layer-to-layer. Careful initialization (He for
+ReLU, Xavier for tanh) keeps initial activation variance from
+collapsing. If the issue is exploding instead of vanishing,
+gradient clipping bounds the update magnitude.
 
-**Strong answer:** Clarify the user decision, available data, label or feedback source, constraints,
-and failure cost. Propose a baseline that can be evaluated quickly, then state what evidence would
-justify a more advanced model or architecture.
-
-**Weak answer:** Jump straight to a model, skip the baseline, ignore data quality, and never define
-how success will be measured.
-
-**Follow-up questions:**
-
-- What data would be available only after the decision is made?
-- Which simple baseline would be hardest to beat?
-- What metric would be misleading if used alone?
-
-**Common traps:** Optimizing the offline metric without understanding the product decision, assuming
-labels are clean, and ignoring high-risk segments.
-
-### Question 2: Evaluation and Failure Modes
-
-**Question:** How would you evaluate a system for optimization, backpropagation, regularization, architectures, and debugging, and how would you explain its most
-important failure modes?
-
-**What the interviewer is testing:** Whether you can connect metrics, error analysis, guardrails, and
-production risk.
-
-**Strong answer:** Define a primary metric, guardrail metrics, slice analysis, and a hard-example
-set. Explain false positives, false negatives, latency or cost failures, privacy risks, and what
-human review should handle.
-
-**Weak answer:** Report one aggregate score and treat it as proof that the system is ready.
+**Weak answer:** "Increase the learning rate." Without
+diagnosing the gradient flow.
 
 **Follow-up questions:**
 
-- How would you detect a regression after release?
-- Which segment would you inspect first?
-- What would make the evaluation set untrustworthy?
+- What does a residual connection do mathematically?
+- Why does batch norm stabilize training?
+- What is the difference between He and Xavier
+  initialization?
+- How would you detect vanishing versus exploding gradients in
+  practice?
 
-**Common traps:** Confusing correlation with impact, overlooking delayed labels, and failing to
-calibrate confidence.
+**Common traps:** Treating slow learning as an LR issue when
+the architecture is the problem. No diagnostic on the
+gradient norms by layer.
 
-### Question 3: Production Design and Communication
+### Question 2: Regularization in deep networks
 
-**Question:** How would you move a solution for optimization, backpropagation, regularization, architectures, and debugging from prototype to production, and how would
-you explain the tradeoffs to a non-technical stakeholder?
+**Question:** A vision model overfits a 5K-image dataset. The
+team wants to stay with their architecture. Walk through the
+regularization plan.
 
-**What the interviewer is testing:** Whether you understand ownership after launch.
+**Strong answer:** Multiple stacked techniques, each with a
+different mechanism. Weight decay (L2 on parameters)
+discourages large weights; standard for neural networks.
+Dropout zeroes random activations during training, forcing
+redundant representations. Data augmentation expands the
+effective dataset (random crops, flips, color jitter for
+images, plus stronger Mixup or CutMix). Label smoothing
+prevents the model from becoming overconfident. Early
+stopping based on validation loss prevents the late-training
+overfit. For 5K images specifically, transfer learning from a
+pre-trained backbone is the highest-leverage move: fine-tune
+only the head with a low LR on the backbone, or full fine-tune
+with very small LR. Match model size to data: 5K images cannot
+support training a large model from scratch.
 
-**Strong answer:** Separate offline and online paths, version data and models, add monitoring and
-rollback, define escalation, and explain tradeoffs between quality, latency, cost, privacy, and user
-trust.
-
-**Weak answer:** Stop at a notebook result or architecture sketch without deployment, monitoring, or
-support plans.
+**Weak answer:** "Add dropout." Without the augmentation,
+transfer learning, or capacity matching.
 
 **Follow-up questions:**
 
-- What should be logged and what should not be logged?
-- What happens when confidence is low?
-- How would you roll back a bad release?
+- Why does dropout sometimes hurt with batch norm?
+- What is mixup and when is it most effective?
+- When would you not freeze the backbone in transfer learning?
+- How do you decide model capacity for a small dataset?
 
-**Common traps:** Forgetting operational ownership, treating model output as always safe, and
-communicating metrics without business context.
+**Common traps:** Single regularization technique. No transfer
+learning. No augmentation tuning. Model size mismatched to
+data.
+
+### Question 3: Training diagnostics for divergence
+
+**Question:** Your training loss spikes to NaN at step 12000.
+Walk through the diagnostic.
+
+**Strong answer:** Three suspects. Learning rate too high:
+check the LR schedule; if the LR ramped above a threshold,
+the optimizer overshot and destabilized. Numerical precision:
+fp16 without loss scaling can underflow gradients, producing
+NaN; check whether mixed-precision is enabled and loss scaling
+configured (or switch to bf16, which has wider dynamic range).
+Bad data: a corrupted batch with extreme values can spike the
+loss; inspect the batch at step 12000 and check for outliers
+or NaN inputs. Other diagnostics: gradient norm history (did
+norms grow steadily before the spike?), activation
+distributions, and the loss curve shape just before the NaN.
+Mitigations: gradient clipping (cap the gradient norm at, say,
+1.0), learning-rate warmup (linear ramp from a small value),
+loss scaling for fp16, data validation at the loader. Log
+checkpoints every N steps so a divergent run can be restarted
+from a healthy state instead of from scratch.
+
+**Weak answer:** "Lower the learning rate." Without the data
+inspection or precision check.
+
+**Follow-up questions:**
+
+- What is loss scaling and why is it needed for fp16?
+- How do you detect a bad batch in the data loader?
+- What does gradient clipping do mathematically?
+- How do you choose a warmup schedule?
+
+**Common traps:** Treating divergence as always an LR issue.
+No data validation. No mixed-precision check.
+
+## Sample Q and A
+
+**Q:** Adam versus SGD with momentum: when do you choose each?
+
+**A:** Adam adapts the learning rate per parameter using
+running estimates of first and second moments; it converges
+faster on noisy or sparse-gradient problems, which describes
+most modern deep-learning workloads. SGD with momentum
+generalizes better on some image classification tasks
+(historically observed), takes longer to converge but reaches
+flatter minima. For most modern pretraining and fine-tuning,
+AdamW (Adam with decoupled weight decay) is the default. SGD
+with momentum still wins on some computer-vision benchmarks
+where careful LR scheduling beats Adam's adaptivity. Match the
+optimizer to the task and the published recipes for the
+architecture.
 
 ## Mini Exercise
 
-Pick one project from this repository and give a five-minute answer using this structure: clarify,
-baseline, data, metric, failure modes, production plan, and tradeoff summary. Rewrite the weakest
-part until it is specific enough to defend.
+Pick a training run you have done. State the optimizer, LR
+schedule, regularization stack, and one symptom of training
+trouble (slow learning, divergence, overfitting). Match the
+symptom to a diagnostic and a fix.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Clarify] --> B[Baseline]
-    B --> C[Data and model]
-    C --> D[Evaluation]
-    D --> E[Production controls]
-    E --> F[Stakeholder explanation]
+    A[Training run] --> B{Symptom}
+    B -- Loss not decreasing --> C[Vanishing gradient: residual + norm + init]
+    B -- Loss explodes / NaN --> D[LR + clipping + precision]
+    B -- Train OK, val bad --> E[Overfit: aug + dropout + transfer]
+    C --> F[Re-run + monitor gradient norms]
+    D --> F
+    E --> F
 ```
 
 ---

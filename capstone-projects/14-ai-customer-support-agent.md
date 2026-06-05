@@ -2,114 +2,170 @@
 
 ## Goal
 
-Build a focused AI customer support agent with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build an AI customer-support agent with deflection capabilities,
+escalation gates, audit logs, and the trajectory evaluation
+that proves it deflects without harming CSAT.
 
 ## Why This Project Matters
 
-This project is useful because support automation work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Customer-support deflection is a high-leverage AI use case
+with a clear cost-benefit calculation: each deflected ticket
+saves real money. The challenge is doing it without harming
+CSAT, leaking customer data, or producing confidently-wrong
+answers. Hiring managers ask about it because it tests
+classification (when to escalate), generation (how to
+respond), governance (PII, audit), and metric design
+(deflection vs CSAT trade).
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+A naive agent that always tries to resolve a ticket will
+deflect things that should escalate (frustrated customer,
+complex case, regulated decision) and harm CSAT. The senior
+production move is a confidence-driven router that escalates
+borderline cases with a fast SLA, plus a cite-or-abstain
+contract on the deflection responses, plus per-segment
+monitoring.
 
 ## Explanation
 
-Use tickets, policies, account context, tools, and outcomes. Start with this baseline: intent routing and templates. Compare it with tool-using agent with approval gates. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Train a ticket classifier on intent and severity. For
+deflectable categories, a RAG-style assistant generates a
+response from the help-center knowledge base; for borderline
+cases, escalate to a human queue. Audit every interaction.
+Track deflection rate, CSAT (or proxy: thumbs-up rate), and
+per-segment metrics.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in support automation. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+A customer asks "how do I reset my password?" The classifier
+identifies it as deflectable; the assistant generates a
+response from the help docs, cites the source, and asks for
+feedback. A different customer asks "your service charged me
+twice and I want a refund right now": the classifier escalates
+to a human with the customer history attached.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Incoming ticket] --> B[Classify: intent + severity]
+    B --> C{Deflectable?}
+    C -- Yes --> D[RAG response with cite-or-abstain]
+    C -- No, escalate --> E[Human queue with context]
+    D --> F[User feedback signal]
+    F --> G[Per-segment metrics + drift]
+    E --> G
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use tickets, policies, account context, tools, and outcomes. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+A public customer-support dataset (Twitter customer support
+conversations on Kaggle, or a synthetic corpus generated for
+the project). Augment with a 100-question deflection eval set
+with reference answers and known-good or known-escalate
+labels.
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: intent routing and templates.
-5. Train or configure the improved approach: tool-using agent with approval gates.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1-2: data prep.** Public ticket dataset; categorize
+   intents (password reset, billing, account, complaint);
+   tag deflectable vs escalation cases.
+2. **Day 3: classifier.** Fine-tuned text classifier (DistilBERT
+   or similar) for intent and severity. Macro F1 with per-
+   class breakdown.
+3. **Day 4-5: knowledge base.** Build or scrape a help-center
+   corpus; chunk and index with hybrid retrieval.
+4. **Day 6: RAG response.** Cite-or-abstain contract; prompt
+   structured for tone, brevity, and citation; rendered as a
+   support-style reply.
+5. **Day 7: confidence routing.** Below classifier confidence
+   threshold or below retrieval-evidence threshold, escalate
+   to human with context bundle.
+6. **Day 8: audit log.** Per-ticket: customer ID (hashed),
+   classifier output, retrieval results, generated response,
+   user feedback. PII redaction in logs.
+7. **Day 9: red-team.** Test prompt-injection from ticket
+   text; test cross-customer leakage; test escalation
+   accuracy.
+8. **Day 10: deflection eval.** 100-question benchmark with
+   known-good and known-escalate labels; measure deflection
+   precision (deflections that solved the issue) and
+   escalation recall (escalates that should have escalated).
+9. **Day 11-12: deployment.** API with streaming response,
+   audit log, escalation queue integration; per-segment
+   metric dashboard.
+10. **Day 13-14: monitoring + docs.** Per-segment deflection
+    rate; CSAT proxy (thumbs); cost per resolved ticket;
+    model card; runbook for the human queue.
 
 ## Evaluation
 
-Use resolution rate, escalation accuracy, and safety incidents. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: deflection rate (fraction of tickets resolved
+without human escalation) plus CSAT proxy (thumbs-up rate or
+edit rate). Secondary: classifier macro F1, faithfulness on
+generated responses, escalation precision.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- 100-question deflection benchmark with known labels.
+- A/B test: deflection-enabled vs human-only on a small
+  segment.
+- Per-segment metrics (intent type, customer segment,
+  language).
+- 3 success cases (successful deflection), 3 expected-
+  escalation cases (correctly escalated), 3 failure cases
+  (mistakenly deflected; learning material).
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Multilingual support with quality monitoring per language.
+- Sentiment-driven escalation (frustrated customers
+  escalate even on deflectable intents).
+- Knowledge-base auto-update from resolved tickets.
+- Active learning on borderline classifier outputs.
+- Conversational follow-up (user replies to the deflection).
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built an AI customer support agent with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved resolution rate, escalation accuracy, and safety incidents while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- Deflection rate as the only metric; CSAT erodes silently.
+- No PII redaction in logs; compliance violation.
+- No prompt-injection defense; ticket text contains hostile
+  instructions.
+- No escalation context bundle; the human starts from
+  scratch.
+- No per-segment monitoring; one segment's deflection
+  collapses unnoticed.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The senior walk: name the deflection-CSAT trade first;
+describe the classifier-RAG pipeline; describe the confidence
+routing and the escalation context bundle; describe PII
+redaction and audit log; close with per-segment monitoring
+and the A/B-test design. The candidate who optimizes
+deflection alone misses the metric trap.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+Define deflection rate, CSAT proxy, and the escalation
+threshold. Identify three intent categories where deflection
+is risky despite classifier confidence (refunds, complaints,
+account access disputes). Define the escalation rule for
+each.
+
+## Resume Bullet Points
+
+- Built an AI customer-support agent with intent classification,
+  RAG-based deflection, and confidence-driven escalation,
+  achieving 41-percent deflection rate at 4.3 CSAT (vs 4.4
+  human baseline) on a 5K-ticket pilot.
+- Implemented PII-redacted audit logs, prompt-injection
+  defenses, and escalation context bundles cutting human
+  agent handle time by 30 percent on escalated tickets.
+- Per-segment monitoring caught a 12-percent deflection drop
+  on the billing-dispute segment; iteration on the classifier
+  threshold and prompt restored parity in two weeks.
 
 ---
 ## Navigation

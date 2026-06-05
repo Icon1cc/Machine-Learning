@@ -44,6 +44,21 @@ Without observability, this would have been days of guessing.
 - No versioning, so you cannot tell which change caused a regression.
 - Capturing sensitive query or document content without access controls.
 - Dashboards with no alert thresholds, so nobody notices until users complain.
+- **Log retention cost.** A high-traffic chat RAG generates per-request traces of 5-50 KB
+  (query + retrieved chunk IDs + scores + final prompt + answer + metadata). At 1M requests per
+  day, that is 5-50 GB daily; multi-month retention can cost thousands per month in storage.
+  Strategies: tiered retention (full logs for 7 days, sampled logs for 30 days, summary metrics
+  for 1 year), log compression, and dropping non-essential fields after a window.
+- **PII in logs.** User queries often contain personal data (names, emails, account numbers,
+  health concerns). Compliance frameworks (GDPR, HIPAA, SOC2) require redaction or
+  pseudonymization before storage. Standard mitigations: PII detection and masking before write,
+  separate storage for raw logs (encrypted, access-restricted) vs analytics logs (PII-stripped,
+  broad access), short retention for raw logs, audit access.
+- **Async logging consistency.** Logging in the request critical path adds latency; async logging
+  via a queue (Kafka, Redis Streams, cloud-native pub-sub) decouples it. Tradeoffs: small risk of
+  log loss on queue failure (use durable queues or write-ahead logs), eventual consistency
+  (recent traces may be missing for a few seconds), and ordering across stages must be preserved
+  (use a request ID that ties retrieval and generation logs together).
 
 ## Interview Angle
 

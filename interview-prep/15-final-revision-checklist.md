@@ -2,106 +2,174 @@
 
 ## How to Use This File
 
-Use this page to practice structured interview answers for last-pass review across fundamentals, systems, projects, mocks, and weak spots. Read each question, answer out
-loud, then compare your response with the strong and weak answer patterns. Keep answers concrete:
-name the user, data, baseline, metric, failure mode, and production plan.
+Three core questions on the final two weeks before AI and ML
+interviews: cadence and triage, mock interview structure, and
+day-of preparation. Read each, draft your plan, then compare
+with the patterns. The senior signal is structured prep, not
+last-minute cramming.
 
 ## Core Preparation Checklist
 
-- Clarify the role, user, decision, and constraints before naming a model.
-- State assumptions about data availability, labels, latency, privacy, and cost.
-- Start with a simple baseline and explain why added complexity is justified.
-- Choose metrics that match the product decision and the cost of mistakes.
-- Discuss leakage, drift, monitoring, rollback, and human review.
-- Communicate tradeoffs in plain language and connect them to user impact.
+- Two-week cadence: triage your weak areas, schedule mocks,
+  end with rest before the day.
+- Mock interview discipline: timeboxed, recorded if possible,
+  reviewed against the rubric.
+- Day-of habits: sleep, hydration, light food, calm
+  environment for video, backup plan for tech failure.
+- Resume and portfolio: in order, with the strongest project
+  on top, defensible numbers ready.
+- Behavioral stories rehearsed: three in STAR format.
+- Calibrated honesty: know what you do not know; have a
+  graceful "I would investigate" pattern for unfamiliar topics.
 
 ## Interview Question Sections
 
-### Question 1: Problem Framing and Baseline
+### Question 1: Two-week cadence
 
-**Question:** You are asked to design or analyze a solution involving last-pass review across fundamentals, systems, projects, mocks, and weak spots. What would you clarify
-first, and what baseline would you build before using a more complex approach?
+**Question:** You have an AI engineer interview in two weeks.
+Walk through how you would prepare.
 
-**What the interviewer is testing:** Whether you can turn an ambiguous prompt into a measurable
-engineering problem without hiding behind model names.
+**What the interviewer is testing:** This is more of a
+self-assessment question; the senior pattern is structure.
 
-**Strong answer:** Clarify the user decision, available data, label or feedback source, constraints,
-and failure cost. Propose a baseline that can be evaluated quickly, then state what evidence would
-justify a more advanced model or architecture.
+**Strong answer:** Triage in week one, mock in week two, rest
+in the final two days. Day-by-day:
+- **Days 1-2.** Audit the weakest topic by self-assessment:
+  read the company's AI engineering blog posts, list the
+  topics they emphasize, score yourself on each. Focus on
+  the bottom 30 percent of self-rated topics for the next
+  week. Practice writing answers in 2-3 minutes out loud.
+- **Days 3-7.** Two hours per day on weak areas. Use the
+  cheatsheets and quizzes here as scaffolding; build out the
+  reasoning chain for each topic. Specifically prepare for
+  ML system design with the eleven-layer template; practice
+  one full system design in 25 minutes against the clock.
+- **Days 8-12.** One mock per day (with a peer or a coach if
+  possible). Topics rotated: one ML system design, one
+  behavioral, one technical deep dive. Record. Review against
+  the rubric: what did you say, what did you miss, what would
+  the strong answer have included.
+- **Days 13-14.** Rest. Light review. Sleep well. Confirm
+  logistics: time zone, link, backup contact.
 
-**Weak answer:** Jump straight to a model, skip the baseline, ignore data quality, and never define
-how success will be measured.
-
-**Follow-up questions:**
-
-- What data would be available only after the decision is made?
-- Which simple baseline would be hardest to beat?
-- What metric would be misleading if used alone?
-
-**Common traps:** Optimizing the offline metric without understanding the product decision, assuming
-labels are clean, and ignoring high-risk segments.
-
-### Question 2: Evaluation and Failure Modes
-
-**Question:** How would you evaluate a system for last-pass review across fundamentals, systems, projects, mocks, and weak spots, and how would you explain its most
-important failure modes?
-
-**What the interviewer is testing:** Whether you can connect metrics, error analysis, guardrails, and
-production risk.
-
-**Strong answer:** Define a primary metric, guardrail metrics, slice analysis, and a hard-example
-set. Explain false positives, false negatives, latency or cost failures, privacy risks, and what
-human review should handle.
-
-**Weak answer:** Report one aggregate score and treat it as proof that the system is ready.
+**Weak answer:** "I will read papers." Without structure or
+mock practice.
 
 **Follow-up questions:**
 
-- How would you detect a regression after release?
-- Which segment would you inspect first?
-- What would make the evaluation set untrustworthy?
+- How do you decide which topic is weakest?
+- What does a mock interview look like?
+- How do you avoid burning out before the interview?
+- What if the interview is in three days, not two weeks?
 
-**Common traps:** Confusing correlation with impact, overlooking delayed labels, and failing to
-calibrate confidence.
+**Common traps:** No mocks. No rest. Cramming new content the
+day before.
 
-### Question 3: Production Design and Communication
+### Question 2: Mock interview discipline
 
-**Question:** How would you move a solution for last-pass review across fundamentals, systems, projects, mocks, and weak spots from prototype to production, and how would
-you explain the tradeoffs to a non-technical stakeholder?
+**Question:** Walk through how you would run a mock interview
+for an ML system design round.
 
-**What the interviewer is testing:** Whether you understand ownership after launch.
+**Strong answer:** Treat it like the real thing. 45-60
+minutes. The peer reads a system design prompt that the
+candidate has not seen. The candidate runs the interview as
+if it were real: clarification questions, sketching, talking
+through the layers, handling follow-ups. The peer takes notes
+on a rubric (the mocks/ folder in this repo has standardized
+rubrics): clarity of contract framing, baseline discipline,
+metric selection, monitoring, governance, fallback design,
+communication. After the timebox, the peer reads the rubric
+out loud: what landed, what was thin, what was missing.
+Identify the single largest gap and prepare to address it
+specifically before the next mock. Two mocks per topic before
+the real interview, ideally with different peers. Record
+audio so you can hear filler words, pacing, and unclear
+explanations.
 
-**Strong answer:** Separate offline and online paths, version data and models, add monitoring and
-rollback, define escalation, and explain tradeoffs between quality, latency, cost, privacy, and user
-trust.
-
-**Weak answer:** Stop at a notebook result or architecture sketch without deployment, monitoring, or
-support plans.
+**Weak answer:** "I will practice with a friend." Without the
+rubric, the timebox, or the structured review.
 
 **Follow-up questions:**
 
-- What should be logged and what should not be logged?
-- What happens when confidence is low?
-- How would you roll back a bad release?
+- Where do you find a peer for mocks?
+- What does the rubric look like for a behavioral mock?
+- How do you handle a peer who is too easy or too hard?
+- How do you incorporate feedback without losing your style?
 
-**Common traps:** Forgetting operational ownership, treating model output as always safe, and
-communicating metrics without business context.
+**Common traps:** Untimed mocks. No rubric. No recording. No
+follow-up on the gaps.
+
+### Question 3: Day-of preparation
+
+**Question:** What does the day of an AI engineer interview
+look like for you?
+
+**Strong answer:** Sleep is the single highest-leverage prep.
+Eight hours the night before; no late-night cramming. The
+morning: light food, hydration, 15 minutes of physical
+movement (a walk, light exercise) to settle nerves. Review
+your three behavioral stories and the 5-minute pitch for
+your strongest project; do not learn anything new. Confirm
+logistics: link, time zone, camera and audio test 30 minutes
+before. Have a backup plan: phone number for the interviewer,
+a charged hotspot, a notebook for notes if the video drops.
+During the interview, think out loud (the interviewer cannot
+read your mind), ask clarifying questions before diving in,
+and budget time across the prompt (do not spend 20 minutes
+on the data layer and skip monitoring). Be honest about what
+you do not know; "I have not used X in production but I
+would investigate Y, Z, and W" is far stronger than
+fabricating expertise. After the interview, write a short
+note to yourself: what landed, what was hard, what to
+research before the next round.
+
+**Weak answer:** "Just relax." Without the logistics, the
+backup plan, or the honest-not-knowing pattern.
+
+**Follow-up questions:**
+
+- How do you handle a question you do not know?
+- How do you manage time during a system design?
+- What is your backup plan if the video drops?
+- How do you process the interview afterward?
+
+**Common traps:** Cramming. No backup plan. Faking expertise
+on unfamiliar topics. No reflection after.
+
+## Sample Q and A
+
+**Q:** What is the single thing that separates a strong
+candidate from a weak one in an AI interview?
+
+**A:** Calibrated reasoning under uncertainty. The strong
+candidate names the constraint, picks a baseline, justifies
+the architecture, names the metric, names the failure mode,
+and admits what they do not know. The weak candidate either
+performs confidence on every topic (sounds expert until
+probed) or freezes on unfamiliar ground. The senior signal is
+"I have not used X in production but I would expect Y, and I
+would validate by Z." That pattern beats specific knowledge in
+most rounds, because the interviewer can teach the topic but
+not the reasoning.
 
 ## Mini Exercise
 
-Pick one project from this repository and give a five-minute answer using this structure: clarify,
-baseline, data, metric, failure modes, production plan, and tradeoff summary. Rewrite the weakest
-part until it is specific enough to defend.
+Build your two-week prep schedule on paper. Identify your
+weakest topic by self-assessment. Schedule 5 mocks across the
+two weeks. Identify the rest days. Identify the day-before
+logistics check.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Clarify] --> B[Baseline]
-    B --> C[Data and model]
-    C --> D[Evaluation]
-    D --> E[Production controls]
-    E --> F[Stakeholder explanation]
+    A[Two weeks out] --> B[Triage weak topics]
+    B --> C[Days 3-7: focused study]
+    C --> D[Days 8-12: daily mocks + rubric review]
+    D --> E[Days 13-14: rest + logistics]
+    E --> F[Day-of: sleep + light food + backup plan]
+    F --> G[Interview: think out loud + honest unknowns]
+    G --> H[After: short reflection note]
 ```
 
 ---

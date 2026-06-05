@@ -45,6 +45,23 @@ lets a new fraud model reuse the same user-activity features without reimplement
 - Building a feature store when a couple of simple models would not benefit (overkill).
 - No ownership or documentation, so shared features become a mystery.
 
+## Production Concerns
+
+The online store has its own SLA: p99 read latency under 10 ms is
+typical for ad-tech; 50 ms for general use cases. Failover is
+multi-region with replicated state; a primary outage falls over to
+secondary within seconds. Feature staleness is bounded with TTLs
+per feature: a "user-recent-clicks" might be valid for 5 minutes,
+"user-demographics" for 24 hours. The serving path checks freshness
+and falls back to a longer-history aggregate if streaming has lagged
+beyond TTL. Inference-time feature debugging is a regular task: when
+a prediction looks wrong, the team must trace the exact feature
+values used. Log feature values per inference (sampled) keyed by
+request ID so the prediction can be reconstructed. Feature schemas
+are versioned; breaking changes ship as new feature names rather
+than silent edits to avoid silent training-serving skew during
+rollout.
+
 ## Interview Angle
 
 **Question:** What problem does a feature store solve?

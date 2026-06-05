@@ -1,8 +1,8 @@
 # Machine Learning
 
-This repository is a personal learning path for machine learning, AI engineering, LLM systems, RAG,
-agents, production AI, and interview preparation. It is designed as a practical engineering knowledge
-base with lessons, case studies, quizzes, cheatsheets, mocks, notebooks, and runnable examples.
+This repository is for my personal learning and interview preparation.
+
+It should be deep, clear, structured, and useful enough that I can study from it seriously.
 
 ## Purpose
 

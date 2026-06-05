@@ -44,6 +44,22 @@ as an autonomous agent would add cost and risk for zero benefit, since the path 
 - No human gate before a consequential branch (auto-approve everything).
 - Not testing individual nodes despite the flow being deterministic.
 
+## Production Concerns
+
+Each step in a workflow gets its own SLA. End-to-end is the sum;
+bottlenecks are visible in per-step latency dashboards. A slow LLM
+node may not breach overall SLA but starves downstream nodes; track
+per-step p95 and alert on regression. Partial completion is a real
+case: a 5-step flow that fails at step 4 leaves the system in an
+intermediate state. Define rollback semantics (which steps are
+reversible, which are not) and produce a saga-style compensation for
+non-reversible steps. State-machine enforcement matters: the workflow
+engine validates legal transitions and rejects out-of-order or
+duplicate events. Idempotency on each node lets retry-on-failure
+work correctly. Audit the flow per execution: every node call,
+input, output, latency, decision branch logged with a correlation
+ID.
+
 ## Interview Angle
 
 **Question:** When would you build a workflow instead of an autonomous agent?

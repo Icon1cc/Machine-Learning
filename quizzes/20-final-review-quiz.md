@@ -2,88 +2,166 @@
 
 ## Instructions
 
-Answer without looking at the key. For each miss, write a one-sentence correction and one example
-from a real ML, LLM, RAG, agent, or production AI system.
+Ten capstone questions spanning the prior 19 topics: foundations,
+modeling, evaluation, LLMs, RAG, agents, and production
+operations. Emphasis on tradeoffs and failure modes. One option
+per question.
 
 ## Questions
 
-1. In the context of Final Review, what should you clarify first?
-   A. The user decision, available data, baseline, and success metric.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-2. In the context of Final Review, why is a baseline important?
-   A. It proves whether added complexity creates measurable value.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-3. In the context of Final Review, what is a common leakage risk?
-   A. Training or validation data can contain information that would not exist at prediction time.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-4. In the context of Final Review, how should you choose a metric?
-   A. Match the metric to the cost of errors and the product decision.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-5. In the context of Final Review, what should error analysis inspect?
-   A. False positives, false negatives, hard segments, missing data, and rare cases.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-6. In the context of Final Review, when is a complex model justified?
-   A. When a simpler approach is measured, insufficient, and the extra cost is worth it.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-7. In the context of Final Review, what should be monitored after deployment?
-   A. Input quality, drift, latency, cost, output quality, and business outcome metrics.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-8. In the context of Final Review, how should uncertainty be communicated?
-   A. State assumptions, confidence, known limits, and the decision impact.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-9. In the context of Final Review, what is a strong interview answer structure?
-   A. Problem, data, baseline, model, metric, risks, and production plan.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-10. In the context of Final Review, what is the safest next step after poor validation results?
-   A. Inspect data and errors before changing models randomly.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
+1. **Foundational.** The single most-overlooked first step in an
+   ML system design interview is:
+   A. Choosing the model architecture.
+   B. Clarifying the user decision, success metric, available
+      data, label availability, and the cost of wrong outputs.
+   C. Picking the framework.
+   D. Choosing the cloud provider.
 
-## Answer Key and Explanations
+2. **Foundational.** Cross-validation prevents:
+   A. Bias.
+   B. Optimism from a single train-test split; gives a more
+      stable estimate of generalization, especially on small
+      data. Time-series data needs ordered splits, not random.
+   C. Overfitting always.
+   D. Slow training.
 
-1. **A.** The user decision, available data, baseline, and success metric. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-2. **A.** It proves whether added complexity creates measurable value. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-3. **A.** Training or validation data can contain information that would not exist at prediction time. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-4. **A.** Match the metric to the cost of errors and the product decision. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-5. **A.** False positives, false negatives, hard segments, missing data, and rare cases. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-6. **A.** When a simpler approach is measured, insufficient, and the extra cost is worth it. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-7. **A.** Input quality, drift, latency, cost, output quality, and business outcome metrics. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-8. **A.** State assumptions, confidence, known limits, and the decision impact. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-9. **A.** Problem, data, baseline, model, metric, risks, and production plan. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-10. **A.** Inspect data and errors before changing models randomly. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
+3. **Foundational.** A feature whose value is only known after the
+   prediction is needed represents:
+   A. A modeling improvement.
+   B. Target leakage; the offline metric is inflated and the
+      model fails in production. Audit every feature against
+      the prediction-time clock.
+   C. A noisy feature.
+   D. A regularization target.
+
+4. **Intermediate.** A chatbot returns plausible but wrong
+   answers. The senior response:
+   A. Increase model size.
+   B. Add retrieval grounding, citation, abstention on weak
+      evidence, and a faithfulness eval; hallucination is a
+      systems problem, not just a model problem.
+   C. Lower the temperature only.
+   D. Switch models.
+
+5. **Intermediate.** A team retrains weekly without validation
+   gates and ships every model. The senior critique:
+   A. Weekly cadence is too fast.
+   B. Continuous training without gates is dangerous; one bad
+      data refresh silently produces a bad model that
+      auto-promotes. Gates plus shadow plus canary plus
+      rollback are required.
+   C. Weekly cadence is fine; let the model decide.
+   D. Add more features.
+
+6. **Intermediate.** A RAG system returns confident answers from
+   irrelevant chunks. The likely cause:
+   A. The model is too small.
+   B. Retrieval failure (chunking, hybrid retrieval, reranking)
+      combined with no abstention rule; the LLM uses what it
+      has even when relevance is low.
+   C. The user is wrong.
+   D. The temperature is too high.
+
+7. **Advanced.** An agent occasionally takes irreversible actions
+   in error. The structural fix:
+   A. Use a smarter model.
+   B. Classify actions by reversibility, gate irreversible
+      actions behind human approval, validate arguments, audit
+      every call, and provide a kill switch with concrete
+      triggers.
+   C. Reduce the temperature.
+   D. Add more steps.
+
+8. **Advanced.** A fairness audit catches a 4-point AUC gap
+   between protected groups. The first response:
+   A. Drop the protected attribute.
+   B. Diagnose the source (historical bias, representation,
+      measurement, deployment context), then choose a
+      mitigation (pre-processing, in-processing, post-
+      processing) calibrated to the legal context; document
+      and monitor.
+   C. Ignore it; aggregate is fine.
+   D. Use a different metric.
+
+9. **Advanced.** A model passes offline metrics but harms a
+   downstream business KPI. The most likely cause:
+   A. The KPI is wrong.
+   B. Offline-online gap: the eval set does not match
+      production traffic, the metric does not align with the
+      user decision, or the policy interaction with users
+      shifts the distribution.
+   C. The deployment is broken.
+   D. Random noise.
+
+10. **Advanced.** Asked "would this work in production?", the
+    senior answer covers:
+    A. Accuracy.
+    B. SLO and error budget, monitoring per-feature and per-
+       segment, drift detection with runbooks, fallback path,
+       rollback plan, change management, governance and audit,
+       cost ceiling, security and privacy, and an iteration
+       loop. Production is a discipline, not a deploy.
+    C. Latency only.
+    D. Cost only.
+
+## Answer Key
+
+1. **B.** Clarification before architecture is the single
+   strongest signal in ML system-design interviews. Skipping
+   it is the single most common red flag.
+
+2. **B.** k-fold beats a single split for stability. For time
+   series, use expanding or rolling windows that respect
+   temporal order.
+
+3. **B.** Target leakage is the most common cause of "great
+   offline metrics, broken production". Audit features against
+   the prediction-time clock.
+
+4. **B.** Hallucination is a systems failure, not just a model
+   limitation. Grounding, citation, abstention, and
+   faithfulness eval are the standard production response.
+
+5. **B.** Continuous training is high-leverage but dangerous
+   without gates. The cadence is fine; the missing controls
+   are the issue.
+
+6. **B.** Confident wrong answers signal both retrieval gaps
+   and missing abstention. Fix retrieval and require the model
+   to abstain when evidence is weak.
+
+7. **B.** Irreversible action errors are designed away by
+   approval gates and kill switches. Better models do not
+   solve this; controls do.
+
+8. **B.** Fairness gaps need diagnosis before mitigation.
+   Mitigation depends on legal context; documentation and
+   monitoring are required regardless.
+
+9. **B.** Offline-online gap is the dominant cause. Audit the
+   gap rigorously before changing models or policies.
+
+10. **B.** Production readiness is multi-dimensional. Strong
+    candidates name several axes; weak candidates name one.
 
 ## Mini Exercise
 
-Create one additional question about a failure mode in Final Review, then answer it with the same level
-of explanation used in the key.
+Pick a hypothetical AI feature. Walk through the production
+checklist (SLO, monitoring, fallback, rollback, governance,
+cost) in two-line answers each. Identify the weakest axis and
+write one improvement that would matter most.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Question] --> B[Recall]
-    B --> C[Reason]
-    C --> D[Answer]
-    D --> E[Explain]
+    A[Problem framing] --> B[Data + features + leakage check]
+    B --> C[Baseline + advanced model]
+    C --> D[Eval: offline + segments + fairness]
+    D --> E[Deployment: shadow + canary + rollback]
+    E --> F[Monitoring: drift + quality + cost]
+    F --> G[Governance + audit + change mgmt]
+    G --> H[Iterate]
 ```
 
 ---

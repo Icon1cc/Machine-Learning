@@ -73,8 +73,14 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with seasonal naive forecasts, moving averages, and simple regression on calendar features. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with seasonal naive forecasts (last week, last year same
+day), moving averages over 7 and 28 days, and linear regression
+on calendar features (day-of-week, week-of-year, holiday flag,
+days-since-promotion). For multi-series forecasting, add
+hierarchical features (item-level plus aggregate level). The
+baseline should be easy to explain, cheap to run, and strong
+enough to expose data quality problems before advanced modeling
+begins.
 
 ## Advanced Approach
 
@@ -170,6 +176,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Random train-test splits on time-series; respect chronology
+  with expanding or rolling-window splits, otherwise leakage
+  inflates offline metrics.
+- Missing promotion or holiday signals at inference time; the
+  feature was available in training but the upstream pipeline
+  does not provide it in production.
 
 ---
 ## Navigation

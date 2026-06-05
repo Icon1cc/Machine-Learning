@@ -32,6 +32,27 @@ use cases. Understanding this lets you design systems that are economical, not j
 4. **Optionally quantize** to shrink memory and speed up inference.
 5. **Route** easy or narrow requests to the small model, hard ones to the large one.
 
+**Diagnosing task narrowness.** A task is narrow enough for a small model when: the input space is
+bounded (intent classification with K classes, structured extraction from a known schema, FAQ over a
+fixed corpus), the output is short or structured (a label, a JSON object, a 1-2 sentence response),
+and the reasoning depth is limited (no multi-step chain-of-thought, no external knowledge synthesis).
+General open-ended chat fails all three criteria; small models stumble there. A 3B-parameter model
+(Llama-3.2-3B, Phi-3-mini, Qwen-2.5-3B) typically reaches large-model-quality on narrow tasks after
+fine-tuning on 1K-10K examples.
+
+**Distillation cost.** Three steps: (1) run the teacher (large model) over a labeled dataset to
+produce target outputs or token-level logits, (2) train the student (small model) on those targets,
+(3) validate. Teacher inference cost dominates: distilling on 100K examples through a frontier-tier
+hosted model can cost hundreds to thousands of dollars in API fees. Self-hosted teacher cuts this
+substantially; expect a few GPU-days. Student training is comparatively cheap (few hours on a single
+GPU). Validate that the student matches the teacher on a held-out set before deploying.
+
+**Routing-model latency.** When a router decides which model to use per request, the router itself
+must be fast: a small classifier (DistilBERT-class, 5-15 ms on CPU) or an embedding-based nearest-neighbor
+lookup (1-5 ms). Add the router latency to both routes' total budget. A common pattern: router decides;
+small model handles 70-90 percent of traffic; complex requests escalate to the large model. Track the
+escalation rate; if it climbs, the router or the small model needs work.
+
 ## Real-World Example
 
 A product runs every chat through a large model and the bill is unsustainable. Analysis shows 70 percent of

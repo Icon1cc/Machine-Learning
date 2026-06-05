@@ -44,6 +44,22 @@ cause was found in one trace replay rather than days of guessing.
 - No aggregate dashboards or alert thresholds.
 - Capturing sensitive tool inputs and outputs without access controls.
 
+## Production Concerns
+
+Full-trajectory logging at scale is expensive; sample adaptively.
+Sample 100 percent of failed runs, 100 percent of escalations, 1-5
+percent of successful runs. The failure traces are where the value
+is. PII redaction in traces is non-negotiable: tool arguments and
+results often carry user data; strip or hash before storage. Tools
+that return PII are flagged at registration so the trace pipeline
+applies the right redaction policy. Alert routing differs by metric:
+operational metrics page SRE; tool-error spikes page the tool owner;
+unauthorized-action spikes page security; cost spikes page the
+product owner. On-call escalation has a documented path with
+acknowledgement and resolution SLAs per severity. Runbooks per known
+failure (looping, tool-cascade failure, prompt drift) cut MTTR from
+hours to minutes.
+
 ## Interview Angle
 
 **Question:** An agent misbehaved on one request yesterday. How do you debug it?

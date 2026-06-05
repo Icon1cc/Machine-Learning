@@ -24,6 +24,18 @@ sequence length is why long context is expensive and why serving systems care ab
 Understanding the blocks lets you reason about latency, context limits, and why certain optimizations
 (flash attention, KV cache) matter.
 
+The **KV cache memory cost** is concrete and matters for capacity planning. For a model with `L` layers,
+`H` attention heads, and head dimension `d_h`, the KV cache for one sequence of length `T` is roughly
+`2 · L · H · d_h · T · bytes_per_element`. For a 70B-parameter LLaMA-style model (80 layers, 64 heads, 128
+head dim) at FP16 (2 bytes), each token in the cache costs ~2.6 MB. A single 8K-token conversation reserves
+~21 GB of GPU memory just for its cache. This linear-in-`T` cost is what limits batch size at long context
+and motivates **paged attention** (vLLM-style memory management) and **multi-query / grouped-query
+attention** (sharing KV across heads). RoPE positional embeddings are now the default in LLaMA, Mistral,
+Qwen, and most modern open-weight models because they extrapolate to longer-than-trained context lengths
+better than learned absolute embeddings, and because they compose cleanly with attention. Flash attention
+is the standard kernel for production serving: same math, much better memory traffic, often 2-3x faster
+end-to-end at long context.
+
 ## How It Works Step by Step
 
 1. **Embed** tokens and add positional information.

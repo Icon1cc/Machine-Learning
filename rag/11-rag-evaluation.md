@@ -16,6 +16,32 @@ question), and citation accuracy (do citations support their claims). You need a
 questions paired with the gold passages and ideally gold answers. LLM-as-judge can scale faithfulness
 scoring but must be calibrated against human labels.
 
+**RAGAS** (Es et al., 2023) is the standard metric framework in 2026. The four core metrics:
+
+- **Faithfulness.** For each claim in the answer, is it supported by the retrieved context? Computed
+  by extracting claims from the answer and checking each against the context with an LLM-as-judge
+  configured for entailment. Score range 0-1; production targets above 0.9.
+- **Answer relevance.** Does the answer address the user's question? Computed by generating
+  questions from the answer and measuring similarity to the original. Catches off-topic responses.
+- **Context precision.** Of the retrieved passages, how many are relevant? Catches noise.
+- **Context recall.** Of the gold-relevant content, how much made it into the retrieved context?
+  Catches retrieval misses.
+
+The four metrics together identify which stage failed. Low context recall means retrieval; high
+context recall plus low faithfulness means generation; high faithfulness plus low answer relevance
+means the model misread the question. Open-source implementation: `ragas` library; integrates with
+LangSmith, LangFuse, and other RAG observability stacks.
+
+**Eval set size guidance.** 50-100 questions for early iteration and quick comparisons; 200-500 for
+serious launch decisions; 1000+ for detecting <2 percent quality differences in production. Bootstrap
+confidence intervals on each metric tell you if your eval set distinguishes two candidates.
+
+**Hard-example curation method.** Hand-pick or generate cases that broke the system in production
+(reported by users, flagged by monitoring), tricky multi-hop questions (requiring 2+ documents),
+should-abstain cases (questions the corpus does not cover), and adversarial cases (prompt injection,
+out-of-scope, malformed queries). Aim for 20-50 hard cases as a regression suite; refresh quarterly
+with new failure modes.
+
 ## Why It Matters in Real Jobs
 
 Without component-level metrics, every regression is a guessing game. With them, an incident becomes

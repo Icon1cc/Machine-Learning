@@ -17,6 +17,19 @@ and more compute (scaling laws), within limits set by data quality and compute b
 model with broad capabilities but no particular alignment to user intent; it completes text rather than
 helpfully answering.
 
+The **Chinchilla finding** (Hoffmann et al., 2022) sharpened the scaling story: for a fixed compute budget,
+the optimal allocation is roughly **20 training tokens per parameter**. A 7B-parameter model is
+compute-optimal at ~140B tokens; a 70B-parameter model wants ~1.4T tokens. Earlier large models (GPT-3 era)
+were undertrained relative to compute. Modern open-weight models (LLaMA-3, Mistral, Qwen) routinely train
+beyond the Chinchilla ratio, sometimes at 50-200 tokens per parameter, because inference cost dominates the
+total lifetime cost: a smaller, more-trained model is cheaper to serve at the same quality.
+
+Data quality also matters more than raw quantity. A 100B-token corpus filtered for quality (deduplication,
+language detection, content classifiers, removing low-quality web pages) typically beats a 1T-token
+unfiltered corpus at the same parameter count. The biggest pretraining-cost line items in 2026 are GPU
+hours for the base run plus alignment overhead (instruction tuning + RLHF/DPO + safety evals), which can
+add 5-20 percent on top of the base pretraining bill for a frontier model.
+
 ## Why It Matters in Real Jobs
 
 Pretraining is why LLMs are general-purpose and why they have a knowledge cutoff (they only know what was in

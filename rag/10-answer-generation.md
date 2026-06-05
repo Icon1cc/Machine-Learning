@@ -31,6 +31,32 @@ is also the main defense against a retrieved document that tries to hijack the m
 4. **Handle conflict and gaps:** surface disagreement, or say the answer was not found.
 5. **Validate:** check that citations exist and support the claims before returning.
 
+**Citation validation algorithm.** Three layers, in increasing strictness:
+
+- **Existence check.** The cited `doc_id:chunk_id` must be in the retrieved set. If the model
+  fabricated a citation (a known failure), reject and retry once.
+- **Span match.** Use a small classifier (sentence-transformer cosine similarity, or a fine-tuned
+  NLI model) to score whether the cited chunk semantically supports the claim. Threshold at
+  cosine 0.7 or higher; below, treat the citation as unsupported.
+- **NLI entailment check.** For high-stakes domains (medical, legal), run an entailment model
+  (DeBERTa-v3-NLI, or LLM-as-judge with NLI prompt) on (claim, citation). If the citation does
+  not entail the claim, mark the answer as unsupported.
+
+**Multi-source conflict resolution.** When two retrieved passages disagree:
+
+- **Surface the conflict.** Tell the user "Source A says X, Source B says Y" rather than picking
+  silently.
+- **Score by recency.** Newer documents often supersede older ones; use the recency metadata.
+- **Score by authority.** Per-source trust scores (vendor docs > random support tickets).
+- **Abstain on conflict.** For high-stakes decisions, refuse to answer when conflict cannot be
+  resolved.
+
+**Confidence scoring.** Useful for downstream routing (is this answer good enough to show, or
+should it go to human review?). Sources of confidence: faithfulness score from the validation step,
+retrieval score (top-1 vs top-K margin), abstention probability from the model itself
+(`logprob` on the abstention token, when supported). Combine into a single 0-1 score; tune the
+threshold per use case.
+
 ## Real-World Example
 
 An HR assistant is asked about a benefit the corpus does not cover. With a strong contract, it replies "I

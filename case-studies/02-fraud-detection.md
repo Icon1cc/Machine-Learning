@@ -73,8 +73,16 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with velocity rules, allow and deny lists, and a calibrated tree model on tabular features. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with velocity rules (more than N transactions in M minutes
+from a new account), allow and deny lists, and a calibrated tree
+model on tabular features. Engineered features that move the
+needle: per-card velocity windows (last 1 hour, 24 hours, 7
+days), prior-disputes count per merchant and per card, device-
+fingerprint hash, BIN risk score, geolocation distance from
+recent transactions, and time-since-account-creation. The
+baseline should be easy to explain, cheap to run, and strong
+enough to expose data quality problems before advanced modeling
+begins.
 
 ## Advanced Approach
 
@@ -139,6 +147,12 @@ manual labeling throughput, delayed ground truth, and noisy feedback loops.
 - A data pipeline change silently shifts feature values or retrieval quality.
 - Confidence is poorly calibrated, causing the system to automate cases that need review.
 - The critical failure to plan around is blocking a legitimate high-value payment during checkout.
+- Adversarial fraud rings test thresholds with small probe
+  transactions; static thresholds fail without periodic
+  recalibration on a fresh adversary distribution.
+- Label arrival is delayed weeks (chargebacks settle slowly);
+  concept drift accumulates if monitoring relies on labels alone
+  rather than calibrated proxy signals.
 
 ## Tradeoffs
 
@@ -150,18 +164,29 @@ manual labeling throughput, delayed ground truth, and noisy feedback loops.
 
 ## Interview Explanation Script
 
-I would start by clarifying the decision this system supports, the available data, and the cost of
-blocking a legitimate high-value payment during checkout. Then I would build velocity rules, allow and deny lists, and a calibrated tree model on tabular features, define metrics around fraud loss prevented, false decline rate, review precision, chargeback rate, and latency, inspect errors by segment,
-and only then consider sequence features, graph signals across shared devices, and cost-sensitive gradient boosting. For production, I would add monitoring, fallback behavior, privacy
-review, and a feedback loop before increasing automation.
+I would start by clarifying the decision this system supports,
+the available data, and the cost of blocking a legitimate high-
+value payment during checkout. Then I would build velocity
+rules, allow and deny lists, and a calibrated tree model on
+tabular features, define metrics around fraud loss prevented,
+false decline rate, review precision, chargeback rate, and
+latency, inspect errors by segment, and only then consider
+sequence features, graph signals across shared devices, and
+cost-sensitive gradient boosting. For production, I would add
+monitoring, fallback behavior, privacy review, and a feedback
+loop before increasing automation.
 
 ## Follow-Up Questions
 
 - What baseline would you build first?
-- How would you prevent leakage?
+- How do you handle delayed labels (chargebacks arrive weeks
+  later) when training and monitoring?
 - Which metric matters most and which metrics are guardrails?
 - What happens when confidence is low?
-- How would the design change at ten times the traffic?
+- How do you defend the model against adversarial probing
+  patterns?
+- How does the cost matrix shift when serving high-trust
+  business accounts vs new consumers?
 
 ## Common Mistakes
 
@@ -170,6 +195,10 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Optimizing accuracy or AUC instead of cost-weighted expected
+  loss aligned to the business cost matrix.
+- Ignoring per-merchant or per-region fraud-pattern
+  heterogeneity; a global threshold misses an entire segment.
 
 ---
 ## Navigation

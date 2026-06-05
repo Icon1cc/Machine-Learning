@@ -2,114 +2,157 @@
 
 ## Goal
 
-Build a focused semantic search engine with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build a semantic search engine over a public document corpus
+with hybrid retrieval (BM25 plus dense), a reranker, latency
+SLAs, and a deployable artifact that demonstrates real
+production tradeoffs.
 
 ## Why This Project Matters
 
-This project is useful because semantic retrieval work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Semantic search is the foundation of modern RAG and the
+production successor to keyword search. Building it from
+scratch teaches the offline-online gap, the latency tradeoff
+between retrieval quality and reranker depth, and the cache-
+key design that makes high QPS affordable. Hiring managers
+ask about it because it screens for production judgment, not
+just modeling.
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+BM25 is an unusually strong lexical baseline. Dense retrieval
+adds semantic matching at the cost of compute. Reranking adds
+quality at the cost of latency. The senior production move is
+the staged architecture (cheap retrieval, optional reranker,
+cached results) with a clear latency budget per stage.
 
 ## Explanation
 
-Use documents, queries, embeddings, and relevance judgments. Start with this baseline: BM25 search. Compare it with dense retrieval with reranking. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Pick a corpus (Wikipedia, MS MARCO, or company-doc). Index
+with BM25 plus a sentence-transformer dense embedding.
+Combine via reciprocal-rank fusion. Optional cross-encoder
+reranker on top 100. Eval recall@10 and MRR; latency
+p99. Deploy as a service with caching and graceful
+degradation.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in semantic retrieval. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+An internal documentation search at a mid-sized company.
+Engineers query in natural language ("how do I rotate the
+production database secret"). The system retrieves the top
+10 documents with snippet highlighting, in under 300 ms p99.
+Below a confidence threshold, the system suggests
+clarification.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Document corpus] --> B[Index: BM25 + dense embeddings]
+    C[Query] --> D[Hybrid retrieval]
+    B --> D
+    D --> E[Top 100 candidates]
+    E --> F[Cross-encoder reranker]
+    F --> G[Top 10 + snippets]
+    G --> H[Cache + monitoring]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use documents, queries, embeddings, and relevance judgments. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+MS MARCO Passage (8.8M passages) is the canonical IR
+benchmark. Wikipedia dumps (Hugging Face) for a more open
+corpus. BEIR for cross-domain evaluation. A scraped public
+documentation set works for a domain-specific demo.
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: BM25 search.
-5. Train or configure the improved approach: dense retrieval with reranking.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1-2: corpus prep.** Download and index 100K-1M
+   documents. Chunking (512 tokens with 64 overlap is a
+   reasonable default). Schema: doc_id, chunk_id, text,
+   source_url.
+2. **Day 3: BM25 baseline.** Pyserini or Elasticsearch.
+   Recall@10 and MRR on the test queries.
+3. **Day 4-5: dense retrieval.** Encode all chunks with
+   sentence-transformers (e.g., bge-small-en); FAISS HNSW
+   index; recall@10 vs BM25.
+4. **Day 6: hybrid.** Reciprocal-rank fusion of BM25 and
+   dense results. Recall@10 lift over either alone.
+5. **Day 7-8: reranker.** Cross-encoder (bge-reranker-base)
+   on top 100; measure NDCG@10 lift; latency cost.
+6. **Day 9: latency profiling.** Per-stage timing; identify
+   the bottleneck; allocate budget (BM25 10ms, dense 50ms,
+   rerank 100ms, total 200ms p99).
+7. **Day 10: caching.** Query-normalization cache; semantic
+   cache for paraphrases; ACL-aware cache key if multi-
+   tenant. Hit rate target 30 percent for typical workloads.
+8. **Day 11-12: deployment.** Service with three stages
+   (retrieval, fusion, rerank); per-stage timeout; fallback
+   to BM25-only on reranker timeout.
+9. **Day 13: monitoring.** Per-query-type recall drift; cache
+   hit rate; latency p99 per stage; click-through proxy.
+10. **Day 14: documentation.** Search system design, latency
+    budget, fallback runbook, reindex plan for embedding-model
+    upgrade.
 
 ## Evaluation
 
-Use recall at k, MRR, and p95 latency. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: Recall@10 on labeled test queries. Secondary:
+MRR, NDCG@10, latency p50 / p95 / p99.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- Standard IR test queries with judged relevance.
+- Bootstrap CI on Recall@10.
+- Per-query-type breakdown (one-word, long-tail, exact-phrase,
+  ambiguous).
+- Latency budget per stage with measured p50, p95, p99.
+- 3 success cases (semantic match BM25 misses) and 3 failure
+  cases (long-tail query both retrievers miss).
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Multi-vector retrieval (ColBERT-style).
+- Personalization (user history features).
+- Multimodal search (text plus image).
+- Active learning on query-document pairs flagged by users.
+- Query rewriting via small LLM.
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built a semantic search engine with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved recall at k, MRR, and p95 latency while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- Skipping BM25 baseline; cannot quantify the dense lift.
+- Reranker on every query; latency p99 fails the SLO.
+- No caching; cost per query is unbounded.
+- No fallback; reranker outage breaks the search.
+- Reindex plan absent; embedding-model upgrade is a months-
+  long project.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The senior walk: name the staged architecture; describe the
+hybrid retrieval and the per-stage latency budget; describe
+the cache strategy with ACL-aware keys; close with the
+fallback plan and the reindex roadmap. The candidate who
+treats reranking as universally better misses the latency
+reality.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+For your corpus, compute BM25 Recall@10. Estimate the lift
+from dense plus hybrid plus rerank. State one query type
+where the reranker likely hurts (navigational exact-match)
+and how you would route around it.
+
+## Resume Bullet Points
+
+- Built a hybrid semantic search engine over 1M Wikipedia
+  passages with BM25, dense retrieval, and a cross-encoder
+  reranker, achieving Recall@10 of 0.87 (vs 0.65 BM25;
+  95-percent CI [0.85, 0.89]) at 240ms p99 latency.
+- Implemented query-type routing that bypasses the reranker
+  for navigational queries, cutting p99 latency by 35 percent
+  for that segment without recall loss.
+- Deployed the staged service with per-stage timeouts,
+  semantic-cache plus prefix-cache layers, BM25-only
+  fallback, and a documented embedding-model reindex plan.
 
 ---
 ## Navigation

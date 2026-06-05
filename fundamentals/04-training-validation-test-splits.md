@@ -1,100 +1,73 @@
-# Training Validation Test Splits
+# Training, Validation, and Test Splits
 
 ## Beginner-Friendly Intuition
 
-Training Validation Test Splits is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to connect a business or product question to data, labels, models, metrics, and failure modes. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
-
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+You cannot evaluate a model on the data it learned from, or you will only measure how well it memorized. So you keep some data hidden. The training set is what the model fits. The validation set is what you use to tune knobs (model choice, hyperparameters). The test set is the final, untouched holdout you only look at when you are done. Touching the test set repeatedly turns it into a second validation set, and your real generalization estimate disappears.
 
 ## Formal Explanation
 
-Training, validation, and test splits separate fitting, model selection, and final evaluation so generalization estimates stay honest. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+The classic split is 60/20/20 or 70/15/15 of i.i.d. data. For time series, split chronologically so the validation and test sets are after the training window. For grouped data (multiple rows per user), split by group so a user does not appear in both train and test. If the dataset is small, use k-fold cross-validation to get a more stable validation estimate, but still keep a held-out test set for the final number.
 
-The rigorous version usually includes:
+For imbalanced classification, use **stratified splitting**: split each class proportionally so every fold has the right positive rate. With 1 percent positives and a random 80/20 split on 5,000 rows, an unstratified test fold can easily land with zero positives, making the metric undefined. Stratification fixes this. Most libraries (`sklearn.model_selection.StratifiedKFold`, `train_test_split(stratify=y)`) do it in one line.
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+**Test set size matters.** A rough rule of thumb: pick a size large enough that the confidence interval on your primary metric is narrower than the smallest effect you would act on. For a binary classifier with accuracy near 0.9, a 1,000-row test set gives a 95 percent CI of roughly plus or minus 1.9 percentage points. A 10,000-row test set tightens it to plus or minus 0.6. If you cannot afford that many labels, accept that the test number is noisy and report the CI alongside the point estimate.
+
+Two failure modes dominate: **leakage** (information from the future or from the label sneaks into features) and **distribution shift** (the test data is too easy or too different from production).
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a product or workflow decision to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Honest splits are the difference between a model that looks great offline and dies in production. Most ML disasters trace back to a leaky split, a too-easy holdout, or a test set that was peeked at so many times that it stopped representing new data.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. Decide whether the data is i.i.d., grouped, or temporal.
+2. Reserve a held-out test set first and lock it away.
+3. Split the rest into train and validation, by group or by time as needed.
+4. Engineer features only from the training window to avoid leakage.
+5. Tune on validation. Do not look at test until the model is final.
+6. Refresh splits when the data distribution shifts; old splits go stale.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A team builds a churn model. They split rows i.i.d., reach AUC 0.95, and ship. In production, AUC drops to 0.7. The reason: a single user appeared in both train and test, and one of the features encoded the user's eventual churn. Splitting by user_id and excluding the leaky feature drops offline AUC to 0.78, which actually holds in production. The painful lesson is that the higher number was lying.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Random row splits when the data is grouped or temporal.
+- Computing scaling or imputation parameters on the full dataset before splitting (data leakage).
+- Tuning on the test set, then quoting that number as generalization.
+- Ignoring class balance: a 1% positive rate split randomly may produce a fold with no positives.
+- Reusing the same test set for years until it no longer represents real traffic.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** How would you split a dataset for a churn model, and how would your answer change for a time-series forecasting problem?
 
-**Question:** Explain Training Validation Test Splits, then describe how you would use it in a real system.
+**Strong answer:** For churn, split by user (group split) so the same person is not on both sides. Hold out a recent time window for the test set if churn behavior shifts. For forecasting, use a chronological split: train on the past, validate on the next window, test on the most recent. Also use rolling-origin evaluation if you want a more robust estimate. Always check leakage: any feature that encodes the future.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Use a random shuffle, ignore time and groups, or compute features on the whole dataset before splitting.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- When would you use k-fold CV instead of a single split?
+- How do you detect leakage from a single feature?
+- What if the test set is too small to trust?
+- How do you refresh splits as the production distribution shifts?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Take a tabular dataset you know. Write down the unit (row, user, session). Choose a split strategy and justify it in two sentences. Then list two ways leakage could sneak in if you used naive random splitting.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Training Validation Test Splits]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    D[Full dataset] --> T[Train]
+    D --> V[Validation]
+    D --> Te[Test held out]
+    T --> M[Fit model]
+    V --> H[Tune hyperparams]
+    Te --> F[Final estimate]
 ```
 
 ---

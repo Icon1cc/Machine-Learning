@@ -46,6 +46,23 @@ The design centers on safety, not raw capability.
 - No budgets or stop conditions on the loop.
 - No human gate for irreversible actions and no trajectory evaluation.
 
+## Production Concerns
+
+Staged rollout follows a defined gate: shadow (no user impact, log
+trajectories) -> canary 1-5 percent -> ramp 25/50/100 over days,
+each gate checking trajectory metrics, cost, error rate, unauthorized
+actions. Hard rollback at any gate breach. Capacity planning treats
+agents as variable-step jobs: peak QPS times average steps per task
+times tokens per step gives the upstream model load; provision for
+peak with autoscaling on queue depth, not just request rate.
+Incident response template per severity: P1 (security, mass abuse,
+spend overrun) pages immediately, kill switch as the first action;
+P2 (degraded but contained) pages with 1-hour SLA; P3 (single-user
+issue) ticketed. Postmortem for every P1 with an action item that
+updates the design. The operating cost per agent task is published
+on the dashboard; budget alerts fire at 70 and 90 percent of the
+monthly cap.
+
 ## Interview Angle
 
 **Question:** Design an agent that resolves a class of support tickets.

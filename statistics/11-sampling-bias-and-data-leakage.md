@@ -2,99 +2,73 @@
 
 ## Beginner-Friendly Intuition
 
-Sampling Bias And Data Leakage is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to reason under uncertainty, measure evidence, and avoid drawing claims the data cannot support. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
-
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+Sampling bias means the data does not represent the population you care about. Data leakage means features carry information that would not be available at prediction time. Both produce models that look great offline and fail in production. They are the two most common causes of ML disasters.
 
 ## Formal Explanation
 
-Sampling Bias and Data Leakage is a practical concept used to reason clearly when data is noisy and incomplete in an experiment, metric, or uncertainty question. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+Selection bias: samples are not random with respect to the target (only loan acceptees, only past customers, only users who completed a flow). Survivorship bias: missing entities skew the analysis. Temporal leakage: a feature uses information from after the prediction time. Target leakage: a feature is a near-copy of the label. Train-test leakage: identical or near-duplicate items appear in both splits.
 
-The rigorous version usually includes:
+**Missingness mechanisms (MCAR / MAR / MNAR)** matter for sampling bias because the way data is missing tells you whether a complete-case analysis is unbiased.
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+- **MCAR (Missing Completely At Random).** Missingness does not depend on observed or unobserved variables. Complete cases are a random subsample; analysis is unbiased.
+- **MAR (Missing At Random).** Missingness depends on observed variables but not on the missing value itself, given those observed variables. Model-based imputation (regression, MICE) restores unbiasedness if the model captures the dependency.
+- **MNAR (Missing Not At Random).** Missingness depends on the missing value itself. There is no clean fix; you need either external data or a sensitivity analysis.
+
+**Target leakage vs temporal leakage.** Target leakage means a feature is a near-copy of the label or directly derived from the label. Temporal leakage means a feature uses information that would not be available at the moment of prediction. Both produce inflated offline metrics. The single most useful test is the **prediction-time question**: for every feature, ask "would I have known this value at the moment the model is supposed to predict, in production?" If the answer is no, the feature leaks. Concrete examples. "Amount of late payments to date" updates after default, so at prediction time it would not have been seen; that is temporal leakage. "Refund issued" is generated only for transactions that a manual review later flagged as fraud; that is target leakage. Both push AUC to roughly 0.95 offline and crash it to roughly 0.6 online.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect an experiment, metric, or uncertainty question to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+These problems are silent. Validation looks great because the same bias contaminates the holdout. They surface only after deployment when real traffic exposes the gap. Engineers who learn to detect leakage early save weeks of cleanup.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. Map the timeline: when is each feature created relative to the prediction?
+2. Identify the data-generating process. Who is in the dataset and who is not?
+3. Run a 'leakage check' by training on shuffled labels; if performance is high, you have leakage.
+4. Compare segment performance to global performance; gaps may indicate selection bias.
+5. When deploying, log inputs to verify they match training distribution.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A loan default model includes 'amount of late payments to date' as a feature. In production, that field is updated continuously; when fed current values, the feature already contains the answer. AUC drops from 0.95 (offline) to 0.6 (online). Removing the leaky feature gives the real number.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Using post-event data as a feature.
+- Random splits when grouping or time matters.
+- Computing scaling or imputation parameters on the full dataset.
+- Treating dropout from the funnel as random.
+- Training only on positive cases (only past defaults), then evaluating on all loans.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** How would you audit a new dataset for sampling bias and leakage before training?
 
-**Question:** Explain Sampling Bias and Data Leakage, then describe how you would use it in a real system.
+**Strong answer:** Map who is in the dataset and how they got there; ask which users are missing. Examine each feature for temporal validity and write down the exact moment it is computed. Run a sanity training on shuffled labels; high performance there is a red flag. Compare distributions of features across train, validation, and a fresh production sample.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Trust the data because it came from an internal warehouse.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What is the difference between selection bias and confounding?
+- How would you detect train-test contamination?
+- What logging would you add to verify training distribution matches production?
+- How do you handle missing data without leaking?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick a recent dataset. List every feature with the time it is computed. Circle any feature that might exist after the prediction time.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Sampling Bias and Data Leakage]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    R[Raw data] --> S{Check sampling}
+    R --> L{Check leakage}
+    S --> Pop[Does it represent prod?]
+    L --> Time[Features only from past?]
+    Pop --> Tr[Train safely]
+    Time --> Tr
 ```
 
 ---

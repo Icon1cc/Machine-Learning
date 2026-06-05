@@ -2,99 +2,164 @@
 
 ## Beginner-Friendly Intuition
 
-Feature Engineering is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to turn messy records into evidence that supports a decision and can be explained to others. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
+Feature engineering is the work of turning raw columns into the columns the model can
+actually learn from. A model is only as good as the representation it sees. A linear
+model with three good engineered features will often beat a deep network on raw
+columns, especially on tabular data. On Kaggle and in production, the difference
+between a winning solution and a mediocre one is almost always the features, not the
+model class.
 
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+A useful intuition: think of each feature as an answer to a small question about the
+row. Raw columns answer "what was logged." Good engineered features answer "what
+matters." For a transaction, a raw column says "amount = 142." A good feature says
+"amount minus the user's 90-day median," which encodes "is this transaction unusual
+for this user."
 
 ## Formal Explanation
 
-Feature Engineering is a practical concept used to convert messy records into evidence that supports decisions in a business analysis workflow. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+Feature engineering is distinct from feature selection. Engineering creates new columns
+from existing ones. Selection drops or weights columns to control variance. The main
+classes of engineered features:
 
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+- **Encoding categorical variables.** One-hot for low-cardinality categoricals (under
+  about 50 levels). Target or mean encoding for high cardinality, with strict
+  out-of-fold computation to avoid leakage. Embeddings for very high cardinality
+  (user_id, product_id) when you have enough data.
+- **Numeric transforms.** Log or `log1p` for right-skewed columns (income, counts).
+  Box-Cox or Yeo-Johnson for general skew correction. Standardization (z-score) or
+  min-max scaling for distance-based and gradient-based models. Winsorization to cap
+  extreme values.
+- **Binning.** Convert a continuous variable into ordered buckets. Equal-width,
+  equal-frequency, or domain-driven (age groups). Useful when the relationship is
+  non-linear and the model is linear.
+- **Interactions and polynomials.** Pairwise products (`age * income`), ratios
+  (`revenue / sessions`), and polynomial expansions (`age, age^2, age^3`). Tree models
+  discover many interactions automatically; linear models often need them by hand.
+- **Time features.** From a timestamp: hour-of-day, day-of-week, month, holiday flag,
+  time-since-event, time-until-event. For seasonality, sine and cosine of the time
+  index keep the model continuous.
+- **Aggregates and lags.** For panel or time-series data: rolling mean over the last
+  7, 30, or 90 days; lag-1 and lag-7 values; group-level aggregates ("user's average
+  spend in the last month"). These features are powerful and the most common source
+  of leakage.
+- **Text features.** TF-IDF or hashing vectorizer for traditional models. Sentence
+  embeddings (BERT, MiniLM) when context matters and you can afford the latency.
+- **Domain features.** Anything that codifies expert knowledge ("ratio of failed logins
+  to successful logins in the last hour" for fraud).
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a business analysis workflow to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Three reasons. First, on tabular data, the lift from a good feature is usually larger
+than the lift from a more complex model. Going from logistic regression to gradient
+boosting might add 1 to 3 points of AUC. Adding a single recency feature might add 5.
+Second, engineered features make the model interpretable in the way the business cares
+about. "Days since last login" is something a stakeholder can reason about. The 47th
+column of an embedding is not. Third, engineered features are where leakage usually
+hides. Knowing the patterns prevents the catastrophic offline-online gap.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Start with what the model can already learn.** A tree model handles non-linear
+   thresholds, so binning a single column does not help. A linear model needs the
+   binning. Pick features the model would not infer.
+2. **Encode categoricals correctly.** Low cardinality: one-hot. High cardinality:
+   target encoding computed only on out-of-fold data, or embeddings. Test categories
+   that appeared in training must include an "unseen" bucket for inference.
+3. **Transform skewed numerics.** Plot the distribution. If it is right-skewed and
+   spans orders of magnitude, take `log1p`. Log of zero is undefined; `log1p`
+   handles zeros.
+4. **Add domain-driven aggregates.** For each entity (user, product, merchant),
+   compute counts, means, ratios over rolling windows ending strictly before the
+   prediction time.
+5. **Add interactions when the model cannot.** For linear models, write the products
+   and ratios by hand. For tree models, skip this step unless the interaction is
+   sparse and rare.
+6. **Add time features.** Hour, day of week, month, holiday flag, days since signup,
+   days since last event. Use cyclic encoding for hour and day of week if the model
+   is linear.
+7. **Audit for leakage.** For every feature, ask "would I have known this value at
+   the moment of prediction in production?" If the answer is no, the feature leaks.
+8. **Hand off to feature selection.** Drop near-constant features, drop one of any
+   pair with correlation above 0.95, then use a model-based importance to prune the
+   rest.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A team predicting credit card fraud has raw columns: amount, merchant_id, timestamp,
+country, user_id. Their first model with raw features gets 0.78 AUC. They engineer
+features and the AUC jumps to 0.91. The added features:
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+- `amount_log = log1p(amount)` to handle the heavy tail.
+- `amount_z_user_30d`: z-score of the amount against the user's last 30 days, computed
+  on rows strictly before this transaction.
+- `txn_count_user_1h`: number of transactions from this user in the previous hour.
+- `country_mismatch`: 1 if `country` differs from the user's modal country in the
+  last 90 days.
+- `hour_sin, hour_cos`: cyclic encoding of hour of day.
+- `merchant_target_encoded`: out-of-fold mean fraud rate for the merchant.
+
+The lift comes almost entirely from the recency and z-score features. The merchant
+target encoding helps but must be recomputed on every fold; an early version that
+used the full-data mean leaked and showed a fake 0.97 AUC offline.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Computing target encoding on the full dataset and leaking the target into training.
+  Always compute out-of-fold.
+- Using a future-dated aggregate ("user's lifetime spend") as a feature for an event
+  in the middle of the user's lifetime.
+- One-hot encoding a column with 50,000 levels and creating a sparse matrix that
+  crashes the model.
+- Standardizing test data using statistics computed on test data instead of train.
+- Building polynomial features on a tree model. Trees do not need them and you slow
+  training for no gain.
+- Dropping the original column after a transform when the model could have used both.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** You have a tabular dataset with user behavior over the last year and
+your task is to predict whether a user will churn next month. What features would you
+build?
 
-**Question:** Explain Feature Engineering, then describe how you would use it in a real system.
+**Strong answer:** Group features into recency, frequency, monetary, and demographics.
+Recency: days since last login, days since last purchase. Frequency: sessions in the
+last 7, 30, 90 days; ratio of recent to historical. Monetary: spend in the last 30
+and 90 days; trend slope. Demographics: signup tenure, plan tier, country. All
+aggregates must be computed on data strictly before the prediction time. Encode plan
+tier with one-hot, country with target encoding (out-of-fold). Test for leakage by
+checking that no feature uses information from the prediction window.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Use all the raw columns as features. The interviewer wants to see
+recency-frequency-monetary thinking, the leakage discipline, and the encoding choices.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How do you decide between target encoding and embeddings for high-cardinality
+  columns?
+- What is the right window length for an aggregate feature?
+- When does adding a feature hurt the model?
+- How do you detect a leaky feature post hoc?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Take any timestamped dataset. For each row, build five features computed only from
+data strictly before the row's timestamp: a count, a mean, a recency, a ratio, and a
+mismatch flag. Confirm that none of them peeks at the future.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Feature Engineering]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    R[Raw columns] --> E[Encode categoricals]
+    R --> T[Transform numerics]
+    R --> A[Aggregates and lags]
+    R --> D[Domain features]
+    E --> J[Joined feature table]
+    T --> J
+    A --> J
+    D --> J
+    J --> L[Leakage audit]
+    L --> S[Selection and model]
 ```
 
 ---

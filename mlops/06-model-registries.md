@@ -45,6 +45,22 @@ because of the registry.
 - No defined rollback path when a new model fails.
 - Losing the link between a registered model and its training data and code.
 
+## Production Concerns
+
+The registry is an audit-trail device: every state transition
+(staging, canary, production, deprecated, retired) is recorded with
+who approved, when, and why. Retention matches regulatory windows
+(7 years for financial; longer for some healthcare). Promotion gates
+extend beyond unit tests: shadow-mode comparison against the current
+production model on live traffic, then canary at 1-5 percent for 24-
+48 hours, then ramp. Each stage has its own metric thresholds
+documented in the registry. Performance decay tracking is part of
+the registry: production models report metrics back to their
+registry entry; persistent decay below threshold triggers an alert
+and a retrain ticket. Vendor or third-party models live in the
+registry too, with the same lineage and gates; a vendor upgrade is a
+state transition that re-runs the validation pipeline.
+
 ## Interview Angle
 
 **Question:** What does a model registry give you?

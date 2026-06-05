@@ -2,114 +2,175 @@
 
 ## Goal
 
-Build a focused enterprise RAG assistant with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build a multi-tenant enterprise RAG assistant with permission-
+aware retrieval, audit logs, faithfulness evaluation, and the
+governance artifacts that satisfy enterprise procurement.
 
 ## Why This Project Matters
 
-This project is useful because permission-aware knowledge access work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Enterprise RAG is the business-critical path for AI adoption
+in regulated industries. The technical bar above a basic RAG
+chatbot includes ACL on retrieval (per-document permissions),
+audit trails, data residency, governance documentation, and
+incident response. Hiring managers ask about it because it
+tests production-engineering judgment in a setting where
+mistakes are existential (cross-tenant data leak, regulatory
+fine).
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+A basic RAG works for a single-user demo. An enterprise RAG
+must enforce that user A cannot retrieve documents user B
+created or that user B should not see. ACL pre-filtering at
+the index level is the only safe pattern; output-filtering
+alone leaks. The senior production move is the audit log
+that lets the enterprise security team review what the
+assistant retrieved, on whose behalf, and what it generated.
 
 ## Explanation
 
-Use documents, ACLs, queries, and audit logs. Start with this baseline: permission-filtered search. Compare it with RAG with reranking and source validation. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Multi-tenant document corpus. Per-document ACL metadata in the
+vector index. Pre-filter retrieval by the requesting user's
+permissions. Cite sources with verifiable URLs (where
+permitted). Audit log every request with user identity,
+retrieved document IDs, response, and timestamp. Cite-or-
+abstain contract. Indirect-prompt-injection defenses (content
+tagging, output filter). Governance: model card, DPA
+template, data-residency notes.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in permission-aware knowledge access. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+A consulting firm deploys an internal assistant over client
+documents. Each consultant can only retrieve documents from
+their own client engagements. The assistant cites sources with
+links the consultant can verify. Audit logs are retained for
+the regulatory window so security can investigate any data-
+access concern. Cross-tenant leakage is the deployment-
+blocking risk.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Multi-tenant docs] --> B[Index with ACL metadata]
+    C[User + auth context] --> D[Permission check]
+    D --> E[Retrieval with ACL pre-filter]
+    B --> E
+    E --> F[Reranker + cite-or-abstain]
+    F --> G[Output filter + injection defense]
+    G --> H[Audit log + DPA-compliant retention]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use documents, ACLs, queries, and audit logs. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+Synthetic multi-tenant corpus: 3-5 simulated tenants with
+private and shared document sets. Build the ACL metadata
+from scratch. For a richer demo, use a real public docs set
+plus synthetic ACL tags simulating multiple tenants.
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: permission-filtered search.
-5. Train or configure the improved approach: RAG with reranking and source validation.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1-2: tenant model.** Define 3-5 simulated tenants with
+   per-tenant document sets and a small shared corpus. Tag
+   each document with tenant_id and ACL.
+2. **Day 3: index.** Vector store with metadata filter support
+   (Qdrant, Weaviate, or pgvector); chunk and embed with
+   per-document ACL preserved.
+3. **Day 4: retrieval with pre-filter.** Hybrid retrieval with
+   ACL filter at the index level (not post-filter). Test that
+   user A cannot retrieve user B's documents.
+4. **Day 5: reranker.** Cross-encoder on top 100 retrieved
+   results.
+5. **Day 6: generation.** LLM call with cite-or-abstain
+   contract; structured output for the citation list.
+6. **Day 7: prompt-injection defense.** Tag retrieved content
+   in the prompt; instruct the model to treat tagged content
+   as data; output filter for known injection patterns.
+7. **Day 8: audit log.** Per-request log with user identity,
+   query, retrieved doc IDs, response, timestamp; immutable
+   storage; retention policy aligned with regulatory window.
+8. **Day 9: red-team probes.** Test cross-tenant leakage with
+   crafted queries; test indirect injection with malicious
+   document content; document the test suite.
+9. **Day 10-11: deployment.** API with auth context, streaming
+   response, audit log; ACL-aware semantic cache (cache key
+   includes user ID or ACL hash).
+10. **Day 12: governance docs.** Model card with intended use,
+    fairness analysis, privacy review; DPA template for
+    customers; sub-processor list.
+11. **Day 13: monitoring.** Faithfulness drift; per-tenant
+    metrics; ACL-failure rate (should be zero); incident
+    response runbook.
+12. **Day 14: documentation.** Reviewer-ready README with the
+    threat model, the ACL design, the audit log spec.
 
 ## Evaluation
 
-Use answer quality, access correctness, and freshness. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: faithfulness on a 200-question eval set;
+ACL-failure rate (must be zero on the red-team suite).
+Secondary: Recall@5, citation accuracy, abstention rate,
+latency p99.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- Per-tenant eval: each user can only see their own documents
+  in retrieval results.
+- Red-team suite for cross-tenant leakage and injection.
+- Faithfulness via calibrated LLM-judge.
+- Audit-log completeness check: every request logged, every
+  field captured.
+- 3 success cases, 3 expected-abstention cases, 3 known
+  failure cases.
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- SSO integration for production auth.
+- Per-document data-residency enforcement (EU users see only
+  EU-hosted documents).
+- Differential-privacy noise on aggregate query metrics.
+- Per-customer model fine-tuning with strict isolation.
+- Compliance certifications (SOC 2, ISO 27001, ISO 42001).
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built an enterprise RAG assistant with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved answer quality, access correctness, and freshness while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- ACL filtering on the LLM output instead of the retrieval
+  index. Cross-tenant leak waiting to happen.
+- Cache without ACL-aware key. Different users hit each
+  other's cached responses.
+- No audit log; security cannot investigate.
+- No injection defense for retrieved content; one malicious
+  doc compromises the assistant.
+- No tenant isolation in the embedding pipeline; embeddings
+  for one tenant could leak via the index.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The senior walk: name the multi-tenant model first; describe
+the ACL pre-filter at the index level (not post-filter);
+describe the cache-key design; describe the audit log;
+describe the injection defense; close with the governance
+artifacts (DPA, sub-processor list, retention). The
+candidate who treats this as a basic RAG plus a filter at the
+end loses the question.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+Sketch the multi-tenant index schema. Identify three places
+where cross-tenant leakage could occur (index, cache, log).
+For each, propose the control that prevents it.
+
+## Resume Bullet Points
+
+- Built a multi-tenant enterprise RAG assistant with
+  per-document ACL pre-filtering, ACL-aware caching, and
+  immutable audit logs (zero cross-tenant leakage on a 50-
+  query red-team suite).
+- Implemented indirect-prompt-injection defenses (content
+  tagging, output filtering) and a cite-or-abstain contract
+  achieving 0.93 faithfulness with 6-percent abstention rate.
+- Documented the governance package (model card, DPA
+  template, sub-processor list, retention policy) sufficient
+  for enterprise procurement review.
 
 ---
 ## Navigation

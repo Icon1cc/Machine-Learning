@@ -43,6 +43,21 @@ query falls noticeably. The key was not removing a citation or the one sentence 
 - Losing citations during summarization, breaking traceability.
 - Summarizing when extraction would preserve facts more safely.
 - Assuming more context is always better and skipping compression entirely.
+- **Extractive vs abstractive trade-off, quantified.** Extractive (keep relevant sentences verbatim):
+  preserves exact facts and citation spans; loses flow; safer for legal, medical, financial
+  domains. Abstractive (LLM summarizes the passages): fluent and shorter; risks hallucination at
+  the compression step itself; harder to cite. Production rule: extractive by default; abstractive
+  only when prompt-budget pressure is severe and you have a faithfulness eval that catches
+  compression-induced hallucinations.
+- **Citation preservation across compression.** When extractive compression spans multiple
+  sentences, each sentence retains its source ID. When abstractive compression merges two
+  sentences from different sources into one, citation must list both; the LLM doing the
+  compression rarely tracks this correctly without explicit instruction. Validate in the eval that
+  every claim still has a verifiable source after compression.
+- **Compression model selection.** A small fast model (3B parameter or specialized extractor like
+  LongLLMLingua) is often the right choice; a large model is overkill and the latency dominates.
+  Open-source LongLLMLingua reports 2-6x compression ratios with minimal quality loss on standard
+  RAG benchmarks; production systems can adopt it directly.
 
 ## Interview Angle
 

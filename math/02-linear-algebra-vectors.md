@@ -1,100 +1,82 @@
-# Linear Algebra Vectors
+# Linear Algebra: Vectors
 
 ## Beginner-Friendly Intuition
 
-Linear Algebra Vectors is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to turn geometry, rates of change, and information measures into tools for understanding model behavior. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
-
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+A vector is an arrow with a length and a direction; in ML, it is also a list of numbers that represents an example, a feature, or a hidden state. Operations on vectors (add, scale, dot product) are how models combine information. If you can picture two vectors and their angle, you can picture most of what early ML layers do.
 
 ## Formal Explanation
 
-Vectors represent quantities with direction and magnitude, making examples, features, and embeddings computable. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+A vector in `R^n` is an n-tuple of real numbers. Key operations: addition (`u + v`), scalar multiplication (`αv`), dot product (`u · v = Σ u_i v_i`), L2 norm (`||v||₂ = sqrt(v · v)`), cosine similarity (`u · v / (||u|| ||v||)`). The dot product equals `||u|| ||v|| cos θ`, so it measures alignment. Normalization (`v / ||v||`) puts vectors on the unit sphere, which is what most embedding models do before similarity search.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a numerical training or similarity problem to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Embeddings are vectors. Tokens are vectors. Hidden layers are vectors. Searching by meaning is dot product or cosine on vectors. Almost every modern ML system reduces to: turn things into vectors, compare them, combine them, transform them. You cannot reason about embedding quality, retrieval, or attention without the vector picture.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. Confirm the dimension and norm of vectors you handle.
+2. Decide whether to use dot product, cosine, or Euclidean (match how the model was trained).
+3. Normalize when comparing direction, not magnitude.
+4. Use orthogonality to think about independence: orthogonal directions carry independent information.
+5. Visualize in 2D or 3D first; the intuition usually transfers to higher dimensions.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A retrieval system stores 1024-dim embeddings of documents. A query is encoded into the same space. Top-k is found by largest dot product. Recall drops on long documents because the embedding norm grows with length and biases the score. Normalizing both query and documents (cosine similarity) fixes the bias and improves recall.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+## High-Dimensional Intuition: Random Vectors Become Orthogonal
+
+A counterintuitive fact: as dimension grows, two random vectors become almost perpendicular. The expected absolute cosine of two i.i.d. Gaussian vectors scales roughly as `1 / sqrt(d)`. A rough sense of the typical cosine magnitude:
+
+| Dimension `d` | Typical |cos θ| between two random vectors |
+| --- | --- |
+| 2 | ~0.5 |
+| 10 | ~0.25 |
+| 100 | ~0.08 |
+| 1000 | ~0.025 |
+
+So in 1000-dim embedding space, two arbitrary vectors are essentially orthogonal. This is why high-dimensional embeddings can pack many "near-independent" directions, but it is also why distances become less informative at very high dimension (the curse of dimensionality): every point looks roughly equally far from every other.
+
+## Why Attention Uses Scaled Dot Product, Not Cosine
+
+Transformer attention scores are `Q K^T / sqrt(d_k)`, not the cosine `Q K^T / (||Q|| ||K||)`. Two reasons. First, normalization would force the model to encode importance and similarity in different places (the model often wants the score's magnitude to encode how strongly a token should attend, which cosine destroys). Second, computational: the `sqrt(d_k)` scaling is enough to keep the variance of the score bounded as `d_k` grows, so softmax does not saturate, without requiring the per-vector norm computation that cosine needs at every step.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Using Euclidean distance when the embedding model was trained for cosine.
+- Forgetting to normalize when length should not matter.
+- Confusing the dot product (a scalar) with element-wise multiplication.
+- Treating vectors of different dimensions as comparable.
+- Ignoring that high dimensions distort distances (curse of dimensionality).
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Explain dot product, cosine similarity, and L2 distance, and when you would use each.
 
-**Question:** Explain Linear Algebra Vectors, then describe how you would use it in a real system.
+**Strong answer:** Dot product captures alignment scaled by lengths. Cosine ignores lengths and measures direction. L2 measures geometric distance. Use cosine when length is meaningless (text embeddings); dot product when training defined it; L2 when geometric distance is meaningful (image features in some setups).
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Treat them as interchangeable or quote definitions without saying when to pick which.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- Why do high-dimensional random vectors tend to be near orthogonal?
+- What is the relationship between cosine similarity and L2 on normalized vectors?
+- How would you index vectors for fast nearest-neighbor search at scale?
+- Why is dot product faster than cosine in practice for normalized vectors?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Take 5 random unit vectors in 2D. Compute dot products. Repeat in 100D using random sampling. Note how often the dot product is close to zero in 100D and explain why.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Linear Algebra Vectors]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    A[Item to compare] --> E1[Encode to vector]
+    B[Query] --> E2[Encode to vector]
+    E1 --> S[Similarity: dot, cosine, or L2]
+    E2 --> S
+    S --> R[Rank top-k]
 ```
 
 ---

@@ -73,8 +73,13 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with keyword retrieval plus extractive answer snippets. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with BM25 keyword retrieval plus extractive snippets
+returned with a small generation model that paraphrases the
+extracted text. Cite the source per snippet. Cite-or-abstain
+contract from day one (the model must cite or refuse). The
+baseline should be easy to explain, cheap to run, and strong
+enough to expose data quality problems before advanced modeling
+begins.
 
 ## Advanced Approach
 
@@ -170,6 +175,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- No abstention contract; the model fabricates when retrieval
+  evidence is weak. Cite-or-abstain measurably reduces this.
+- Indirect prompt injection from retrieved content goes
+  undefended; treat all retrieved content as untrusted data,
+  not instructions, and add an output filter as the second
+  layer.
 
 ---
 ## Navigation

@@ -2,99 +2,76 @@
 
 ## Beginner-Friendly Intuition
 
-Maximum Likelihood Estimation is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to reason under uncertainty, measure evidence, and avoid drawing claims the data cannot support. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
-
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+MLE picks the parameters that make the observed data most likely under the assumed model. It is the workhorse of training: classification with cross-entropy is MLE, regression with MSE is MLE under Gaussian noise, and many other losses are MLEs of specific likelihoods.
 
 ## Formal Explanation
 
-Maximum Likelihood Estimation is a practical concept used to reason clearly when data is noisy and incomplete in an experiment, metric, or uncertainty question. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
-
-The rigorous version usually includes:
-
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+Given a parametric model `p(x; θ)` and i.i.d. data `x_1, ..., x_n`, the likelihood is `L(θ) = Π p(x_i; θ)`. The log-likelihood `ℓ(θ) = Σ log p(x_i; θ)` is easier to optimize. MLE is `θ_hat = argmax ℓ(θ)`, often by setting the gradient to zero or running gradient descent. Under regularity conditions, MLE is consistent and asymptotically efficient.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect an experiment, metric, or uncertainty question to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Most ML losses are negative log-likelihoods. Knowing the underlying likelihood tells you which loss to use, what the model assumes about the noise, and what the maximum-likelihood asymptotics imply about confidence intervals.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. Choose a probabilistic model that matches the data.
+2. Write the log-likelihood as a sum over data points.
+3. Take the derivative with respect to parameters.
+4. Set to zero (closed form) or run gradient descent (general case).
+5. Validate that the assumed distribution actually fits the data.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+Linear regression with squared error is MLE under the assumption that residuals are i.i.d. Gaussian. If residuals are heavy-tailed, MLE under a Laplace distribution gives least absolute deviations, which is more robust. Choosing the right likelihood is choosing the right loss.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+## MLE Bias: The Gaussian Variance
+
+MLE is consistent (it converges to the true parameter as `n -> ∞`) but it is not always unbiased for finite `n`. The classic example: the MLE of the variance of a Gaussian is `(1/n) Σ (x_i - x_bar)²`, but the unbiased estimator divides by `n - 1` instead of `n`. The reason: using the sample mean `x_bar` instead of the true mean reduces the sum of squared deviations by exactly the right amount to make the `1/n` version underestimate the variance on average. The bias factor is `(n-1)/n`. For `n = 10`, the MLE is 10 percent too low on average; for `n = 100`, only 1 percent too low. For large samples it does not matter; for small samples, divide by `n - 1`. NumPy's `var()` defaults to `n` (MLE), Pandas defaults to `n - 1` (unbiased). Knowing the convention prevents confusion.
+
+## MLE vs MAP and the L1 Connection
+
+MAP (maximum a posteriori) adds a prior to MLE. Instead of maximizing the likelihood, you maximize `log p(data | θ) + log p(θ)`. The prior acts as regularization. Two important cases:
+
+- **Gaussian prior on weights.** `log p(θ) = -λ ||θ||² + const`. Adding this to the likelihood gives the same objective as MLE plus L2 (ridge) regularization. So L2 is MAP with a Gaussian prior.
+- **Laplace prior on weights.** `log p(θ) = -λ ||θ||_1 + const`. Adding gives MLE plus L1 (lasso) regularization. So L1 is MAP with a Laplace prior. The Laplace prior is sharply peaked at zero, which is why L1 produces sparse solutions: the prior actively prefers exactly-zero coefficients.
+
+The practical takeaway: regularization is not an ad-hoc trick; it is Bayesian inference under a specific prior. Choosing L1 vs L2 is choosing whether you believe most coefficients should be exactly zero (Laplace) or just small (Gaussian).
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Using MSE on classification (wrong likelihood).
+- Forgetting that MLE can overfit small data; regularization or MAP is safer.
+- Quoting MLE confidence intervals without checking the model fits.
+- Believing MLE is always unbiased; it can be biased for small samples.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Explain MLE and connect it to the cross-entropy loss in classification.
 
-**Question:** Explain Maximum Likelihood Estimation, then describe how you would use it in a real system.
+**Strong answer:** MLE picks parameters that maximize `Σ log p(y_i | x_i; θ)`. For categorical `y` with model probability `q(y | x)`, the negative log-likelihood is `-Σ log q(y_i | x_i)`, which is exactly cross-entropy with a one-hot target. So minimizing cross-entropy is MLE for the categorical model.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Treat MLE as an unrelated theoretical concept.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What is MAP and how does it differ from MLE?
+- When is MLE biased?
+- What is the connection between MLE and KL divergence?
+- Why is regularization equivalent to a Bayesian prior?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick a small dataset. Derive the MLE for a Bernoulli model by hand and confirm it equals the sample mean.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Maximum Likelihood Estimation]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    M[Model p(x;θ)] --> L[Likelihood Π p(x_i;θ)]
+    D[Data] --> L
+    L --> LL[Log-likelihood]
+    LL --> O[argmax θ]
+    O --> P[θ_hat]
 ```
 
 ---

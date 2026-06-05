@@ -46,6 +46,16 @@ citations.
 - Using RAG to fix a formatting or behavior problem that needs examples.
 - Assuming fine-tuning removes hallucination (it does not add live knowledge).
 - Treating them as either-or when production often needs both.
+- **Ignoring the interaction.** A fine-tuned model exposed to RAG can sometimes ignore the retrieved
+  evidence and answer from baked-in knowledge, especially for confident-sounding domains. Mitigation:
+  evaluate faithfulness (every claim supported by retrieval) on the fine-tuned + RAG combination
+  separately from each component alone.
+- **Underestimating corpus construction cost.** "Build RAG" hides ingestion pipeline design,
+  permission modeling, version control, schema iteration, and ongoing curation. A real corpus over
+  100K diverse documents typically takes 2-6 engineer-months to get clean. Plan for it.
+- **Migration complexity from fine-tune to RAG (or vice versa).** Switching strategies after launch
+  means rebuilding infrastructure (an indexing pipeline, embedding choice, eval harness) and possibly
+  retraining adapters. Decide early; the cost of moving later is real.
 
 ## Interview Angle
 

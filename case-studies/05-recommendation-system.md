@@ -73,8 +73,12 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with popular items, recent items, collaborative filtering, and simple content similarity. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with popular items per segment, recent items, item-item
+collaborative filtering on co-occurrence, and content similarity
+on title and category embeddings. Add demographic priors for
+cold-start users (no history yet). The baseline should be easy
+to explain, cheap to run, and strong enough to expose data
+quality problems before advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +174,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Optimizing offline NDCG without counterfactual correction;
+  the production policy biases logged data, so naive offline
+  gains often do not transfer online.
+- Pure relevance ranking with no diversity penalty; the system
+  collapses into a filter bubble that degrades long-term
+  engagement.
 
 ---
 ## Navigation

@@ -44,6 +44,21 @@ before execution. Clear schemas made the call reliable; permissions made the ris
 - Hiding tool errors instead of returning them for the model to self-correct.
 - Exposing powerful tools with no permission or approval gate.
 
+## Production Concerns
+
+Tool schemas are versioned. A breaking change ships as a new tool
+name (search_docs_v2) rather than a silent edit; deprecation goes
+through a window where both versions co-exist. Tool failures are
+isolated: a slow or broken downstream cannot stall the agent. Each
+tool runs with its own timeout, circuit breaker, and bulkhead so a
+single misbehaving service does not bring down every tool. Per-agent
+rate limits prevent runaway spend and abuse: limit tool calls per
+agent per minute and per task; a sudden spike triggers the abuse
+detector. Argument validation is a security boundary, not just a
+correctness check; treat unvalidated arguments as user input
+(injection, path traversal, SQL fragments) and validate with the
+same rigor as a public API.
+
 ## Interview Angle
 
 **Question:** How do you make tool use reliable and safe?

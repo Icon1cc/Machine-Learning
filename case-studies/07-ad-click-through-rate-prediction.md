@@ -73,8 +73,14 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with regularized logistic regression over crossed categorical and numeric features. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with regularized logistic regression over hashed crossed
+features (user_id x ad_id, user_segment x ad_category, device x
+hour-of-day). Add base CTR per ad, per advertiser, per slot, plus
+freshness features (ad-age in hours). Online learning with FTRL
+fits the high-cardinality, fast-shifting nature of the problem.
+The baseline should be easy to explain, cheap to run, and strong
+enough to expose data quality problems before advanced modeling
+begins.
 
 ## Advanced Approach
 
@@ -170,6 +176,11 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Optimizing CTR alone; revenue per impression accounts for bid
+  amount and conversion rate that pure CTR misses.
+- Treating delayed conversions as missing labels; the model
+  underestimates CTR for slow-conversion segments unless
+  conversion delay is modeled explicitly.
 
 ---
 ## Navigation

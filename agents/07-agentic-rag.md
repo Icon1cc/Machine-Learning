@@ -44,6 +44,21 @@ unsupported guess. A two-iteration cap kept the loop bounded.
 - Skipping the reflection step, so the agent does not know when to stop searching.
 - Dropping the cite-or-abstain contract once retrieval becomes iterative.
 
+## Production Concerns
+
+Each retrieval iteration has its own SLA budget; a 3-iteration loop
+with 200ms retrieval each plus model calls easily breaches a 2-second
+end-to-end budget. Plan the budget per iteration, not just total.
+Evidence-strength thresholds drive abstention: when the top retrieval
+score is below a calibrated floor, abstain rather than hallucinate.
+The threshold is set on a labeled eval, not by intuition. Retrieval
+caches must be invalidated when the source updates, otherwise the
+agent cites stale facts. Tag cache entries with source-document
+versions and invalidate on document update. Track per-query
+iteration counts in production: the distribution should be
+right-skewed (most queries finish in 1, tail at 3-4); a flat
+distribution suggests the reflection step is not working.
+
 ## Interview Angle
 
 **Question:** When would you use agentic RAG over standard RAG?

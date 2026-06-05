@@ -2,114 +2,159 @@
 
 ## Goal
 
-Build a focused recommendation system with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build a two-stage recommendation system on a public movie or
+product dataset: candidate generation via two-tower retrieval
+plus a ranker for top-K, with A/B-ready evaluation, diversity
+guardrails, and a deployable artifact.
 
 ## Why This Project Matters
 
-This project is useful because personalized discovery work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Recommenders are the highest-value ML system in many products.
+The two-stage pattern (retrieval plus ranking) is the universal
+production architecture; understanding it deeply separates
+candidates with surface knowledge from those who can ship at
+scale. The project teaches counterfactual evaluation (offline
+metrics often disagree with online), exposure bias, and
+diversity-aware ranking that prevents filter bubbles.
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+Pure popularity ranking is the strong baseline most personalized
+recommenders fail to beat by much offline. Beating it requires
+capturing user-specific preferences without losing diversity.
+The senior production move is two-stage architecture (cheap
+retrieval, expensive ranking) plus diversity penalties to
+prevent collapse, plus offline-online gap awareness so the
+team avoids shipping a metric mover that does not move
+engagement.
 
 ## Explanation
 
-Use user events, item metadata, and feedback. Start with this baseline: popular and recent items. Compare it with candidate retrieval plus ranking. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Use MovieLens-25M or Amazon Reviews. Build a two-tower
+retrieval model (user tower, item tower, shared embedding
+space). Train with sampled-softmax or in-batch negatives.
+Pre-compute item embeddings; ANN-index them. At query time,
+encode the user, retrieve top 1000 candidates. Rank the
+candidates with a gradient-boosted or neural ranker using
+contextual features (time of day, recent activity, device).
+Apply diversity (MMR or category quota). Serve top 10. Eval
+NDCG and Recall@K offline; track CTR online via A/B test.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in personalized discovery. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+A movie streaming service shows "for you" recommendations.
+Each request: encode the user, retrieve 1000 candidates, rank
+with fresh contextual features, apply diversity, return top
+10. Latency budget under 100 ms p99 with the retrieval and
+ranking distributed across services.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Public dataset: MovieLens] --> B[User-item interactions]
+    B --> C[Two-tower retrieval training]
+    B --> D[Ranker training: GBM or neural]
+    C --> E[Item embedding index: ANN]
+    E --> F[Query: user encode + retrieve 1000]
+    F --> G[Rank with fresh features + diversity]
+    G --> H[Top-10 + offline NDCG + online CTR]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use user events, item metadata, and feedback. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+MovieLens-25M (GroupLens, 25M ratings, rich movie metadata)
+is the canonical choice. Amazon Reviews (Stanford, reviews
+plus product metadata) for product-recommendation framing.
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: popular and recent items.
-5. Train or configure the improved approach: candidate retrieval plus ranking.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1-2: data prep.** User-item interactions matrix;
+   train-validation-test split (time-aware: predict month
+   T+1 from data through month T).
+2. **Day 3: baseline.** Popularity per user-segment; recall@10
+   on the held-out test set.
+3. **Day 4-6: two-tower retrieval.** PyTorch implementation;
+   sampled-softmax loss; ANN index (FAISS or HNSWlib).
+   Recall@10 vs the baseline.
+4. **Day 7-8: ranker.** Gradient boosting on contextual
+   features. NDCG@10 on the candidate set.
+5. **Day 9: diversity.** MMR re-ranking with a tunable lambda;
+   measure diversity (intra-list distance) plus engagement
+   metric.
+6. **Day 10: counterfactual eval.** Inverse-propensity weighted
+   estimator on logged data; compare against naive offline
+   evaluation.
+7. **Day 11-12: deployment.** Two-service architecture (retrieval
+   service, ranking service); pre-computed item embeddings
+   refreshed daily; ANN index in memory; latency profiling.
+8. **Day 13: A/B design.** Pre-registered metric (CTR or
+   session length); 50/50 holdout; sample size for 2-percent
+   lift detection.
+9. **Day 14: monitoring.** Per-segment NDCG drift; per-segment
+   CTR; cold-start fallback; provider-side coverage metric.
 
 ## Evaluation
 
-Use CTR, conversion, diversity, and retention. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: NDCG@10 on a labeled test set. Secondary:
+Recall@100, MRR, intra-list diversity. Online metric for A/B:
+CTR or session engagement. Counterfactual estimator on logged
+data.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- Time-aware train-test split.
+- NDCG@10 with bootstrap CI.
+- Per-segment metrics (active users, new users, by category).
+- Counterfactual offline eval (IPW) before A/B.
+- Diversity: intra-list distance with a clear threshold.
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Sequence model (GRU or transformer) on user behavior.
+- Multi-task ranker (CTR plus dwell time plus completion).
+- Cold-start: content-based fallback for new items and users.
+- Causal inference on the recommendation effect.
+- Multi-objective optimization (engagement plus diversity plus
+  revenue).
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built a recommendation system with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved CTR, conversion, diversity, and retention while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- Pure offline NDCG without counterfactual correction.
+- No diversity guardrail; the ranker collapses to a narrow
+  filter bubble.
+- Ignoring cold-start; the system is broken for new users.
+- One-stage architecture; cannot scale to large catalogs.
+- No A/B; offline gains do not transfer to engagement.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The senior walk: name the two-stage architecture; describe the
+retrieval-vs-ranking split and the latency budget; state the
+counterfactual estimator and why it differs from naive offline;
+name the diversity tradeoff; close with the A/B test and the
+provider-side fairness metric. The candidate who stops at "I
+trained a two-tower" misses the production tradeoffs.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+For your dataset, compute the popularity-baseline Recall@10.
+Estimate the lift you expect from a two-tower retriever. State
+one segment where the model is likely to underperform and the
+diversity penalty you would apply.
+
+## Resume Bullet Points
+
+- Built a two-stage recommender on MovieLens-25M with
+  two-tower retrieval and a gradient-boosted ranker, achieving
+  NDCG@10 of 0.42 (vs 0.27 popularity baseline; 95-percent CI
+  [0.40, 0.44]).
+- Counterfactual offline evaluation via IPW corrected a
+  9-percent over-estimate in naive offline NDCG and informed
+  the A/B-test sample-size design.
+- Deployed retrieval and ranking as separate services with a
+  100ms p99 SLO, daily index refresh, and a provider-side
+  coverage metric to prevent filter-bubble collapse.
 
 ---
 ## Navigation

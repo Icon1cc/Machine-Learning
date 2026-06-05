@@ -45,6 +45,20 @@ contract together neutralize it. The model never had to be trusted to self-polic
 - Only output guardrails, leaving the input (injection) surface open.
 - No action defined for a guardrail trip (block vs retry vs escalate).
 - Guardrails so strict they block legitimate requests, hurting usability.
+- **Latency budget for guardrails.** Each classifier in the stack adds inference time. A typical
+  budget: 5-20 ms per small classifier on CPU, 30-80 ms on GPU. Stacking 3-5 input plus output
+  classifiers can add 100-300 ms to total request latency. For 200 ms p99 chat targets, this is
+  significant; quantize the guardrail classifiers, batch them when possible, run input checks in
+  parallel, and skip output groundedness checks for trivially-safe responses.
+- **False-positive ROI.** A guardrail that blocks 1 in 1000 legitimate requests to catch 1 in 10000
+  abuse attempts costs more legitimate-traffic disruption than abuse prevention. Track both rates,
+  compute the cost ratio (analyst time saved vs user friction added), and tune the threshold to a
+  defensible operating point. Most guardrails ship too strict because nobody sees the legitimate
+  requests being blocked.
+- **Guardrail drift.** User input distributions evolve (new jailbreak techniques, new abuse vectors,
+  new product features creating new edge cases). A guardrail trained 6 months ago may be stale.
+  Retrain quarterly on fresh data; monitor block rate by category for sudden shifts; have a
+  fast-rollback path when a new guardrail blocks legitimate traffic in production.
 
 ## Interview Angle
 

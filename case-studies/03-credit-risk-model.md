@@ -73,8 +73,14 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with scorecard rules and logistic regression with monotonic, explainable features. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with scorecard rules and logistic regression with monotonic,
+explainable features (debt-to-income ratio, credit utilization,
+length of credit history, payment-delinquency count, recent
+inquiries). Monotonic constraints ensure the model behaves as
+domain experts expect (more debt should never reduce risk score).
+The baseline should be easy to explain, cheap to run, and strong
+enough to expose data quality problems before advanced modeling
+begins.
 
 ## Advanced Approach
 
@@ -170,6 +176,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Skipping fair-lending analysis (ECOA-protected groups,
+  disparate-impact metrics) until late in the project; regulator
+  scrutiny is highest in credit decisions.
+- Using non-monotonic features without constraints; a model that
+  rewards more debt with lower risk fails domain review and
+  validation.
 
 ---
 ## Navigation

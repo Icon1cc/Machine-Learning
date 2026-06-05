@@ -73,8 +73,12 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with permission-filtered search with snippets and manual source review. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with permission-filtered keyword search returning snippets
+with source URLs. Per-document ACL metadata enforced at the
+index level (pre-filter, not post-filter). Manual source review
+in the UI. The baseline should be easy to explain, cheap to run,
+and strong enough to expose data quality problems before
+advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +174,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Cache without ACL-aware key; one tenant's cached response
+  could surface for another. Include user identity or ACL hash
+  in the cache key.
+- ACL filtering on LLM output instead of the retrieval index;
+  this leaks because the model has already seen the
+  unauthorized content. Pre-filter only.
 
 ---
 ## Navigation

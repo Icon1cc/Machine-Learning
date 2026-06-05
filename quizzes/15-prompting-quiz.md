@@ -2,88 +2,157 @@
 
 ## Instructions
 
-Answer without looking at the key. For each miss, write a one-sentence correction and one example
-from a real ML, LLM, RAG, agent, or production AI system.
+Ten questions on few-shot, chain-of-thought, self-consistency,
+prompt injection, and the brittleness patterns that real prompts
+hit. One option per question.
 
 ## Questions
 
-1. In the context of Prompting, what should you clarify first?
-   A. The user decision, available data, baseline, and success metric.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-2. In the context of Prompting, why is a baseline important?
-   A. It proves whether added complexity creates measurable value.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-3. In the context of Prompting, what is a common leakage risk?
-   A. Training or validation data can contain information that would not exist at prediction time.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-4. In the context of Prompting, how should you choose a metric?
-   A. Match the metric to the cost of errors and the product decision.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-5. In the context of Prompting, what should error analysis inspect?
-   A. False positives, false negatives, hard segments, missing data, and rare cases.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-6. In the context of Prompting, when is a complex model justified?
-   A. When a simpler approach is measured, insufficient, and the extra cost is worth it.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-7. In the context of Prompting, what should be monitored after deployment?
-   A. Input quality, drift, latency, cost, output quality, and business outcome metrics.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-8. In the context of Prompting, how should uncertainty be communicated?
-   A. State assumptions, confidence, known limits, and the decision impact.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-9. In the context of Prompting, what is a strong interview answer structure?
-   A. Problem, data, baseline, model, metric, risks, and production plan.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-10. In the context of Prompting, what is the safest next step after poor validation results?
-   A. Inspect data and errors before changing models randomly.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
+1. **Foundational.** Zero-shot prompting:
+   A. Provides examples in the prompt.
+   B. Provides only the task instruction without examples;
+      relies on the model's pre-trained behavior.
+   C. Fine-tunes the model.
+   D. Uses retrieval.
 
-## Answer Key and Explanations
+2. **Foundational.** Few-shot prompting works because:
+   A. It updates model weights.
+   B. The examples in the prompt let the model pattern-match the
+      task; in-context learning effectively conditions the
+      model's behavior without weight updates.
+   C. It downloads new data.
+   D. It increases model size.
 
-1. **A.** The user decision, available data, baseline, and success metric. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-2. **A.** It proves whether added complexity creates measurable value. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-3. **A.** Training or validation data can contain information that would not exist at prediction time. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-4. **A.** Match the metric to the cost of errors and the product decision. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-5. **A.** False positives, false negatives, hard segments, missing data, and rare cases. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-6. **A.** When a simpler approach is measured, insufficient, and the extra cost is worth it. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-7. **A.** Input quality, drift, latency, cost, output quality, and business outcome metrics. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-8. **A.** State assumptions, confidence, known limits, and the decision impact. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-9. **A.** Problem, data, baseline, model, metric, risks, and production plan. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-10. **A.** Inspect data and errors before changing models randomly. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
+3. **Foundational.** Chain-of-thought (CoT) prompting:
+   A. Reduces token usage.
+   B. Asks the model to produce intermediate reasoning steps
+      before the final answer; improves performance on
+      arithmetic, logic, and multi-step problems.
+   C. Skips the answer.
+   D. Replaces fine-tuning.
+
+4. **Intermediate.** Self-consistency:
+   A. Uses one prompt.
+   B. Samples multiple chain-of-thought completions and takes the
+      majority answer; trades extra inference cost for higher
+      accuracy on reasoning tasks.
+   C. Trains on its own output.
+   D. Uses a single greedy decode.
+
+5. **Intermediate.** Prompt brittleness shows up when:
+   A. Small wording changes (synonyms, formatting, ordering)
+      shift the model's output substantially; production prompts
+      need testing across realistic variations.
+   B. The model is too small.
+   C. The task is hard.
+   D. The temperature is high.
+
+6. **Intermediate.** Retrieval-augmented prompting (RAG)
+   addresses:
+   A. Latency.
+   B. Knowledge cut-offs and hallucination by injecting relevant
+      documents into context with citations; performance hinges
+      on retrieval quality.
+   C. Tokenization.
+   D. Multi-modality.
+
+7. **Advanced.** Direct prompt injection in user input is mitigated
+   by:
+   A. Hoping users do not try.
+   B. Instruction hierarchy (system role outranks user content),
+      input classifiers, and output filters; defense in depth.
+   C. Removing the system prompt.
+   D. Using only structured output.
+
+8. **Advanced.** Indirect prompt injection (from retrieved
+   documents) is harder to defend because:
+   A. The injection looks like normal content.
+   B. The model encounters the malicious instructions through
+      legitimate operation; defenses include content tagging
+      (treat retrieved content as data), output filtering, and
+      distrust of all retrieved instructions.
+   C. The retriever is broken.
+   D. The model is too small.
+
+9. **Advanced.** Reasoning step counts in chain-of-thought:
+   A. Should be maximized.
+   B. Have a sweet spot; too few hurts accuracy, too many adds
+      cost without benefit and can introduce off-track
+      reasoning. Match step depth to task complexity.
+   C. Are irrelevant.
+   D. Always equal three.
+
+10. **Advanced.** A prompt that worked on model A breaks on model B:
+    A. Always means model B is worse.
+    B. Often reflects different training data, instruction-
+       following style, or output format conventions; prompts
+       are not portable and need re-tuning per model.
+    C. Means the API changed.
+    D. Means the prompt was wrong.
+
+## Answer Key
+
+1. **B.** Zero-shot relies on the model's pre-trained ability
+   to follow instructions. It is the cheapest prompting style
+   and the right starting point.
+
+2. **B.** Few-shot conditions the model on the desired pattern.
+   The examples should be representative; biased examples bias
+   the output.
+
+3. **B.** CoT gives the model "thinking room". For multi-step
+   problems, accuracy improves dramatically. Cost is the
+   tradeoff: longer outputs, higher latency.
+
+4. **B.** Self-consistency is sampling-based ensembling.
+   Higher cost, higher accuracy on reasoning tasks; useful
+   when correctness matters more than per-query cost.
+
+5. **A.** Brittleness is a silent failure mode. Production
+   prompts need eval suites that include realistic input
+   variations.
+
+6. **B.** RAG is the standard pattern for grounded answering.
+   Retrieval quality (recall, ranking) is the dominant lever
+   on system quality.
+
+7. **B.** No single defense is sufficient. Layered defenses are
+   the architecture; testing them with red-team prompts is
+   standard practice.
+
+8. **B.** Indirect injection is the OWASP LLM Top 10 threat.
+   The mitigation pattern: tag retrieved content as untrusted,
+   filter outputs, and assume the document may be hostile.
+
+9. **B.** CoT has diminishing returns. Calibrate the number of
+   reasoning steps to the task; more is not always better.
+
+10. **B.** Prompts are model-specific. Migration plans include
+    re-running the eval suite with the new model and adjusting
+    the prompt as needed.
 
 ## Mini Exercise
 
-Create one additional question about a failure mode in Prompting, then answer it with the same level
-of explanation used in the key.
+Pick a prompt you use. Write three plausible variations
+(synonym, format change, order change) and predict whether the
+output would shift. State one production guardrail that would
+catch a brittle output before users see it.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Question] --> B[Recall]
-    B --> C[Reason]
-    C --> D[Answer]
-    D --> E[Explain]
+    A[Task] --> B{Prompting style}
+    B -- Simple --> C[Zero-shot]
+    B -- Pattern --> D[Few-shot]
+    B -- Reasoning --> E[Chain-of-thought]
+    B -- Robust --> F[Self-consistency]
+    B -- Knowledge --> G[Retrieval-augmented]
+    C --> H[Production: eval suite + injection defenses]
+    D --> H
+    E --> H
+    F --> H
+    G --> H
 ```
 
 ---

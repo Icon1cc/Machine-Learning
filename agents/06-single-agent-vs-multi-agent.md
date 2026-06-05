@@ -47,6 +47,21 @@ coordination added noise.
 - Underestimating coordination overhead and error propagation.
 - No clear protocol for how agents hand off and when the system stops.
 
+## Production Concerns
+
+Multi-agent systems contend for shared resources: rate limits on
+upstream APIs, GPU pool, vector store. Without load balancing,
+parallel workers thrash and degrade each other. Use a shared budget
+plus a queue with backpressure. Failure recovery is harder when
+multiple agents share state: checkpoint each subtask, deduplicate on
+retry (idempotency keys per subtask), and prefer at-least-once with
+dedup over exactly-once. Distributed tracing is essential: every
+agent's call carries a parent trace ID; the system can reconstruct
+the full execution graph on demand. Without it, debugging a failed
+multi-agent run is archaeology. A failed worker should not silently
+hold up the supervisor; set per-worker timeouts and treat missing
+results as observed errors the supervisor reasons about.
+
 ## Interview Angle
 
 **Question:** Single agent or multi-agent for this task?

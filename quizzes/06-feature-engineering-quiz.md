@@ -2,88 +2,154 @@
 
 ## Instructions
 
-Answer without looking at the key. For each miss, write a one-sentence correction and one example
-from a real ML, LLM, RAG, agent, or production AI system.
+Ten questions on encoding, scaling, time windows, leakage in
+feature pipelines, and the gotchas that separate competent feature
+work from incident-prone feature work.
 
 ## Questions
 
-1. In the context of Feature Engineering, what should you clarify first?
-   A. The user decision, available data, baseline, and success metric.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-2. In the context of Feature Engineering, why is a baseline important?
-   A. It proves whether added complexity creates measurable value.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-3. In the context of Feature Engineering, what is a common leakage risk?
-   A. Training or validation data can contain information that would not exist at prediction time.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-4. In the context of Feature Engineering, how should you choose a metric?
-   A. Match the metric to the cost of errors and the product decision.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-5. In the context of Feature Engineering, what should error analysis inspect?
-   A. False positives, false negatives, hard segments, missing data, and rare cases.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-6. In the context of Feature Engineering, when is a complex model justified?
-   A. When a simpler approach is measured, insufficient, and the extra cost is worth it.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-7. In the context of Feature Engineering, what should be monitored after deployment?
-   A. Input quality, drift, latency, cost, output quality, and business outcome metrics.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-8. In the context of Feature Engineering, how should uncertainty be communicated?
-   A. State assumptions, confidence, known limits, and the decision impact.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-9. In the context of Feature Engineering, what is a strong interview answer structure?
-   A. Problem, data, baseline, model, metric, risks, and production plan.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
-10. In the context of Feature Engineering, what is the safest next step after poor validation results?
-   A. Inspect data and errors before changing models randomly.
-   B. Start with the largest model available
-   C. Ignore the baseline if the final system will be advanced
-   D. Evaluate only on examples used during development
+1. **Foundational.** A high-cardinality categorical feature (e.g.,
+   user_id with 10 million values) handled with one-hot encoding:
+   A. Is the standard approach.
+   B. Explodes dimensionality and rarely helps; use embeddings,
+      target encoding (with leak protection), or hashing.
+   C. Is faster than embeddings.
+   D. Is required for tree models.
 
-## Answer Key and Explanations
+2. **Foundational.** Standardization (zero mean, unit variance)
+   matters most for:
+   A. Tree-based models.
+   B. Models that depend on distances or gradients (kNN, linear
+      regression with regularization, SVMs, neural networks).
+   C. Naive Bayes.
+   D. Categorical features only.
 
-1. **A.** The user decision, available data, baseline, and success metric. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-2. **A.** It proves whether added complexity creates measurable value. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-3. **A.** Training or validation data can contain information that would not exist at prediction time. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-4. **A.** Match the metric to the cost of errors and the product decision. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-5. **A.** False positives, false negatives, hard segments, missing data, and rare cases. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-6. **A.** When a simpler approach is measured, insufficient, and the extra cost is worth it. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-7. **A.** Input quality, drift, latency, cost, output quality, and business outcome metrics. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-8. **A.** State assumptions, confidence, known limits, and the decision impact. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-9. **A.** Problem, data, baseline, model, metric, risks, and production plan. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
-10. **A.** Inspect data and errors before changing models randomly. This keeps the answer tied to measurable behavior. The other options skip framing, create leakage risk, or confuse model complexity with quality.
+3. **Foundational.** Missing values handled by imputing the column
+   mean computed on the entire dataset (including test) is:
+   A. Best practice.
+   B. A leakage pattern; compute imputation statistics on training
+      only and apply to validation and test.
+   C. Faster.
+   D. Required for some models.
+
+4. **Intermediate.** A "lookahead" feature in time-series modeling:
+   A. Is allowed if the test set is small.
+   B. Is leakage; the feature uses information not available at
+      decision time, inflating offline metrics. Use lagged windows
+      that respect the prediction-time clock.
+   C. Helps the model learn faster.
+   D. Is acceptable in batch but not online.
+
+5. **Intermediate.** Target encoding (replacing a category with the
+   mean target value for that category) requires:
+   A. No special handling.
+   B. K-fold or out-of-fold encoding so the target for each row is
+      not used in computing its own encoding; otherwise leakage.
+   C. Standardization.
+   D. One-hot encoding first.
+
+6. **Intermediate.** Feature scaling is computed:
+   A. Once on all data.
+   B. On the training set only; the same parameters (mean, std,
+      quantiles) are applied to validation, test, and production.
+   C. Per fold but recomputed on test.
+   D. On the test set.
+
+7. **Advanced.** Time-windowed aggregations (e.g., user clicks in
+   last 7 days) must:
+   A. Use the same data source as the labels.
+   B. Be computed using only events available at prediction time;
+      typically materialized in a feature store with point-in-
+      time correctness.
+   C. Be re-trained for each model version.
+   D. Use raw timestamps without aggregation.
+
+8. **Advanced.** Categorical features with rare values often:
+   A. Require dropping.
+   B. Benefit from frequency-based grouping (rare to "other") or
+      smoothing in target encoding to avoid memorizing noise.
+   C. Should be left as-is.
+   D. Need standardization.
+
+9. **Advanced.** Training-serving skew at the feature layer is
+   detected by:
+   A. Reading code carefully.
+   B. Logging feature values at inference and comparing
+      distributions to training; per-feature monitoring (PSI,
+      KL) and shadow-mode comparison are standard.
+   C. Re-training the model.
+   D. Increasing the model size.
+
+10. **Advanced.** A feature whose distribution shifts dramatically
+    between training and production:
+    A. Should always be dropped.
+    B. Calls for investigation: real-world change, pipeline bug,
+       or sampling bias; address the cause and consider drift-
+       robust transformations or re-training schedule.
+    C. Means the model is bad.
+    D. Is solved by standardization.
+
+## Answer Key
+
+1. **B.** 10M one-hot dimensions waste memory and provide no
+   generalization. Embeddings (learned), hashing (cheap), or
+   target encoding (with leak protection) work better.
+
+2. **B.** Distance and gradient-based methods are sensitive to
+   feature scale. Trees split on thresholds and are scale-
+   invariant; standardization adds nothing.
+
+3. **B.** Computing imputation stats on the full dataset leaks
+   test information into training. The fix is to fit on train
+   only.
+
+4. **B.** Lookahead leakage produces inflated offline metrics
+   that vanish in production. Strict pipeline hygiene with
+   prediction-time-aware feature definitions is the cure.
+
+5. **B.** Naive target encoding leaks because the target of the
+   row appears in the encoding statistic. K-fold or
+   leave-one-out encoding plus smoothing for low-count
+   categories is the standard pattern.
+
+6. **B.** Scaling parameters fit once on training. The same
+   transformation applies to all downstream stages, including
+   production. Otherwise distributions shift between sets.
+
+7. **B.** Production cannot peek at future events. Feature-store
+   point-in-time joins reconstruct what was knowable at any
+   historical instant.
+
+8. **B.** Rare values plus high target variance cause the model
+   to memorize random patterns. Grouping or smoothing reduces
+   variance without dropping signal.
+
+9. **B.** Training-serving skew is the most common silent failure.
+   Per-feature drift monitoring catches the moment a pipeline
+   diverges; shadow mode catches it before user impact.
+
+10. **B.** Distribution shift can be a real-world change (which
+    the system must adapt to) or a bug (which the system must
+    fix). The diagnosis matters more than a generic transformation.
 
 ## Mini Exercise
 
-Create one additional question about a failure mode in Feature Engineering, then answer it with the same level
-of explanation used in the key.
+Pick three features from a model you know. For each, state how it
+is computed at inference time and how the same value would be
+reconstructed point-in-time during training.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Question] --> B[Recall]
-    B --> C[Reason]
-    C --> D[Answer]
-    D --> E[Explain]
+    A[Raw data] --> B[Train-time pipeline: fit imputers + scalers]
+    A --> C[Serving pipeline: apply same transforms]
+    B --> D[Train model]
+    C --> E[Inference]
+    D --> F[Feature store: point-in-time joins]
+    E --> F
+    F --> G{Distributions match?}
+    G -- No --> H[Investigate skew or drift]
 ```
 
 ---

@@ -44,6 +44,22 @@ The transfer action itself is gated behind confirmation, separating safe lookups
 - No argument validation, passing malformed inputs to the function.
 - Vague function descriptions, so the model calls the wrong one.
 - Allowing consequential actions with no permission or confirmation.
+- **Function hallucination.** The model emits a call to a function that does not exist, or invents
+  argument values not present in any allowed schema. Mitigations: schema-constrained decoding (the
+  decoder mask only tokens that lead to valid JSON matching the schema), output validation with a JSON
+  schema validator, and a clear error path that returns the validation error to the model and lets it
+  retry once. Modern hosted APIs (OpenAI tool-calling, Anthropic tool use) do schema-constrained
+  decoding internally; self-hosted setups need to add it (Outlines, JSON-mode, structured-output
+  libraries).
+- **Tool-set scaling.** Past 10-20 tools, embedding all function definitions in every prompt inflates
+  token cost (each tool definition can be 200-1000 tokens) and confuses the model. Two patterns:
+  **dynamic tool selection** (an embedding-based router or small classifier picks 3-5 candidate tools
+  from a larger registry), and **hierarchical tool sets** (group tools by domain, top-level dispatch
+  picks a domain, then exposes only its tools).
+- **Infinite loops in agents.** A model can call the same function repeatedly, or loop between two
+  functions, with no progress. Always cap: maximum N tool calls per request (typical 5-20), maximum
+  total tokens spent, or a confidence threshold that triggers handoff to human. Without a cap, a stuck
+  agent can cost dollars per query.
 
 ## Interview Angle
 

@@ -30,6 +30,30 @@ large share of quality problems at zero training cost. Prompting is also where y
 4. **Add reasoning** (chain-of-thought) for complex multi-step problems.
 5. **Iterate against an eval set,** not single examples, to avoid overfitting the prompt.
 
+**Few-shot example count.** 2 to 4 examples is the sweet spot for most tasks; beyond 8, returns diminish
+sharply and on some tasks accuracy declines. Pick examples that are diverse (cover the input distribution),
+representative (look like real production inputs), and include at least one tricky case (boundary
+conditions, ambiguous inputs). Random in-batch examples often beat hand-picked "ideal" ones because they
+do not bias the model toward an unrealistic distribution.
+
+**Defending against prompt injection.** Untrusted content (retrieved documents, user-supplied text, tool
+outputs) can contain instructions that attempt to override the system prompt ("Ignore previous instructions
+and..."). Defenses, layered:
+
+- **Content tagging.** Wrap untrusted content in clear delimiters (`<document>...</document>`) and instruct
+  the model to treat anything inside the tags as data, never as instructions.
+- **Instruction hierarchy.** OpenAI and Anthropic now expose explicit message roles where system
+  instructions outrank user content. Use them.
+- **Output filtering.** Validate output against a schema and check for known injection markers before
+  returning to the user or executing tool calls.
+- **Refuse-and-escalate path.** If the model output indicates compliance with an injected instruction
+  (e.g., suddenly outputs in a different language or violates the system prompt), classify and block.
+
+**Prompt latency.** Longer prompts make the prefill step slower and more expensive. A 4K-token system
+prompt adds noticeable time-to-first-token. Use **prompt caching** (where supported) to cache the static
+prefix (system prompt, few-shot examples) and pay only for the dynamic suffix on each call. This single
+optimization can cut prefill cost by 70-90 percent for chat workloads with a stable system prompt.
+
 ## Real-World Example
 
 A classification feature returns inconsistent labels. The original prompt just said "classify this ticket".

@@ -2,114 +2,156 @@
 
 ## Goal
 
-Build a focused NLP text classifier with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Build a text classifier on a public NLP dataset using a
+TF-IDF baseline plus a fine-tuned transformer, with per-
+class evaluation, calibration, and a deployable inference
+endpoint.
 
 ## Why This Project Matters
 
-This project is useful because text classification work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Text classification is the most common production NLP task:
+spam, sentiment, topic, intent, abuse. The pattern (sparse
+linear baseline first, then transformer) demonstrates judgment
+about complexity tradeoffs. Hiring managers ask about it
+because it tests data hygiene, calibration, per-class
+analysis, and the deployment cost of larger models.
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+A TF-IDF logistic regression on bigrams is a strong baseline
+that beats many over-engineered systems on small or
+imbalanced datasets. Beating it requires a fine-tuned
+transformer, which is operationally heavier (latency, GPU
+cost, retraining schedule). The senior production move is
+acknowledging when the linear baseline is good enough and
+shipping the simpler thing.
 
 ## Explanation
 
-Use documents, labels, metadata, and language signals. Start with this baseline: TF-IDF linear model. Compare it with fine-tuned transformer. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Use AG News, IMDB, or a Kaggle text dataset. Build a TF-IDF
+plus logistic regression baseline. Train a fine-tuned
+transformer (DistilBERT or RoBERTa) on the same split.
+Compare; report the lift. Per-class evaluation. Calibrate.
+Deploy as a small API with both model versions for fallback.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in text classification. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+A support-ticket classifier routes incoming tickets to the
+right team. The classifier returns the top-2 categories with
+confidence; below a threshold, route to a human triage queue.
+The system uses the linear model when latency budget is tight
+and the transformer when accuracy matters and budget allows.
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
-    E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    A[Public text dataset] --> B[Preprocess + split]
+    B --> C[Baseline: TF-IDF + logistic regression]
+    B --> D[Advanced: fine-tuned transformer]
+    C --> E[Per-class F1 + calibration]
+    D --> E
+    E --> F[Confidence-based routing]
+    F --> G[API + per-class drift monitor]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use documents, labels, metadata, and language signals. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+AG News (Kaggle, 120K news articles, 4 classes) is the
+canonical NLP classification dataset. IMDB sentiment (50K
+reviews, binary) for a simpler scope. Real domain-specific
+data via Hugging Face Datasets if available.
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: TF-IDF linear model.
-5. Train or configure the improved approach: fine-tuned transformer.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Day 1: data exploration.** Class balance; document length
+   distribution; vocabulary statistics; sample inspection by
+   class.
+2. **Day 2: baseline.** TF-IDF (with bigrams) plus logistic
+   regression with L2 regularization. Macro F1 on the test
+   set with bootstrap CI.
+3. **Day 3-4: transformer.** Fine-tune DistilBERT (smaller,
+   faster) on the same split. AdamW, learning-rate warmup,
+   3 epochs typical. Macro F1 vs baseline.
+4. **Day 5: per-class analysis.** Confusion matrix; per-class
+   F1; identify misclassification patterns.
+5. **Day 6: calibration.** Temperature scaling on a held-out
+   set; reliability diagram.
+6. **Day 7: hard-example mining.** Inspect 50 misclassified
+   examples; identify ambiguous, mislabeled, or
+   transformer-distinct failures.
+7. **Day 8: latency profile.** Linear baseline at less than
+   5ms; transformer typically 20-100ms on CPU, 5-20ms on
+   GPU. Document the cost-quality tradeoff.
+8. **Day 9-10: deployment.** ONNX-exported transformer
+   service plus a fallback to the linear model on timeout
+   or high-load. FastAPI; Dockerfile.
+9. **Day 11: monitoring.** Per-class F1 drift on a labeled
+   stream; input-distribution drift (vocabulary shift, length
+   shift); cost per request; canary plus rollback.
+10. **Day 12-14: documentation.** Model card with intended
+    use, per-class limits, calibration notes, and a
+    confidence-routing runbook.
 
 ## Evaluation
 
-Use macro F1, calibration, and per-class recall. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: Macro F1 (treats all classes equally).
+Secondary: per-class precision and recall, calibration
+error (ECE), latency p95. For imbalanced datasets, report
+per-class metrics first.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- Stratified train-validation-test split.
+- Bootstrap CI on macro F1.
+- Per-class breakdown; identify the worst class.
+- Confusion matrix.
+- 3 success and 3 failure cases described qualitatively.
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Multi-label classification (one document can have multiple
+  labels).
+- Active learning on borderline examples.
+- Domain adaptation (fine-tune on out-of-distribution data).
+- Distillation: train a smaller model to mimic the
+  transformer.
+- Multilingual extension with XLM-R.
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built an NLP text classifier with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved macro F1, calibration, and per-class recall while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- Skipping the linear baseline; cannot quantify the lift.
+- Reporting macro F1 without per-class breakdown.
+- No calibration; confidence-based routing meaningless.
+- No fallback; transformer outage breaks the API.
+- Vocabulary drift unaddressed; the model rots.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+The senior walk: name the linear baseline and the lift from
+the transformer; describe the per-class F1 gap honestly;
+name the latency-cost tradeoff between models; close with the
+fallback plan and the per-class drift monitor.
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+For your dataset, compute the TF-IDF logistic regression
+baseline. Estimate the lift from a fine-tuned transformer.
+Define the latency budget that determines which model serves
+production traffic.
+
+## Resume Bullet Points
+
+- Built a text classifier on AG News with a TF-IDF baseline
+  (macro F1 0.89) plus a fine-tuned DistilBERT (macro F1
+  0.94, 95-percent CI [0.93, 0.95]) and per-class analysis.
+- Per-class F1 exposed a 5-point gap on the technology class;
+  iterated on training data balance to close the gap to 2
+  points.
+- Deployed the ONNX-exported transformer behind a FastAPI
+  service with a TF-IDF fallback for high-load periods,
+  temperature-scaling calibration, and per-class drift
+  monitoring.
 
 ---
 ## Navigation

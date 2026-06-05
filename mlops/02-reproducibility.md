@@ -44,6 +44,22 @@ answer, which in a regulated setting is a serious problem, not just an inconveni
 - Storing a model with no link to the data and code that made it.
 - Assuming "the code is in git" is enough without data and environment.
 
+## Production Concerns
+
+Automated reproducibility tests catch decay early: a CI job retrains
+the production model from its pinned inputs and compares the new
+artifact against the registered one (weight diff or eval-metric
+diff). Drift beyond tolerance fails the build. At scale, exact
+reproducibility is rarely achievable; what matters is statistical
+equivalence on the eval set. Document the tolerance and test
+against it. Dependency drift is silent: a transitive library bump
+can change tokenizer behavior or numerical precision. Lockfiles
+plus container hash pinning plus a periodic re-build catch this.
+Hardware drift (different GPU generations) introduces small numeric
+differences; for high-stakes systems, pin the hardware too. Auditors
+appreciate one-command reproduction: a script that takes a model
+version and re-trains end-to-end is the gold standard.
+
 ## Interview Angle
 
 **Question:** What makes an ML training run reproducible?

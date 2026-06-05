@@ -2,116 +2,171 @@
 
 ## Goal
 
-Build a focused end-to-end classical ML project with a clear problem statement, reproducible data path, measurable
-baseline, improved approach, evaluation report, and interview-ready explanation.
+Ship a complete classical ML project end-to-end on a tabular
+problem of your choice: data ingestion, baseline, advanced model,
+evaluation, deployment, and monitoring. The output is a portfolio
+artifact you can defend in interview with specific numbers,
+specific decisions, and one production tradeoff.
 
 ## Why This Project Matters
 
-This project is useful because tabular prediction work forces you to connect model quality with user impact.
-The strongest portfolio version shows not only a model score, but also data assumptions, error
-analysis, monitoring needs, and the tradeoffs behind the final design.
+Classical ML on tabular data is the most common production
+machine-learning system in the world. Banks, e-commerce, ad-tech,
+and SaaS run on gradient-boosted trees and logistic regression,
+not on the latest neural architectures. Hiring managers ask "have
+you shipped a model end-to-end" because the path from notebook to
+production exposes every gap (leakage, training-serving skew,
+drift, monitoring) that a research project can ignore.
 
 ## Intuition
 
-Think of the project as a small production system. The model is one component. The surrounding work
-defines the user decision, validates the data, compares against a baseline, measures failure modes,
-and explains when the system should ask for human review.
+The model is one component of a system. The system around it is
+ten other components: data pipeline, feature engineering,
+baseline, advanced model, evaluation, deployment, monitoring,
+governance, eval harness, iteration loop. Building each component
+in a small but real form, even on a single dataset, teaches the
+production discipline that no single course covers.
 
 ## Explanation
 
-Use structured rows with labels. Start with this baseline: simple linear or tree baseline. Compare it with gradient boosting with error analysis. Keep the data split,
-features, model version, and evaluation script easy to reproduce. Write down every assumption that
-would change if the system had real users.
+Pick a tabular problem with a clear decision (a number to predict
+or a class to assign). Implement the eleven layers of a
+production system, even if each layer is small: feature pipeline,
+training, registry, serving, monitoring. Use a public dataset
+(Kaggle, UCI) so the data is known and the project is
+reproducible by reviewers. Document each decision with the
+constraint that motivated it. The portfolio artifact is the
+GitHub repo plus a README that walks a reader through the
+project in 10 minutes.
 
 ## Example Use Case
 
-A realistic version of this project could help a team make a decision in tabular prediction. The system should
-show the input, output, confidence or score, and one explanation of why the output is reasonable or
-where it might fail.
+A reviewer (hiring manager) clones the repo and runs the
+walkthrough. They see the data assumptions, the baseline metric,
+the advanced model lift, the per-segment evaluation, the
+deployment notes, and the monitoring rules. They can answer:
+"would this work in production for a different team?"
 
 ## System Shape
 
 ```mermaid
 flowchart LR
-    A[Problem framing] --> B[Dataset]
-    B --> C[Exploration]
-    C --> D[Baseline]
-    C --> E[Improved approach]
-    D --> F[Evaluation report]
+    A[Public dataset] --> B[Data pipeline + schema validation]
+    B --> C[Feature engineering + train-test split]
+    C --> D[Baseline: linear / median]
+    C --> E[Advanced: gradient boosting]
+    D --> F[Evaluation: metric + per-segment]
     E --> F
-    F --> G[Demo or service]
-    G --> H[Monitoring plan]
+    F --> G[Deployment: small API or batch]
+    G --> H[Monitoring: drift + per-segment + alert]
 ```
-
-## Architecture
-
-Keep the first implementation small. Use a data preparation layer, one baseline, one improved
-approach, one evaluation script, and a thin demo or service. Record artifact versions so results can
-be reproduced later.
 
 ## Dataset Idea
 
-Use structured rows with labels. If a public dataset is not available, create a small synthetic dataset that preserves
-the structure of the real problem: inputs, labels or judgments, timestamps where useful, and edge
-cases.
+Pick one of these public datasets so the work is reproducible:
+- UCI Adult (income classification, 32K rows).
+- Kaggle Titanic (survival classification, 1K rows; small but
+  classic).
+- Lending Club (loan default, 100K-1M rows).
+- NYC Taxi (regression on tip percentage, millions of rows).
+
+Avoid synthetic data unless the project is explicitly about
+synthetic-data quality.
 
 ## Step-by-Step Implementation Plan
 
-1. Write the product problem, target user, and success metric.
-2. Create or collect the dataset and document each column or field.
-3. Perform exploratory analysis and identify data quality risks.
-4. Build the baseline: simple linear or tree baseline.
-5. Train or configure the improved approach: gradient boosting with error analysis.
-6. Compare both approaches on the same split.
-7. Analyze errors by segment and severity.
-8. Package a small demo script, notebook, or API.
-9. Add a model card style summary covering intended use, limits, risks, and monitoring.
-10. Prepare a two-minute interview explanation.
+1. **Week 1: setup and EDA.** Clone the dataset, document the
+   schema, identify the target, run EDA, list data-quality
+   risks. Commit a notebook with the findings.
+2. **Week 1: baseline.** Build a logistic regression or median
+   baseline. Measure the primary metric on a held-out test set
+   with a confidence interval. Commit the baseline result with
+   the metric definition.
+3. **Week 2: advanced model.** Train a gradient-boosted model
+   (XGBoost or LightGBM). Tune hyperparameters with cross-
+   validation. Compare to baseline; report the lift with a
+   confidence interval.
+4. **Week 2: evaluation.** Per-segment metrics; calibration plot;
+   error analysis. Identify three slices where the model fails;
+   document each.
+5. **Week 3: deployment.** Wrap the model in a small API
+   (FastAPI) or a batch scoring script. Containerize. Document
+   the inference contract.
+6. **Week 3: monitoring.** Add per-feature drift alerts (PSI),
+   per-segment performance dashboards, and a rollback plan.
+7. **Week 4: documentation.** Write the model card (intended
+   use, performance, limits, fairness, monitoring). Write the
+   README. Record a 5-minute walkthrough video.
 
 ## Evaluation
 
-Use F1, calibration, and segment performance. Add guardrails for latency, cost, fairness or safety where relevant. Include examples
-where the system succeeds, fails, and should defer to a human.
+Primary metric: ROC-AUC or PR-AUC for classification, MAE or
+WAPE for regression, calibrated to the dataset's label balance.
+Target: beat the baseline by a margin larger than the confidence
+interval. Per-segment metrics on at least 3 segments. Calibration
+plot for classification.
 
 ## Evaluation Strategy
 
-- Compare the baseline and improved approach on the same split.
-- Include at least three representative success cases and three failure cases.
-- Report segment-level results, not only one aggregate metric.
-- Add a small regression set that protects the most important behavior.
+- Stratified train-test split (and cross-validation in
+  development); time-aware split if the data has a temporal
+  dimension.
+- Bootstrap confidence intervals on the metric.
+- At least 3 success cases and 3 failure cases described
+  qualitatively.
+- A small regression set protecting the most important
+  behavior.
 
 ## Extensions
 
-- Add monitoring for data drift, latency, cost, and quality regressions.
-- Add a human review path for low-confidence or high-risk outputs.
-- Package the result as a CLI, notebook, small API, or dashboard.
-- Write a short model card or system card covering intended use and limits.
+- Add fairness analysis with disparate-impact metrics.
+- Add a feature-importance breakdown (SHAP values).
+- Add a CI workflow that runs the eval on every PR.
+- Add a feature store separating offline and online feature
+  computation.
+- Open-source the project with a clean README.
 
 ## Common Mistakes
 
-- Starting with the advanced approach before measuring the baseline.
-- Choosing a metric that does not match the user decision.
-- Ignoring data leakage, missing values, drift, or delayed labels.
-- Showing only aggregate results without segment analysis.
-- Leaving out monitoring, rollback, privacy, or ownership.
-
-## Resume Bullet Points
-
-- Built an end-to-end classical ML project with documented data pipeline, baseline, model comparison, and evaluation.
-- Improved F1, calibration, and segment performance while adding error analysis and production risk assessment.
-- Communicated tradeoffs using business impact, failure modes, and deployment constraints.
+- Skipping the baseline; jumping to a complex model.
+- Reporting one aggregate number without per-segment analysis.
+- No deployment artifact; the model lives in a notebook.
+- No monitoring; "the model is fine" with no production
+  signal.
+- No model card; reviewers cannot judge intended use or limits.
 
 ## Interview Angle
 
-Start with the user problem, then describe the dataset, baseline, improved approach, metric, and
-biggest lesson from error analysis. End with what you would do next if the project had real users.
+Strong walkthrough: 30-second pitch (problem, dataset, baseline,
+lift, deployment, monitoring); 5-minute deep dive with the
+contract, the baseline number, the lift with CI, the per-segment
+finding, the deployment shape, and one thing you would do
+differently. Defensible numbers throughout. The senior signal is
+the production tradeoff named explicitly: "I chose gradient
+boosting over a deep network because the dataset is 50K rows
+and the operational cost of debugging trees is lower."
 
 ## Mini Exercise
 
-Write a one-page project proposal before coding. If you cannot define the metric, baseline, and
-deployment path, simplify the project until you can.
+Pick the dataset. Write a one-page project proposal: the metric,
+the baseline, the advanced approach, the deployment shape, the
+monitoring rule, and one likely failure mode. If you cannot
+write the proposal in 30 minutes, the project is not scoped
+clearly enough.
+
+## Resume Bullet Points
+
+- Built and deployed an end-to-end ML pipeline on [DATASET]
+  (data, baseline, gradient-boosted model, evaluation,
+  containerized API, drift monitoring).
+- Improved [METRIC] from [BASELINE] to [ADVANCED] (delta +X
+  percent, 95-percent CI [Y, Z]) with per-segment analysis
+  exposing two underperforming slices and a documented
+  remediation plan.
+- Documented the system with a model card, drift alerts (PSI on
+  3 features), and a feature-flag-based rollback path.
 
 ---
 ## Navigation
 
-[⬅ Previous](../cheatsheets/15-ai-interview-cheatsheet.md) | [🏠 Home](../README.md) | [➡ Next](02-house-price-prediction.md)
+[⬅ Previous](../ethics-safety/07-ai-governance.md) | [🏠 Home](../README.md) | [➡ Next](02-house-price-prediction.md)

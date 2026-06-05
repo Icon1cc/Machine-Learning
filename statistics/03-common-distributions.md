@@ -2,99 +2,76 @@
 
 ## Beginner-Friendly Intuition
 
-Common Distributions is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to reason under uncertainty, measure evidence, and avoid drawing claims the data cannot support. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
-
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+A handful of distributions cover most ML use cases. Bernoulli for yes/no, Binomial for counts of yeses out of n, Categorical for multiclass, Gaussian (normal) for noise and many real-valued quantities, Poisson for rates of rare events, Exponential for waiting times, and Beta/Dirichlet for probabilities about probabilities. Recognizing the right one shortcuts a lot of modeling decisions.
 
 ## Formal Explanation
 
-Common Distributions is a practical concept used to reason clearly when data is noisy and incomplete in an experiment, metric, or uncertainty question. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+- **Bernoulli(p):** 1 with probability `p`, 0 otherwise.
+- **Binomial(n, p):** sum of `n` independent Bernoulli(p) trials.
+- **Categorical:** generalization of Bernoulli to `K` classes; the softmax output of a classifier.
+- **Gaussian(μ, σ²):** continuous, symmetric, defined by mean and variance; central limit theorem makes it ubiquitous.
+- **Poisson(λ):** count of events in a fixed interval at rate `λ`; mean equals variance.
+- **Exponential(λ):** waiting time between Poisson events; memoryless.
+- **Beta(α, β):** distribution over probabilities, conjugate prior to Bernoulli.
+- **Dirichlet:** multivariate Beta, conjugate to categorical.
 
-The rigorous version usually includes:
+Concrete numeric example. Flip a fair coin 10 times. Each flip is Bernoulli(0.5), and the count of heads is Binomial(10, 0.5). The probability of exactly 5 heads is `C(10, 5) * 0.5^5 * 0.5^5 = 252 / 1024 ≈ 0.246`. The mean is `n p = 5`. The variance is `n p (1 - p) = 2.5`, so the standard deviation is about 1.58. So 5 heads is the most likely single outcome, but not by a huge margin: outcomes from 3 to 7 heads cover roughly 89 percent of the probability mass.
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+**The CLT and the n >= 30 rule of thumb.** The central limit theorem says that the sample mean of i.i.d. variables with finite variance is approximately Gaussian for large `n`. The "n >= 30" rule is a folk threshold: for many well-behaved distributions, the sample mean's distribution is close to Gaussian by `n = 30`. Two caveats. First, the rule fails for heavy-tailed distributions (Pareto, Cauchy) where finite variance does not exist or convergence is glacial; you may need `n` in the thousands. Second, the rule is about the sample mean, not individual draws; a single observation from a skewed distribution is still skewed no matter how big `n` is.
+
+**Do not use Gaussian on bounded data.** A Gaussian assigns positive probability to all real numbers, including impossible ones. For data on `[0, 1]` (a probability, a proportion), use Beta. For data on `[0, ∞)` (counts, durations), use Poisson, Gamma, or log-normal. A common diagnostic mistake is fitting a Gaussian to conversion rates and reporting confidence intervals that include negative values; switch to a Beta or a logit-Gaussian.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect an experiment, metric, or uncertainty question to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
-
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Picking the right distribution gives you the right loss (Bernoulli -> binary cross-entropy, Gaussian -> MSE, Poisson -> Poisson regression), the right confidence interval, and the right A/B test. Misusing a Gaussian assumption on count data is one of the most common analysis errors.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. Look at the data type: binary, count, real, time, set of probabilities.
+2. Pick the distribution family that matches the data type.
+3. Estimate parameters (MLE for most; conjugate priors for Bayesian).
+4. Validate the fit (QQ plots for Gaussian; mean vs variance for Poisson).
+5. Use the fitted distribution to compute the quantity you actually need.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
-
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+A product team reports daily signups with a Gaussian-style mean ± stddev. Signups are counts so a Poisson is more appropriate. Switching to Poisson reveals that the variance is much higher than the mean (overdispersion), which suggests the right model is negative binomial. The alert thresholds change because heavy-tailed counts deserve looser bounds.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Modeling counts with a Gaussian (it allows negatives).
+- Treating mean of Poisson as a tight estimate when variance equals mean.
+- Forgetting that the central limit theorem requires enough samples and finite variance.
+- Using Beta with wrong priors and getting overly tight posterior intervals.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** When would you use Poisson regression instead of linear regression?
 
-**Question:** Explain Common Distributions, then describe how you would use it in a real system.
+**Strong answer:** When the target is a non-negative count and the variance grows with the mean. Linear regression assumes constant variance and continuous values; Poisson naturally models counts with variance equal to mean. If you see overdispersion, switch to negative binomial.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Default to Gaussian assumptions for count data.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- Why is the Gaussian so common in ML losses?
+- What is conjugate prior and why is Beta-Bernoulli so popular?
+- How would you detect overdispersion in count data?
+- What is the relationship between exponential and Poisson?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Pick a quantity in your data (clicks per day, signups per hour). Plot a histogram and compare with a fitted Poisson. Decide whether the fit is acceptable.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Common Distributions]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    Type{Data type} --> Bin[Binary -> Bernoulli]
+    Type --> Cnt[Count -> Poisson / NB]
+    Type --> Real[Real -> Gaussian]
+    Type --> Time[Waiting -> Exponential]
+    Type --> Probs[Probability -> Beta / Dirichlet]
 ```
 
 ---

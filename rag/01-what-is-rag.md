@@ -21,6 +21,20 @@ The contract that makes RAG trustworthy: the model should answer only from the r
 cite its sources, and abstain when the evidence does not contain the answer. RAG decouples knowledge
 (in the corpus, updatable any time) from reasoning (in the model weights, fixed until retraining).
 
+A useful **citation schema** for production systems formalizes this. Each generated claim carries a
+span-level reference to the passage that supports it, typically as `[doc_id:chunk_id]` or `[1]` with a
+trailing source list. Production tools (LangSmith, OpenAI structured outputs, Cohere citations) emit
+citations as a structured field alongside the answer rather than relying on the model to format them
+in prose. The validation step (covered in [10-answer-generation.md](10-answer-generation.md)) checks
+that each cited span actually contains the claim.
+
+RAG addresses one form of knowledge cutoff (external facts) but not all. The model's **reasoning
+patterns** (how to compare, how to summarize, how to follow a multi-step argument) come from training,
+not retrieval; if the model was never taught a reasoning skill, RAG cannot teach it. Retrieval also
+fails on **ambiguous queries** ("what is the rate?" without context) where multiple corpus passages
+could be the intended answer; the system must either ask a clarifying question or abstain rather than
+guess.
+
 ## Why It Matters in Real Jobs
 
 RAG is the default way to make an LLM answer over private, large, or fast-changing knowledge without

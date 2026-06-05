@@ -73,8 +73,13 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with retrieval over files plus static suggestions without write access. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with retrieval over the user's repository files (current
+file plus open files plus recent edits) and a small completion
+model that suggests next-token or next-line completions without
+write access. Read-only by default; the user accepts or rejects
+each suggestion. The baseline should be easy to explain, cheap
+to run, and strong enough to expose data quality problems
+before advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +175,13 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- TTFT not optimized; suggestions arriving 800ms after the
+  cursor stops feel broken even when total response time is
+  fine. The 200ms TTFT target dominates cost and architecture.
+- Code-suggestion acceptance rate is gameable; a model that
+  suggests trivial completions inflates acceptance without
+  saving real time. Track edit rate and downstream test-pass
+  rate alongside acceptance.
 
 ---
 ## Navigation

@@ -44,6 +44,22 @@ automatically. The difference between a silent multi-month failure and a same-da
 - Ignoring data drift until users or finance notice the decay.
 - Computing features differently in training and serving.
 
+## Production Concerns
+
+SLOs and error budgets translate ML systems into operations
+language. Pick 2-3 user-facing SLIs (prediction-availability,
+latency p95, accuracy on a labeled stream); set a target (e.g., 99
+percent of predictions return within budget); the gap between target
+and reality is the error budget that allows risk-taking. Retraining
+triggers are a policy decision: scheduled (every N days), drift-
+based (PSI threshold), performance-based (AUC drop). Each trigger
+has a latency expectation: detection-to-deployed-fix should fit in a
+documented window (4 hours for high-stakes, 1 week for low-stakes).
+Rollback SLA matters: P1 rollback in 5 minutes, P2 in 30. Without a
+documented SLA, rollback turns into an ad-hoc emergency every time.
+Cost is an SLI too: cost per prediction has a target; alerts fire on
+overrun.
+
 ## Interview Angle
 
 **Question:** What is MLOps and why is it different from DevOps?

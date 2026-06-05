@@ -41,9 +41,24 @@ trusted only because they had checked it against human scores on a sample first.
 ## Common Mistakes
 
 - Eyeballing a few outputs instead of using a fixed eval set.
-- Trusting LLM-as-judge scores without calibrating against humans.
+- Trusting LLM-as-judge scores without calibrating against humans. **LLM-as-judge has known biases**:
+  **length bias** (favors longer answers), **position bias** (when comparing two responses, often picks
+  the one shown first or last), **self-preference** (a judge model favors outputs from its own family),
+  and **language bias** (English-fluent judges score English answers higher). Mitigations: randomize
+  position when scoring pairs, use a different model family as judge than the one being evaluated,
+  spot-check 5-10 percent against human raters and report agreement, and report calibration over time
+  (judge accuracy can drift when the judge model is updated).
 - Using BLEU or ROUGE alone for open-ended tasks.
 - No regression suite, so prompt or model changes silently break old cases.
+- **Eval set size that does not match the decision.** Rules of thumb: 50-100 examples for early
+  iteration, 200-500 for serious comparison between candidates, 1000+ for launch decisions and for
+  detecting <2 percent quality differences. Bootstrap confidence intervals on the metric tell you
+  whether your set is large enough to distinguish two candidates.
+- **Eval contamination.** Models are pretrained on internet text; popular benchmarks (MMLU, HumanEval)
+  may be in the training data of the model you are evaluating. Symptoms: suspiciously high scores,
+  metric stagnation when you change non-relevant variables. Mitigations: build private eval sets from
+  internal data, paraphrase public benchmarks, and check for verbatim memorization with simple
+  string-search tests.
 
 ## Interview Angle
 

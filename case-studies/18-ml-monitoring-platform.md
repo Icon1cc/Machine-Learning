@@ -73,8 +73,13 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with batch metrics over prediction logs and simple threshold alerts. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with batch metrics over prediction logs sampled at 1
+percent: per-feature PSI daily, prediction-distribution KS,
+operational metrics (latency p50/p95/p99, error rate, throughput),
+business metrics where labels arrive. Threshold alerts (PSI >
+0.25, latency over SLO) page the on-call. The baseline should
+be easy to explain, cheap to run, and strong enough to expose
+data quality problems before advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +175,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Alert thresholds copied without per-feature calibration; alert
+  fatigue follows. Calibrate to historical variance.
+- No concept-drift proxy when labels arrive late (fraud
+  chargebacks, credit defaults); confidence shift, agreement
+  with reference model, or downstream-outcome rate fill the
+  gap.
 
 ---
 ## Navigation

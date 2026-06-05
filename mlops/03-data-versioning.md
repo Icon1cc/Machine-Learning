@@ -44,6 +44,23 @@ would have been guessing across the entire pipeline.
 - Copying full datasets instead of using metadata-based versioning at scale.
 - No way to diff data between two model versions.
 
+## Production Concerns
+
+At petabyte scale, naive versioning becomes a cost crisis. Storage
+for unbounded snapshots compounds quickly; a 10 PB warehouse with
+weekly snapshots can balloon into hundreds of PB within a year. Use
+metadata-only versioning (Delta Lake, lakeFS, Iceberg) and copy-on-
+write so unchanged blocks are shared. Garbage collection runs on a
+schedule: snapshots older than the retention window are reaped, with
+a regulatory hold for snapshots tied to audited models. Lineage
+must include blast radius: when a data source has an issue, the
+system must list every model version trained on it for impact
+assessment. Tag snapshots with provenance (source system, ingest
+time, transformation graph) for forensic queries. Diff tooling at
+scale is its own engineering: row-level diffs on petabytes need
+sampling plus statistical tests (PSI per feature, Wasserstein on
+distributions) rather than line-by-line comparison.
+
 ## Interview Angle
 
 **Question:** Why and how do you version data in ML?

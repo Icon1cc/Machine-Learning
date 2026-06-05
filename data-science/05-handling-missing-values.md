@@ -2,99 +2,154 @@
 
 ## Beginner-Friendly Intuition
 
-Handling Missing Values is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to turn messy records into evidence that supports a decision and can be explained to others. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
+A missing value is not just a hole; it is information. Why a value is missing usually
+matters more than what number you fill it with. If income is missing because the user
+chose not to answer, that "chose not to answer" might be the most predictive signal in
+the dataset. If income is missing because the survey crashed for a few hours, the
+missingness has nothing to do with income at all and you can safely impute. The same
+NaN can mean two completely different things, and treating them the same way is the
+mistake.
 
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+The first decision is therefore not "which imputer do I use" but "why is this value
+missing." That decision drives everything else.
 
 ## Formal Explanation
 
-Handling Missing Values is a practical concept used to convert messy records into evidence that supports decisions in a business analysis workflow. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+Statisticians group missingness into three mechanisms:
 
-The rigorous version usually includes:
+- **MCAR (Missing Completely At Random).** The probability of a value being missing
+  does not depend on any observed or unobserved variable. Example: a random subset of
+  rows lost a column due to a logging bug. Any reasonable imputation works; complete
+  case analysis is unbiased.
+- **MAR (Missing At Random).** The probability of being missing depends on observed
+  variables but not on the missing value itself, given those observed variables.
+  Example: older users skip the income question more often. Once you condition on
+  age, the missingness is random. Model-based imputation (regression, MICE) handles
+  this if the model captures the dependency.
+- **MNAR (Missing Not At Random).** The probability of being missing depends on the
+  missing value itself, even after conditioning on observed variables. Example: high
+  earners skip the income question more often than low earners at the same age and
+  occupation. There is no clean fix. You need either external data or a model that
+  jointly models the missingness and the value.
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+The taxonomy matters because every imputation method assumes a mechanism. Mean
+imputation assumes MCAR. KNN and regression imputation assume MAR. Pattern-mixture
+models try to handle MNAR. Pretending the data is MCAR when it is MNAR is the most
+common silent bias in applied work.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a business analysis workflow to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
+Naive imputation can flip the sign of an effect. A textbook case: a marketing model
+that imputes missing income with the mean predicts that high earners convert at the
+same rate as low earners. The reality is that high earners simply skipped the question
+more often, and they actually convert at twice the rate. The model's recommendation,
+"target everyone equally," is the opposite of the right answer.
 
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+Missingness also breaks pipelines silently. A categorical column that is rarely null
+in training but 30 percent null in production crashes a model that one-hot encoded
+without an "unknown" bucket. The fix is to design for missingness, not to hope it
+disappears.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Profile the missingness.** For each column, compute the null rate. Plot a
+   missingness heatmap (rows by columns, black if missing). Patterns reveal the
+   mechanism. Block patterns suggest joins that lost rows. Random scatter suggests
+   MCAR. Correlated missingness across columns often points to MAR.
+2. **Add a missingness indicator.** For any feature with non-trivial missingness, add
+   a binary `<column>_was_missing` flag before imputing. The flag itself is often
+   predictive.
+3. **Pick an imputation strategy per column.**
+   - Numeric, low-skew, MCAR or weak MAR: mean.
+   - Numeric, skewed: median.
+   - Categorical: mode or a dedicated "Unknown" category.
+   - Numeric, MAR with informative covariates: KNN or regression imputation.
+   - Numeric, MAR with multiple correlated columns: MICE (Multivariate Imputation by
+     Chained Equations).
+   - Numeric, time-series: forward-fill or interpolation, never future-fill.
+   - MNAR: model the missingness explicitly, or accept a sensitivity analysis.
+4. **Fit the imputer on training data only.** Compute the mean, median, or KNN
+   neighborhood from the training rows. Apply the saved imputer to validation and
+   test. Refitting on the full dataset leaks.
+5. **Decide whether to drop.** Drop a row only if the missingness is rare and the row
+   is unbiased to remove. Drop a column only if its null rate is so high that no
+   imputation is honest (a rough threshold is 60 to 80 percent, but it depends).
+6. **Re-validate downstream.** After imputation, recompute the target distribution
+   and the feature-target relationship to confirm the imputation did not distort the
+   signal.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A health-insurance pricing team has a dataset where 22 percent of rows have a missing
+`smoker` flag. The naive fix is to impute "no" because most people are non-smokers.
+The team profiles the missingness: missing rate is 8 percent for users who answered
+the rest of the form completely and 41 percent for users who skipped multiple
+sensitive questions. Among the small set where smoker status was later confirmed, 35
+percent of the "missing" group were actually smokers, far higher than the 14 percent
+base rate. This is MNAR.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+The team's solution: keep the missing category as its own value, add the missingness
+indicator, and run a separate analysis treating "missing" as smoker, as non-smoker,
+and as the base rate. The pricing decision uses the conservative bound. The lesson is
+that the right answer for MNAR data is often to expose the uncertainty, not to hide
+it behind an imputed number.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Imputing with the mean of the full dataset, leaking test statistics into train.
+- Filling categoricals with the mode and dropping the signal that "missing" carried.
+- Using forward-fill on a time series and accidentally future-filling at boundaries.
+- Treating "0," "" "-1," and "999" as valid values when they are sentinels for
+  missing.
+- Running KNN imputation on a million-row dataset without a hash trick and waiting
+  forever.
+- Dropping all rows with any missing value (complete case analysis) when missingness
+  is correlated with a key segment, biasing the result.
+- Forgetting that a model that worked offline often crashes on the first production
+  null because no "unknown" bucket was reserved.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** A column you rely on is 30 percent missing. How do you handle it?
 
-**Question:** Explain Handling Missing Values, then describe how you would use it in a real system.
+**Strong answer:** First, classify the missingness. Profile the null rate against
+other columns to spot MCAR vs MAR vs MNAR patterns. Add a missingness indicator
+regardless. Choose imputation by mechanism: mean or median for MCAR-like, KNN or
+MICE for MAR with informative covariates, and an explicit "Unknown" category plus a
+sensitivity analysis for MNAR. Fit the imputer on train only, save it, apply to
+validation and test. Re-check that the feature-target relationship survives.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
-
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+**Weak answer:** Fill with the mean. The interviewer wants to hear that the mechanism
+matters and that the indicator-flag trick is standard.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- How do you tell MAR from MNAR in practice?
+- When is dropping rows a defensible choice?
+- What happens if the production data has a different missingness pattern than
+  training?
+- Why is the missingness indicator often more predictive than the imputed value?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Take a dataset with at least one column that has 10 percent or more missing. Plot the
+missingness heatmap. Try three imputation strategies (mean, KNN, indicator-only) and
+compare downstream metric. Write three sentences explaining which mechanism is most
+plausible and which method you would ship.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Handling Missing Values]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    R[Raw column] --> P[Profile missingness]
+    P --> M{Mechanism}
+    M -->|MCAR| Mean[Mean or median]
+    M -->|MAR| KNN[KNN or MICE]
+    M -->|MNAR| Sens[Indicator + sensitivity]
+    Mean --> F[Fit on train only]
+    KNN --> F
+    Sens --> F
+    F --> V[Validate downstream]
 ```
 
 ---

@@ -1,100 +1,266 @@
-# Word Embeddings Word2vec Glove Fasttext
+# Word Embeddings: Word2vec, GloVe, FastText
 
 ## Beginner-Friendly Intuition
 
-Word Embeddings Word2vec Glove Fasttext is best learned as a practical lever, not as an isolated definition. In this part of the
-curriculum, the goal is to represent language so software can classify, extract, search, summarize, or generate text. Start by asking what input changes, what output or decision
-improves, and what mistake becomes easier to catch.
+A word embedding is a dense vector representation of a word. Instead of
+treating words as one-hot indicators (sparse, no relationships), we
+assign each word a 100-300 dimensional vector and arrange the geometry
+so semantically related words land near each other. The famous example:
+`king - man + woman ≈ queen`. The vector arithmetic captures something
+real about word meaning, learned from raw text without any explicit
+supervision.
 
-For a beginner, a useful test is simple: explain the concept with one realistic workflow, one
-baseline, one metric, and one failure mode. If those four pieces are clear, the formal details have
-a place to attach.
+Word embeddings were the breakthrough that started modern NLP. Before
+2013, most NLP systems used hand-engineered features. Word2vec (2013)
+showed that you could learn meaningful word representations from raw
+text by training a tiny model to predict context. The same trick, scaled
+up and made contextual, became the foundation of every transformer.
+
+In 2026, word2vec, GloVe, and FastText are largely supplanted by
+contextual embeddings from transformers (BERT, sentence-transformers).
+But they are still useful for low-latency systems, for understanding
+how the field got here, and for problems where pretraining a transformer
+is overkill.
 
 ## Formal Explanation
 
-Word Embeddings Word2vec Glove Fasttext is a practical concept used to represent and model language so software can search, classify, extract, or generate text in a text product workflow. More formally, the concept should be described by its assumptions, its inputs and
-outputs, the objective being optimized or the decision being supported, and the conditions under
-which the result can be trusted.
+### Word2vec (Mikolov et al., 2013)
 
-The rigorous version usually includes:
+Two architectures, both simple shallow networks:
 
-- **Data representation:** what information is available and how it is encoded.
-- **Objective or rule:** what the method tries to optimize, estimate, retrieve, or control.
-- **Generalization claim:** why performance should hold beyond the examples already seen.
-- **Evaluation:** which metric or evidence would convince you the approach is useful.
-- **Failure boundary:** where assumptions break, quality drops, or human review is needed.
+- **Skip-gram.** Given a target word, predict its context words. Loss is
+  cross-entropy over the vocabulary at each context position.
+- **CBOW (Continuous Bag of Words).** Given the surrounding context,
+  predict the target word. Faster than skip-gram but produces slightly
+  worse representations on rare words.
+
+The output of training is the input embedding matrix `E ∈ R^{V × d}`
+where `V` is vocabulary size and `d` is embedding dimension (typically
+100, 200, or 300). Each row is a word's vector.
+
+### Negative sampling
+
+Naive skip-gram has a softmax over the entire vocabulary, which is
+prohibitively expensive. Negative sampling replaces this with a binary
+classification: for each (target, true context) pair, sample `k`
+negative context words from a noise distribution and train a logistic
+regression to distinguish positives from negatives. Typically `k = 5` to
+20.
+
+The loss for one target-context pair `(w, c)` with negatives `n_1, ..., n_k`:
+
+```
+log σ(v_w · u_c) + Σ_i log σ(-v_w · u_{n_i})
+```
+
+This is the canonical formulation. Negative sampling makes training
+linear in `k` instead of `V`, which is what made word2vec practical.
+
+### GloVe (Pennington et al., 2014)
+
+GloVe computes a co-occurrence matrix `X` where `X_{ij}` is the number
+of times word `j` appears in the context of word `i`. It then factorizes
+this matrix:
+
+```
+v_i · u_j + b_i + b_j ≈ log X_{ij}
+```
+
+with a weighted least-squares loss that down-weights very frequent and
+very rare co-occurrence pairs. The result is a static word embedding
+similar in quality to word2vec.
+
+GloVe vs word2vec. Theoretically, both reduce to factorizing similar
+matrices. Empirically, they produce vectors of comparable quality.
+GloVe trains on the full co-occurrence matrix (global statistics);
+word2vec trains on local context windows (local statistics). Pick by
+ecosystem fit; the differences are small.
+
+### FastText (Bojanowski et al., 2016)
+
+FastText extends word2vec by representing each word as the sum of
+character n-gram embeddings (typically n in [3, 6]) plus the word's own
+embedding. The word "running" is represented by embeddings of `<ru`,
+`run`, `unn`, `nni`, `nin`, `ing`, `ng>`, etc.
+
+The benefits:
+
+- **Subword information.** "running" and "runs" share many n-grams, so
+  their embeddings are similar even if "runs" was rare in training.
+- **OOV handling.** Unseen words can be represented as the sum of their
+  n-gram embeddings, with no `<UNK>`.
+- **Better for morphologically rich languages** (Finnish, Turkish,
+  Arabic) where word2vec struggles with the proliferation of word
+  forms.
+
+The cost: larger embedding tables (one entry per n-gram in addition to
+per word), slightly slower inference.
+
+### Static vs contextual embeddings
+
+The defining limitation of word2vec, GloVe, and FastText is that each
+word gets **one** embedding regardless of context. "Bank" the financial
+institution and "bank" the river edge get the same vector, averaged
+between the two senses. This was acceptable in 2013-2017 but fundamentally
+limits what the embeddings can do.
+
+Contextual embeddings from ELMo (2018), BERT, and modern transformers
+produce a different vector for each occurrence of a word, depending on
+its sentence context. They dominate in 2026.
+
+### When static embeddings still win
+
+- **Latency-bound applications.** Looking up a 300-dim vector is faster
+  than running a transformer encoder. For text classification on edge
+  devices or in microservices with 1ms budgets, static embeddings can
+  still win when accuracy gap is small.
+- **Sparse data.** With very small training sets, transformers may not
+  fine-tune cleanly; static embeddings as features for a logistic
+  regression sometimes work better.
+- **Retrieval at scale.** Some retrieval systems average word embeddings
+  for cheap document representation. Modern sentence-transformers are
+  almost always better, but the simple approach is sometimes "good
+  enough".
+- **Interpretability.** Word embeddings are easier to inspect and debias
+  than transformer outputs.
 
 ## Why It Matters in Real Jobs
 
-In real jobs, this concept matters because ML work is judged by useful decisions, not by notebook
-complexity. Teams need practitioners who can connect a text product workflow to data quality, metrics, user impact,
-latency, cost, privacy, and operational ownership.
+Word embeddings remain useful as a low-latency, low-cost feature for
+many production systems. Three roles. First, **document features for a
+linear classifier**: average or weighted-average word embeddings produce
+a 300-dim document vector that a logistic regression can use. Often
+within a few percent of a fine-tuned transformer at 100x less cost.
+Second, **lexicon expansion**: given a seed list of words, find more
+similar ones via cosine similarity in embedding space. Used in keyword
+expansion for search and content moderation. Third, **debiasing
+research**: most fairness-in-NLP work started by analyzing word2vec
+embeddings, and that literature is still relevant for modern systems.
 
-This is also why interviewers ask about fundamentals. A strong engineer can explain when the idea is
-appropriate, when it is overkill, what baseline should come first, and how the system will be checked
-after deployment.
+For new projects, the question is not "word2vec or BERT?" but "do I
+need contextual representations?" If the task is sensitive to context
+(disambiguation, syntactic relations, idioms), use BERT. If it is bag-of-
+words-ish (topic classification on long documents), static embeddings or
+even TF-IDF can be competitive.
 
 ## How It Works Step by Step
 
-1. **Frame the task.** Define the user need, target output, constraints, and cost of mistakes.
-2. **Inspect the data.** Check sources, missingness, leakage, distribution shift, and label quality.
-3. **Build a baseline.** Use the simplest method that creates a measurable reference point.
-4. **Apply the concept.** Implement the method while keeping assumptions and parameters visible.
-5. **Evaluate honestly.** Use a split, metric, and error analysis that match deployment.
-6. **Decide the next action.** Improve, simplify, monitor, roll back, or ask for more data.
+1. **Pick the algorithm.** Word2vec for general English; FastText for
+   morphologically rich languages or when OOV matters; GloVe if you
+   already have a co-occurrence matrix.
+2. **Tokenize the corpus.** Lowercase, split on whitespace and
+   punctuation. Filter very rare words (count < 5) to keep vocabulary
+   manageable.
+3. **Train.** Skip-gram with negative sampling, dimension 200-300, 5
+   epochs over a 1B-word corpus, on a single CPU node in a few hours.
+   Or download pretrained vectors (Google News word2vec, Common Crawl
+   GloVe, FastText for 157 languages).
+4. **Use as features.** Average word vectors per document (with TF-IDF
+   weighting if helpful) for a document representation.
+5. **Or use as initialization.** Plug pretrained embeddings into the
+   embedding layer of a downstream RNN or shallow transformer.
+6. **Watch for distribution shift.** Pretrained embeddings reflect their
+   training corpus; specialized domains (medical, legal, code) need
+   domain-specific embeddings.
 
 ## Real-World Example
 
-Imagine a support platform that needs to reduce response time. The team can apply this concept as
-part of a workflow that reads historical tickets, represents each ticket with useful signals, trains
-or configures a baseline, and evaluates whether the output improves routing quality. The production
-version must also handle new ticket types, missing fields, escalation rules, and monitoring.
+A team builds a topic classifier for support tickets. 100K labeled
+examples, 8 classes. They benchmark three approaches.
 
-The important lesson is that the concept is not isolated. It sits inside a decision loop with data
-collection, measurement, deployment, and feedback.
+- TF-IDF + logistic regression: macro F1 0.72, 0.4 ms per inference.
+- Mean of pretrained FastText vectors + logistic regression: macro F1
+  0.78, 0.6 ms per inference. The 6-point improvement comes from
+  semantic generalization (ticket variants with different vocabulary
+  but the same meaning land closer).
+- Fine-tuned DistilBERT: macro F1 0.86, 18 ms per inference.
+
+For their latency-critical CPU service (5 ms budget per ticket), they
+ship FastText. For the offline batch system (no latency constraint),
+they ship DistilBERT. Two systems, two trade-offs.
 
 ## Common Mistakes
 
-- Starting with a complex model before defining the task and baseline.
-- Evaluating on data that is easier than real deployment traffic.
-- Forgetting that a high average score can hide severe segment failures.
-- Treating the method as correct without checking assumptions.
-- Explaining the concept with formulas only and no product or data context.
+- Treating static embeddings as causal or directly meaningful; they
+  reflect training corpus statistics, including biases.
+- Using English pretrained embeddings on a non-English corpus; load the
+  language-specific vectors instead.
+- Mixing word2vec and GloVe vectors in the same pipeline; they have
+  different scales.
+- Forgetting that static embeddings cannot disambiguate polysemous words
+  ("bank", "spring", "saw").
+- Averaging word vectors for very long documents and getting bland
+  representations; weight by TF-IDF or pool more carefully.
+- Comparing static embeddings to BERT on small data without testing
+  TF-IDF too; sometimes the simplest baseline wins.
+- Skipping pretrained vectors and training your own on small data;
+  training corpus size matters a lot for embedding quality.
 
 ## Interview Angle
 
-Interviewers often use this topic to test whether you can move between intuition, mechanics,
-and production judgment.
+**Question:** Why did contextual embeddings replace static embeddings
+like word2vec for most NLP tasks?
 
-**Question:** Explain Word Embeddings Word2vec Glove Fasttext, then describe how you would use it in a real system.
+**Strong answer:** The fundamental limitation of static embeddings is
+that each word has exactly one vector. Polysemous words ("bank", "bat",
+"saw", "spring") get an average of their senses, which is a worse
+representation of any individual sense than a contextual one would be.
+Syntactic role ("the run" vs "I run") is lost. Idioms and multi-word
+expressions lose their phrase-level meaning.
 
-**Strong answer:** Define the concept simply, name the inputs and outputs, state the baseline,
-choose a metric, mention a failure mode, and describe what you would monitor.
+Contextual embeddings (ELMo, BERT, every modern transformer) compute a
+different vector for each occurrence of a word, conditioned on its
+sentence context. The same word "bank" gets one vector in "river bank"
+and a different vector in "investment bank". This dramatically improves
+performance on tasks that depend on word sense, syntactic context, or
+phrase semantics: question answering, named-entity recognition, semantic
+similarity, machine translation.
 
-**Weak answer:** Recite a definition without explaining data assumptions, evaluation, or why the
-method fits the problem.
+The other reason contextual embeddings won: they come from pretrained
+transformers that capture much more than just word meaning. The
+transformer's deeper layers encode syntactic structure, coreference,
+discourse cues, and world knowledge. Static embeddings encode only
+distributional similarity from co-occurrence statistics.
+
+When static embeddings still earn their place: latency-critical CPU
+services where transformer inference is too slow, very small training
+sets where transformer fine-tuning is fragile, debiasing research that
+benefits from interpretable single-vector representations, and
+exploratory analysis on small text corpora. For new production NLP work
+in 2026, the default is a transformer; static embeddings are the
+fallback for specific constraints.
+
+**Weak answer:** "Transformers are better" without explaining the static-
+vs-contextual distinction.
 
 **Follow-up questions:**
 
-- What baseline would you build first?
-- What would make the evaluation misleading?
-- Which errors are most costly?
-- How would the answer change under latency or privacy constraints?
+- What is the negative sampling trick and why is it needed?
+- How does FastText differ from word2vec?
+- What do the famous analogy results (king - man + woman ≈ queen) tell
+  us, and what are their limitations?
+- When would you use static embeddings in 2026?
 
 ## Mini Exercise
 
-Choose a real product feature such as search, recommendations, fraud review, support routing, or
-document assistance. Write five bullets: input data, output, baseline, primary metric, and one
-failure mode. Then explain how the concept fits into that system.
+Download pretrained word2vec or GloVe vectors. Compute similarities for
+20 word pairs. Inspect the top-10 nearest neighbors for 5 ambiguous
+words ("bank", "spring", "bat"). Note that the nearest neighbors mix
+the senses.
 
 ## Diagram
 
 ```mermaid
 flowchart LR
-    A[Raw data] --> B[Representation]
-    B --> C[Word Embeddings Word2vec Glove Fasttext]
-    C --> D[Measured output]
-    D --> E[Decision or iteration]
+    C[Text corpus] --> T[Tokenize]
+    T --> A{Algorithm}
+    A -- Word2vec --> SG[Skip-gram + negative sampling]
+    A -- GloVe --> CO[Co-occurrence matrix factorization]
+    A -- FastText --> FT[Word + character n-gram embeddings]
+    SG --> E[Static word embeddings]
+    CO --> E
+    FT --> E
+    E --> D[Downstream model: classifier, retrieval, NER]
 ```
 
 ---

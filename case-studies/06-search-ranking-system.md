@@ -73,8 +73,13 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with BM25 with field boosts, filters, and query normalization. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with BM25 with per-field boosts (title 3x, body 1x, tags
+2x), filters (in-stock, language, region), and query
+normalization (lowercase, stemming, stop-word removal). Add
+spell correction and synonym expansion for known cases. The
+baseline should be easy to explain, cheap to run, and strong
+enough to expose data quality problems before advanced
+modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +175,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Reranker on every query at peak load; latency p99 fails the
+  SLO. Query-type routing (skip reranker for navigational
+  queries) keeps the SLO honest.
+- Aggregate NDCG hides per-query-type failures; navigational
+  queries (exact-name search) often degrade when only
+  semantic retrieval is used.
 
 ---
 ## Navigation

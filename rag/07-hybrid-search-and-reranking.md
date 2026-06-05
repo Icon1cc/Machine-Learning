@@ -43,6 +43,21 @@ passages instead of 20 noisy ones, the answer improves, and the token bill drops
 - Reranking the entire corpus (a cross-encoder is too slow for that).
 - Fusing lexical and dense scores without normalizing or tuning weights.
 - Trimming so aggressively that the answer passage gets cut.
+- **Treating RRF as a fix for a broken sub-ranking.** RRF assumes the lexical and dense lists are
+  independent evidence; it is robust to noisy lists but it also masks them. A list whose top-K is
+  mostly wrong contributes only 1/(60+1) per item, but it still contributes; you can be mid-launch
+  and not realize the dense path is silently broken because RRF averages it away. Monitor each
+  sub-ranking's NDCG independently in addition to combined.
+- **Picking a cross-encoder by parameter count alone.** Reranker selection criteria: accuracy on your
+  eval set (always benchmark), latency per pair (5-50 ms typical for production-sized models), domain
+  match (a domain-specific reranker often beats a larger general one), and licensing
+  (open-weight bge-reranker-v2-m3 vs hosted Cohere Rerank). The popular open-source choices in 2026:
+  bge-reranker-v2-m3 (multilingual), bge-reranker-large (English), MiniLM-L-6-v2 (small/fast), Cohere
+  Rerank v3 (hosted).
+- **Forgetting reranker latency budget.** A cross-encoder at 30 ms per pair times 50 candidates is
+  1.5 seconds, which blows most chat budgets. Common operating point: 50 candidates rerank in 60-100
+  ms on a single GPU with batching. CPU-only is rarely viable for production rerankers; quantize to
+  int8 or use a smaller model.
 
 ## Interview Angle
 

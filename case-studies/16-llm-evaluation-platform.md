@@ -73,8 +73,13 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with golden test sets with deterministic string and rubric checks. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with golden test sets (50-200 representative inputs with
+reference answers) and deterministic checks (exact match, regex,
+JSON schema validation). Add rubric-based grading for open-
+ended outputs. Pin the eval set version; refresh quarterly with
+new failures from production traces. The baseline should be
+easy to explain, cheap to run, and strong enough to expose data
+quality problems before advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +175,13 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- LLM judge uncalibrated against humans; biases (length,
+  position, self-preference) produce false signals. Calibrate
+  with 50-100 human-judged examples; recalibrate on judge
+  model upgrade.
+- No regression suite; the team only catches new failures, never
+  protects against old ones returning. A 30-50 case
+  hard-example set is the contract that prevents regression.
 
 ---
 ## Navigation

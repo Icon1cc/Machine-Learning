@@ -73,8 +73,13 @@ produce the same logical fields in a versioned artifact so results can be replay
 
 ## Baseline Approach
 
-Start with deterministic workflow with forms, rules, and manual approvals. The baseline should be easy to explain, cheap to run, and strong enough to
-expose data quality problems before advanced modeling begins.
+Start with a deterministic workflow with forms, rules, and
+manual approvals at each consequential step. LLM calls fill
+specific nodes (classify, extract, summarize); control flow is
+explicit code. Read-only tools by default; state-changing
+tools require approval. The baseline should be easy to explain,
+cheap to run, and strong enough to expose data quality problems
+before advanced modeling begins.
 
 ## Advanced Approach
 
@@ -170,6 +175,12 @@ review, and a feedback loop before increasing automation.
 - Reporting one aggregate score without segment analysis.
 - Forgetting monitoring, rollback, security, and ownership.
 - Treating offline performance as proof of production reliability.
+- Reaching for autonomous agents when a workflow with LLM
+  nodes would do; autonomy is capability plus risk, not free
+  capability.
+- No idempotency keys on state-changing tool calls; retries
+  create duplicate side effects (double payments, duplicate
+  tickets).
 
 ---
 ## Navigation

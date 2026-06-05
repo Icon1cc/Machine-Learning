@@ -46,6 +46,31 @@ model is central but surrounded by controls that make it trustworthy.
 - No grounding for factual answers, inviting hallucination.
 - No monitoring, fallback, or human gate for high-stakes outputs.
 
+A practical **risk matrix** for failure modes ranks each by likelihood times severity. Typical risks
+in LLM systems, roughly ordered by combined impact: hallucination on factual answers (very likely,
+high severity in regulated domains; mitigate with RAG + abstain + verification); prompt injection
+from untrusted retrieved content (likely, medium-high severity; mitigate with input/output guardrails
+and content tagging); cost runaway (likely, medium severity; mitigate with token caps, model routing,
+caching); latency degradation (likely, low-medium severity; mitigate with streaming, smaller routes,
+caching); jailbreak of safety filters (medium likelihood, varies by domain; mitigate with stacked
+classifiers and red-team eval); upstream model regression after vendor update (medium likelihood,
+high severity for systems pinned to a moving model; mitigate with regression suite gating and version
+pinning). Build the matrix once at design time and revisit quarterly; the priorities shift as the
+system matures.
+
+**Human-in-the-loop thresholds.** When to route to human review depends on the cost ratio: how much
+does a wrong answer cost vs the analyst time per review? For a $50 misrouted ticket and a $5 analyst
+review, the break-even confidence threshold is around 90 percent (route to human anything below). For
+a $5000 wrong medical recommendation, the threshold can be 99 percent or higher. Use a calibrated
+confidence score (the model's logprobs, an LLM-as-judge confidence, or an external classifier) to
+trigger handoff; tune the threshold on cost, not on intuition.
+
+**Accuracy-vs-latency tradeoff framework.** Plot quality (faithfulness, accuracy, NDCG) on one axis
+and latency on the other. Each system change (smaller model, fewer retrieved chunks, skip reranker)
+moves you along a frontier. Pick the point that meets the latency SLA at the highest quality. A shift
+of 2 percent quality for 30 percent latency reduction is usually worth it for chat; the reverse is
+true for high-stakes batch.
+
 ## Interview Angle
 
 **Question:** Design an LLM-powered feature end to end.
